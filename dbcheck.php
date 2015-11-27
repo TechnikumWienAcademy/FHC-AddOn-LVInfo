@@ -207,6 +207,7 @@ if(!$result = @$db->db_query("SELECT 1 FROM addon.tbl_lvinfostatus_zuordnung"))
 	$qry = "
 			CREATE TABLE addon.tbl_lvinfostatus_zuordnung
 			(
+				lvinfostatus_zuordnung_id integer NOT NULL,
 				lvinfo_id integer NOT NULL,
 				lvinfostatus_kurzbz varchar(32) NOT NULL,
 				gesetztamum timestamp NOT NULL,
@@ -217,7 +218,16 @@ if(!$result = @$db->db_query("SELECT 1 FROM addon.tbl_lvinfostatus_zuordnung"))
 				updatevon varchar(32)
 			);
 
-			ALTER TABLE addon.tbl_lvinfostatus_zuordnung ADD CONSTRAINT pk_lvinfostatus_zuordnung PRIMARY KEY (lvinfo_id);
+			ALTER TABLE addon.tbl_lvinfostatus_zuordnung ADD CONSTRAINT pk_lvinfostatus_zuordnung PRIMARY KEY (lvinfostatus_zuordnung_id);
+
+			CREATE SEQUENCE addon.tbl_lvinfostatus_zuordnung_lvinfostatus_zuordnung_id_seq
+			INCREMENT BY 1
+			NO MAXVALUE
+			NO MINVALUE
+			CACHE 1;
+			
+			ALTER TABLE addon.tbl_lvinfostatus_zuordnung ALTER COLUMN lvinfostatus_zuordnung_id SET DEFAULT nextval('addon.tbl_lvinfostatus_zuordnung_lvinfostatus_zuordnung_id_seq');
+
 			ALTER TABLE addon.tbl_lvinfostatus_zuordnung ADD CONSTRAINT fk_lvinfo FOREIGN KEY (lvinfo_id) REFERENCES addon.tbl_lvinfo(lvinfo_id) ON DELETE RESTRICT ON UPDATE CASCADE;
 			ALTER TABLE addon.tbl_lvinfostatus_zuordnung ADD CONSTRAINT fk_lvinfostatus_kurzbz FOREIGN KEY (lvinfostatus_kurzbz) REFERENCES addon.tbl_lvinfostatus(lvinfostatus_kurzbz) ON DELETE RESTRICT ON UPDATE CASCADE;
 			ALTER TABLE addon.tbl_lvinfostatus_zuordnung ADD CONSTRAINT fk_uid FOREIGN KEY (uid) REFERENCES public.tbl_benutzer(uid) ON DELETE RESTRICT ON UPDATE CASCADE;

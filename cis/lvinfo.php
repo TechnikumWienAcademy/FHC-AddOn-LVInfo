@@ -15,7 +15,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
  *
- * Authors: Manfred Kindl <manfred.kindl@technikum-wien.at>
+ * Authors: Manfred Kindl <manfred.kindl@technikum-wien.at>,
+ * 			Andreas Österreicher <andreas.oesterreicher@technikum-wien.at>
  */
 /*
  * Oberfläche für LektorInnen zur Verwaltung der LVInfos
@@ -32,22 +33,10 @@ require_once('../../../include/benutzerberechtigung.class.php');
 require_once('../../../include/organisationsform.class.php');
 require_once('../../../include/studiensemester.class.php');
 require_once('../../../include/sprache.class.php');
-require_once('../include/lvinfo.class.php');
-
-/*
+require_once('../../../include/mail.class.php');
 require_once('../../../include/benutzer.class.php');
-require_once('../../../include/phrasen.class.php');
-require_once('../../../include/studiensemester.class.php');
-require_once('../../../include/datum.class.php');
-require_once('../../../include/mitarbeiter.class.php');
-require_once('../../../include/lehreinheitmitarbeiter.class.php');
-require_once('../../../include/lehrveranstaltung.class.php');
-require_once('../../../include/lehreinheit.class.php');
-require_once('../../../include/benutzerberechtigung.class.php');
-require_once('../../../include/bisverwendung.class.php');
-require_once('../../../include/vertrag.class.php');
-require_once('../../../include/stunde.class.php');
-*/
+require_once('../include/lvinfo.class.php');
+require_once('../vendor/autoload.php');
 
 if (!$db = new basis_db())
   die('Fehler beim Oeffnen der Datenbankverbindung');
@@ -64,9 +53,11 @@ $sprache = getSprache();
 $p = new phrasen($sprache);
 
 $datum_obj = new datum();
-//$studiengang = new studiengang();
-//$studiengang->getAll(null, false);
+
+// Sprachen die angezeigt werden TODO Auslagern in ein Config
+$lvinfo_sprachen = array('German','English');
 ?>
+<!DOCTYPE html>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -74,22 +65,15 @@ $datum_obj = new datum();
 	<link rel="stylesheet" href="../../../skin/style.css.php" type="text/css">
     <link rel="stylesheet" href="../../../skin/tablesort.css" type="text/css">
     <script src="../../../include/js/jquery1.9.min.js" type="text/javascript"></script>
-    <script>
-    $(document).ready(function()
-    {
-    	$("#termine").tablesorter(
-    	{
-    		sortList: [[1,0]],
-    		widgets: ["zebra"]
-    	});
-    });
-    </script>
+	<script type="text/javascript">
+	function addInput(sprache, key)
+	{
+		$('#input_arr_'+sprache+'_'+key).append('<input name="'+sprache+'['+key+'][]" size="50" type="text" value=""><br>');
+	}
+	</script>
 </head>
-<body style="padding: 10px">
+<body>
 <?php
-//$stsem = new studiensemester();
-//$studiensemester_kurzbz = $stsem->getNearest();
-
 $lv_id = isset($_REQUEST['lv_id'])?$_REQUEST['lv_id']:'';
 //Wenn eine LV_ID übergeben wurde aber keine anderen Parameter, werden diese mit den Daten der LV befüllt
 $lv_obj = new lehrveranstaltung();
@@ -104,25 +88,25 @@ $orgform_kurzbz = isset($_GET['orgform_kurzbz']) && $_GET['orgform_kurzbz']!=''?
 $studiensemester_kurzbz = isset($_REQUEST['studiensemester_kurzbz'])?$_REQUEST['studiensemester_kurzbz']:$stsem;
 	
 $errormsg = '';
-$data_german = '';
-$data_english = '';
 
-if(isset($_POST['save']) || isset($_POST['save_new']))
+if(isset($_POST['save']) || isset($_POST['saveAndSend']))
 {
 	//if(!$rechte->isBerechtigt('lehre/lehrveranstaltung',null,'sui')) @todo Rechte setzen;
 	//	die('Sie haben keine Berechtigung fuer diese Aktion');
-			
+		
+	$error = false;
 	//Formulardaten fuer Json-Encode vorbereiten
-	$data_german = $_POST['german'];
-	$data_english = $_POST['english'];
-	//echo json_encode($data_german).'<br>';
-	//echo json_encode($data_english);
+
+	$lvinfo_set = new lvinfo();
+	$lvinfo_set->load_lvinfo_set($studiensemester_kurzbz);
+
+	foreach($lvinfo_sprachen as $lvinfo_sprache)
+	{
+		$data = getSet($lvinfo_sprache, $lvinfo_set->result);
+		
+		$lvinfo = new lvinfo();
 	
-	if($data_german!='')
-	{
-		$lvinfo = new lvinfo();
-		
-		if(isset($_POST["save_new"]))
+		if(!isset($_POST[$lvinfo_sprache."LVinfo_id"]) || $_POST[$lvinfo_sprache."LVinfo_id"]=='')
 		{
 			$lvinfo->new=true;
 			$lvinfo->insertamum=date('Y-m-d H:i:s');
@@ -130,9 +114,9 @@ if(isset($_POST['save']) || isset($_POST['save_new']))
 			$lvinfo->updateamum=date('Y-m-d H:i:s');
 			$lvinfo->updatevon = $user;
 		}
-		elseif(isset($_POST['lvinfo_id']) && $_POST['lvinfo_id']!='')
+		else
 		{
-			if($lvinfo->load($_POST['lvinfo_id']))
+			if($lvinfo->load($_POST[$lvinfo_sprache.'LVinfo_id']))
 			{
 				$lvinfo->new=false;
 				$lvinfo->updateamum=date('Y-m-d H:i:s');
@@ -143,71 +127,71 @@ if(isset($_POST['save']) || isset($_POST['save_new']))
 				die('Fehler beim Laden der LV-Info');
 			}
 		}
-		else
-		{
-			$lvinfo->new=true;
-			$lvinfo->insertamum=date('Y-m-d H:i:s');
-			$lvinfo->insertvon = $user;
-			$lvinfo->updateamum=date('Y-m-d H:i:s');
-			$lvinfo->updatevon = $user;
-		}
-		
-		$lvinfo->sprache = 'German';
+	
+		$lvinfo->sprache = $lvinfo_sprache;
 		$lvinfo->lehrveranstaltung_id = $lv_id;
 		$lvinfo->studiensemester_kurzbz = $studiensemester_kurzbz;
-		$lvinfo->data = $data_german;
-		
+		$lvinfo->data = $data;
+	
 		if(!$lvinfo->save())
+		{
+			$error = true;
 			$errorstr = "Fehler beim Speichern der Daten: $lvinfo->errormsg";
+		}
 		else
 		{
-		
+
 		}
+		$id_array[$lvinfo->sprache]=$lvinfo->lvinfo_id;
 	}
-	if($data_english!='')
+
+	if(!$error && isset($_POST['saveAndSend']))
 	{
+		// Abschicken Status setzen und Freigabe Mails verschicken
 		$lvinfo = new lvinfo();
-		
-		if(isset($_POST["save_new"]))
+
+		$diff ='';
+		foreach($lvinfo_sprachen as $lvinfo_sprache)
 		{
-			$lvinfo->new=true;
-			$lvinfo->insertamum=date('Y-m-d H:i:s');
-			$lvinfo->insertvon = $user;
-			$lvinfo->updateamum=date('Y-m-d H:i:s');
-			$lvinfo->updatevon = $user;
+			$lvinfo->setStatus($id_array[$lvinfo_sprache],'abgeschickt',$user);
+
+			$sprache_obj = new sprache();
+			$sprache_obj->load($lvinfo_sprache);
+			$diff.= '<br><u><b>'.$sprache_obj->bezeichnung_arr[DEFAULT_LANGUAGE].'</b></u>';
+			$diff .= getDiffPrevious($id_array[$lvinfo_sprache]);
 		}
-		elseif(isset($_POST['lvinfo_id']) && $_POST['lvinfo_id']!='')
+
+		$benutzer = new benutzer();
+		$benutzer->load($user);
+
+		$stg_obj = new studiengang();
+		$stg_obj->getAll('typ, kurzbz',false);
+
+		$text='Die Lehrveranstaltungsinformationen für eine Lehrveranstaltung wurde eingetragen/aktualisiert.<br>
+		Name der LV: '.$lv_obj->bezeichnung.'<br>
+		Studiengang: '.$stg_obj->kuerzel_arr[$lv_obj->studiengang_kz].'<br>
+		Semester: '.$lv_obj->semester.'<br>
+		Organisationsform: '.$lv_obj->orgform_kurzbz.'<br>
+		Änderung durch: '.$benutzer->vorname.' '.$benutzer->nachname.'<br><br>
+		Bitte bestätigen Sie die Freigabe über folgenden Link: TODOLINK<br>
+		Folgende Änderungen wurde gegenüber der Vorversion durchgeführt:<br>
+		'.$diff;
+
+		// TODO Empfaenger setzen
+		$to = 'oesi@technikum-wien.at';
+		$from = 'noreply@'.DOMAIN;
+		$subject = 'Freigabe LV-Information';
+		
+		$mail = new mail($to, $from, $subject, $text);
+		$mail->setHTMLContent($text);
+		$mail->setReplyTo($user.'@'.DOMAIN);
+		if($mail->send())
 		{
-			if($lvinfo->load($_POST['lvinfo_id']))
-			{
-				$lvinfo->new=false;
-				$lvinfo->updateamum=date('Y-m-d H:i:s');
-				$lvinfo->updatevon = $user;
-			}
-			else
-			{
-				die('Fehler beim Laden der LV-Info');
-			}
+			echo '<span class="ok">'.$p->t('lvinfo/mailVersandtAn',array($to)).'</span>';
 		}
 		else
 		{
-			$lvinfo->new=true;
-			$lvinfo->insertamum=date('Y-m-d H:i:s');
-			$lvinfo->insertvon = $user;
-			$lvinfo->updateamum=date('Y-m-d H:i:s');
-			$lvinfo->updatevon = $user;
-		}
-		
-		$lvinfo->sprache = 'English';
-		$lvinfo->lehrveranstaltung_id = $lv_id;
-		$lvinfo->studiensemester_kurzbz = $studiensemester_kurzbz;
-		$lvinfo->data = $data_english;
-		
-		if(!$lvinfo->save())
-			$errorstr = "Fehler beim Speichern der Daten: $lvinfo->errormsg";
-		else
-		{
-		
+			echo '<span class="error">'.$p->t('lvinfo/mailVersandtFailed',array($to)).'</span>';
 		}
 	}
 }
@@ -217,15 +201,15 @@ $lv->load($lv_id);
 $stg = new studiengang();
 $stg->load($lv->studiengang_kz);
 
-echo '<H1>'.$p->t('lvinfo/lehrveranstaltungsinformationen').' - '.$stg->kurzbzlang.'-'.$lv->semester.($lv->orgform_kurzbz!=''?'-'.$lv->orgform_kurzbz:'').' - '.$lv->bezeichnung.'</H1>';
-echo '<form name="auswahlFrm" action="'.$_SERVER['PHP_SELF'].'" method="GET">';
+echo '<H1>'.$p->t('lvinfo/lehrveranstaltungsinformationen').' - '.$db->convert_html_chars($stg->kurzbzlang.'-'.$lv->semester.($lv->orgform_kurzbz!=''?'-'.$lv->orgform_kurzbz:'').' - '.$lv->bezeichnung).'</H1>';
+echo '<form name="auswahlFrm" action="lvinfo.php" method="GET">';
 
 $stg_obj = new studiengang();
-
+echo '<table>';
 //Anzeigen des DropDown Menues mit Stg
 if($stg_obj->getAll('typ, kurzbzlang',true))
 {
-	echo $p->t('global/studiengang').' <SELECT name="stg_kz" onChange="window.document.auswahlFrm.submit();">';
+	echo '<tr><td>'.$p->t('global/studiengang').'</td><td><SELECT name="stg_kz" onChange="window.document.auswahlFrm.submit();">';
 
 	//DropDown Menue mit den Stg füllen
 	foreach($stg_obj->result as $row)
@@ -234,9 +218,9 @@ if($stg_obj->getAll('typ, kurzbzlang',true))
 		if($row->studiengang_kz==$stg_kz)
 			$selected = 'selected';
 		
-		echo '<option value="'.$row->studiengang_kz.'" '.$selected.'>'.$row->kurzbzlang.' ('.$row->bezeichnung.')</option>';
+		echo '<option value="'.$row->studiengang_kz.'" '.$selected.'>'.$db->convert_html_chars($row->kurzbzlang.' ('.$row->bezeichnung.')').'</option>';
 	}
-	echo '</SELECT><br/>';
+	echo '</SELECT></td></tr>';
 
 }
 else
@@ -247,7 +231,7 @@ else
 //Anzeigen des DropDown Menues mit Semester
 if($stg_obj->load($stg_kz))
 {
-	echo $p->t('global/semester').' <SELECT name="semester" onChange="window.document.auswahlFrm.submit();">';
+	echo '<tr><td>'.$p->t('global/semester').'</td><td> <SELECT name="semester" onChange="window.document.auswahlFrm.submit();">';
 	echo '<option value="">*</option>';
 	for($i=1;$i<=$stg_obj->max_semester;$i++)
 	{
@@ -258,7 +242,7 @@ if($stg_obj->load($stg_kz))
 		echo '<option value="'.$i.'" '.$selected.'>'.$i.'</option>';
 
 	}
-	echo '</SELECT><br/>';
+	echo '</SELECT></td></tr>';
 }
 else
 	$errormsg .= "$stg_obj->errormsg";
@@ -267,7 +251,7 @@ else
 $orgform_obj = new organisationsform();
 if($orgform_obj->getOrgformLV())
 {
-	echo $p->t('lvinfo/organisationsform').' <SELECT name="orgform_kurzbz" onChange="window.document.auswahlFrm.submit();">';
+	echo '<tr><td>'.$p->t('lvinfo/organisationsform').'</td><td><SELECT name="orgform_kurzbz" onChange="window.document.auswahlFrm.submit();">';
 	echo '<option value="">*</option>';
 	foreach($orgform_obj->result as $row)
 	{
@@ -275,9 +259,9 @@ if($orgform_obj->getOrgformLV())
 		if($row->orgform_kurzbz==$orgform_kurzbz)
 			$selected = 'selected';
 		
-		echo '<option value="'.$row->orgform_kurzbz.'" '.$selected.'>'.$row->orgform_kurzbz.' ('.$row->bezeichnung.')</option>';
+		echo '<option value="'.$row->orgform_kurzbz.'" '.$selected.'>'.$db->convert_html_chars($row->orgform_kurzbz.' ('.$row->bezeichnung.')').'</option>';
 	}
-	echo '</SELECT><br/>';
+	echo '</SELECT></td></tr>';
 }
 else
 	$errormsg .= "$orgform_obj->errormsg";
@@ -287,7 +271,7 @@ $studiensemester = new studiensemester();
 $akt_studiensemester = $studiensemester->getakt();
 if($studiensemester->getPlusMinus(1,10))
 {
-	echo $p->t('global/studiensemester').' <SELECT name="studiensemester_kurzbz" onChange="window.document.auswahlFrm.submit();">';
+	echo '<tr><td>'.$p->t('global/studiensemester').'</td><td><SELECT name="studiensemester_kurzbz" onChange="window.document.auswahlFrm.submit();">';
 
 	foreach($studiensemester->studiensemester as $row)
 	{
@@ -299,12 +283,10 @@ if($studiensemester->getPlusMinus(1,10))
 
 		echo '<option value="'.$row->studiensemester_kurzbz.'" '.$selected.'>'.$row->studiensemester_kurzbz.'</option>';
 	}
-	echo '</SELECT><br/>';
+	echo '</SELECT></td></tr>';
 }
 else
-	$errormsg .= "$studiensemester->errormsg";
-	
-
+	$errormsg .= $studiensemester->errormsg;
 
 //Anzeigen des DropDown Menues mit Lehrveranstaltungen
 
@@ -320,7 +302,7 @@ if($semester!='' && $orgform_kurzbz!='')
 $lv_obj = new lehrveranstaltung();
 if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_kurzbz))
 {
-	echo $p->t('global/lehrveranstaltung').' <SELECT name="lv_id" onChange="window.document.auswahlFrm.submit();">';
+	echo '<tr><td>'.$p->t('global/lehrveranstaltung').'</td><td><SELECT name="lv_id" onChange="window.document.auswahlFrm.submit();">';
 
 	if(count($lv_obj->lehrveranstaltungen)>0)
 	{
@@ -340,7 +322,7 @@ if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_
 				$outputstring = $lv->orgform_kurzbz.' - ';
 			if($lv->semester!='' && $lv->orgform_kurzbz!='')
 				$outputstring = $lv->orgform_kurzbz.' - '.$lv->semester.' - ';
-			echo '<option value="'.$lv_id.'" selected>'.$outputstring.$lv->bezeichnung.'</option>';
+			echo '<option value="'.$lv_id.'" selected>'.$db->convert_html_chars($outputstring.$lv->bezeichnung).'</option>';
 		}
 		$outputstring = '';
 		foreach($lv_obj->lehrveranstaltungen as $row)
@@ -355,28 +337,25 @@ if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_
 			if($semester!='' && $orgform_kurzbz!='')
 				$outputstring = '';
 			
-			echo '<option value="'.$row->lehrveranstaltung_id.'" '.$selected.'>'.$outputstring.$row->bezeichnung.'</option>';
+			echo '<option value="'.$row->lehrveranstaltung_id.'" '.$selected.'>'.$db->convert_html_chars($outputstring.$row->bezeichnung).'</option>';
 		}
 	}
 	else 
 		echo '<option value="">Keine Lehrveranstaltungen für diese Auswahl vorhanden</option>';
-	echo '</SELECT><br/>';
+	echo '</SELECT></td></tr>';
 }
 else
 {
-	$errormsg .= "$lv_obj->errormsg";
+	$errormsg .= $lv_obj->errormsg;
 }
-
+echo '</table>';
 echo '<input type="submit" value="'.$p->t('global/anzeigen').'">';
 echo '</form>';
 
-echo '<form name="editFrm" action="'.$_SERVER['PHP_SELF'].'?lv_id='.$lv_id.'" method="POST">';
-echo '<table width="100%">
-		<tr>';
-echo '<td colspan="2">Deutsch</td>';
-echo '<td>&nbsp;</td>';
-echo '<td colspan="2">Englisch</td>';
-echo '</tr>';
+
+// LV Information anzeigen
+
+echo '<form name="editFrm" action="lvinfo.php?lv_id='.$lv_id.'" method="POST">';
 
 //Wenn LV-Info für das gewählte Studiensemester vorhanden, diese laden, sonst leeres Set anzeigen
 $lvinfo = new lvinfo();
@@ -385,18 +364,24 @@ $lvinfo->loadLvinfo($lv_id, $studiensemester_kurzbz);
 //Arrays nach unterschieden vergleichen
 $lvinfo_array = array();
 $lvinfo_compare = array();
+$laststatus_arr = array();
 foreach($lvinfo->result AS $row)
 {
 	$lang=$row->sprache;
 	foreach($row->data AS $key=>$value)
 	{
-		@$lvinfo_array[$lang][$key] .= $value; //@todo: undefined index notice, wenn @ weg
-		$lvinfo_compare[] .= $key;
+		if(!isset($lvinfo_array[$lang][$key]))
+			$lvinfo_array[$lang][$key]='';
+		$lvinfo_array[$lang][$key] = $value;
+		$lvinfo_compare[] = $key;
 	}
+	$lvinfo_lock = new lvinfo();
+	$lvinfo_lock->getLastStatus($row->lvinfo_id);
+	$laststatus_arr[$lang]=$lvinfo_lock;
+	echo '<input type="hidden" name="'.$lang.'LVinfo_id" value="'.$row->lvinfo_id.'" />';
 }
-$lvinfo_compare=array_unique($lvinfo_compare);
-//var_dump($lvinfo_compare);
 
+$lvinfo_compare=array_unique($lvinfo_compare);
 
 $lvinfo_set = new lvinfo();
 $lvinfo_set->load_lvinfo_set($studiensemester_kurzbz);
@@ -405,106 +390,296 @@ $set_compare = array();
 
 foreach($lvinfo_set->result as $row)
 {
-	$set_compare[] .= $row->lvinfo_set_kurzbz;
+	$set_compare[] = $row->lvinfo_set_kurzbz;
 }
-
-//var_dump($set_compare);
 
 $imSetAberNichtInInfo = array();
 $imSetAberNichtInInfo = array_diff($set_compare, $lvinfo_compare);
 $inInfoAberNichtImSet = array();
 $inInfoAberNichtImSet = array_diff($lvinfo_compare, $set_compare);
 
-//echo 'imSetAberNichtInInfo';
-//var_dump($imSetAberNichtInInfo);
-//echo 'inInfoAberNichtImSet';
-//var_dump($inInfoAberNichtImSet);
 
-// Datena ausgeben
-var_dump($lvinfo->result);
-
+// Daten umformatieren um die einzelen Sprachen
+// leichter ansprechen zu koennen
+$data_set=array();
+$data_obj=array();
 foreach($lvinfo->result AS $row)
 {
-	
-	//$stdsem=$row->studiensemester_kurzbz;
-	//Elementnamen werden dem Formular als Arrays uebergeben
-	//echo '<tr>';
-	//echo '<td>'.$row->sprache.'</td><td>';
-	foreach($row->data AS $key=>$value)
-	{
-		$setInfo = new lvinfo();
-		$setInfo->load_lvinfo_set_kurzbz($key,$row->studiensemester_kurzbz);
-		
-		echo '<tr><td>'.$setInfo->lvinfo_set_bezeichnung[$row->sprache].'</td><td>';
-		
-		if($setInfo->lvinfo_set_typ=='text')
-			echo '<textarea name="german['.$key.']" rows="5" cols="50">'.$value.'</textarea>';
-		elseif($setInfo->lvinfo_set_typ=='boolean')
-			echo '<input name="german['.$key.']" type="checkbox">'; //@todo checked?
-		elseif($setInfo->lvinfo_set_typ=='array')
-			echo '<input name="german['.$key.']" type="text" value="'.$value.'">';
-		
-		echo '</td></tr>';
-	}
-	/*
-	if($row->lvinfo_set_typ=='text')
-		echo '<textarea name="german['.$row->lvinfo_set_kurzbz.']" rows="5" cols="50"></textarea>';
-	elseif($row->lvinfo_set_typ=='boolean')
-		echo '<input name="german['.$row->lvinfo_set_kurzbz.']" type="checkbox">';
-	elseif($row->lvinfo_set_typ=='array')
-		echo '<input name="german['.$row->lvinfo_set_kurzbz.']" type="text">';
-	echo '</td>';
-	
-	echo '<td>&nbsp;</td>';
-	echo '<td>'.$row->sprache.'</td><td>';
-	if($row->lvinfo_set_typ=='text')
-		echo '<textarea name="english['.$row->lvinfo_set_kurzbz.']" rows="5" cols="50"></textarea>';
-	elseif($row->lvinfo_set_typ=='boolean')
-		echo '<input name="english['.$row->lvinfo_set_kurzbz.']" type="checkbox">';
-	elseif($row->lvinfo_set_typ=='array')
-		echo '<input name="english['.$row->lvinfo_set_kurzbz.']" type="text">';*/
-	echo '</td>';
-	echo '</tr>';
+	$data_set[$row->sprache]=$row->data;
+	$data_obj[$row->sprache]=$row;
 }
 
-exit;
+echo '<table width="100%">
+		<tr>';
 
-foreach($lvinfo_set->result as $row)
+foreach($lvinfo_sprachen as $lvinfo_sprache)
 {
-	//Elementnamen werden dem Formular als Arrays uebergeben
+	$sprachen_obj = new sprache();
+	$sprachen_obj->load($lvinfo_sprache);
+	echo '
+		<th colspan="2">
+			'.$sprachen_obj->bezeichnung_arr[$sprache].'
+		</th>';
+}
+echo '</tr>';
+
+// Ausgabe der Felder
+foreach($lvinfo_set->result as $row_set)
+{	
 	echo '<tr>';
-	echo '<td>'.$row->lvinfo_set_bezeichnung['German'].'</td><td>';
-	if($row->lvinfo_set_typ=='text')
-		echo '<textarea name="german['.$row->lvinfo_set_kurzbz.']" rows="5" cols="50"></textarea>';
-	elseif($row->lvinfo_set_typ=='boolean')
-		echo '<input name="german['.$row->lvinfo_set_kurzbz.']" type="checkbox">';
-	elseif($row->lvinfo_set_typ=='array')
-		echo '<input name="german['.$row->lvinfo_set_kurzbz.']" type="text">';
-	echo '</td>';
-	
-	echo '<td>&nbsp;</td>';
-	echo '<td>'.$row->lvinfo_set_bezeichnung['English'].'</td><td>';
-	if($row->lvinfo_set_typ=='text')
-		echo '<textarea name="english['.$row->lvinfo_set_kurzbz.']" rows="5" cols="50"></textarea>';
-	elseif($row->lvinfo_set_typ=='boolean')
-		echo '<input name="english['.$row->lvinfo_set_kurzbz.']" type="checkbox">';
-	elseif($row->lvinfo_set_typ=='array')
-		echo '<input name="english['.$row->lvinfo_set_kurzbz.']" type="text">';
-	echo '</td>';
+
+	foreach($lvinfo_sprachen as $lvinfo_sprache)
+	{		
+		if(isset($laststatus_arr[$lvinfo_sprache]) && in_array($laststatus_arr[$lvinfo_sprache]->lvinfostatus_kurzbz,array('freigegeben','abgeschickt')))
+			$locked=true;
+		else
+			$locked=false;
+
+		echo '<td valign="top">'.$row_set->lvinfo_set_bezeichnung[$lvinfo_sprache].'</td>
+		<td valign="top">';
+		printData($lvinfo_sprache, $row_set->lvinfo_set_typ, $row_set->lvinfo_set_kurzbz, (isset($data_set[$lvinfo_sprache])?$data_set[$lvinfo_sprache]:array()), $locked);
+		echo '</td>';
+	}
+
 	echo '</tr>';
 }
 
+// Alle Eintraege Anzeigen die nicht im aktuellen Set sind und 
+// beim Speichern geloescht werden
+if(count($inInfoAberNichtImSet)>0)
+{
+	echo '<tr><td colspan="6" align="center">Die folgenden Einträge stammen von älteren Versionen und werden beim Speichern entfernt</td></tr>';
+	foreach($inInfoAberNichtImSet as $row_nichtimset)
+	{
+		$set = new lvinfo();
+		$set->load_lvinfo_set_kurzbz_nearest($row_nichtimset, $row->studiensemester_kurzbz);
+
+		echo '<tr>';
+
+		foreach($lvinfo_sprachen as $lvinfo_sprache)
+		{
+			echo '
+			<td>'.$db->convert_html_chars($set->lvinfo_set_bezeichnung[$lvinfo_sprache]).'</td>
+			<td>'.$db->convert_html_chars($data_set[$lvinfo_sprache][$row_nichtimset]).'</td>';
+		}
+		echo '</tr>';
+	}
+}
+echo '<tr>
+	<td colspan="2">
+		<input type="submit" name="saveAndSend" '.($locked?'disabled="disabled"':'').' value="'.$p->t('lvinfo/speichernUndFreigeben').'">
+	</td>
+	<td></td>
+	<td colspan="2">
+		<input type="submit" name="save" '.($locked?'disabled="disabled"':'').' value="'.$p->t('global/speichern').'">
+	</td>';
 echo '</table>';
-if (isset($_GET['lvinfo_id']))
-	echo '<input type="submit" name="save" value="'.$p->t('global/speichern').'">';
-else
-	echo '<input type="submit" name="save_new" value="'.$p->t('global/speichern').'">';
-//echo '<input type="hidden" name="lv_id" value="'.$lv_id.'">';
-echo '<input type="hidden" name="studiensemester_kurzbz" value="'.$studiensemester_kurzbz.'">';
+
+echo '<input type="hidden" name="studiensemester_kurzbz" value="'.$db->convert_html_chars($studiensemester_kurzbz).'">';
 echo '</form>';
 
-echo $errormsg;
+/**
+ * Zeichnet die einzelnen Inputfelder
+ *
+ * @param $sprache
+ * @param $typ Typ des Feldes (text,array,boolean)
+ * @param $key kurzbz des Feldes
+ * @param $data Array mit den Daten in dieser Sprache
+ */
+function printData($sprache, $typ, $key, $data, $locked)
+{
+	$db = new basis_db();
+	switch($typ)
+	{
+		case 'text':
+			if(isset($data[$key]))
+				$value=$data[$key];
+			else
+				$value='';
+			echo '<textarea name="'.$sprache.'['.$key.']" rows="5" cols="50" '.($locked?'readonly="readonly"':'').'>'.$db->convert_html_chars($value).'</textarea>';
+			break;
 
-?>
+		case 'boolean':
+			if(isset($data[$key]))
+				$value=$data[$key];
+			else
+				$value='';
+
+			echo '<input name="'.$sprache.'['.$key.']" type="checkbox" '.($value?'checked="checked"':'').' '.($locked?'readonly="readonly"':'').'>';
+			break;
+
+		case 'array':
+			if(isset($data[$key]))
+				$value=$data[$key];
+			else
+				$value=array();
+
+			echo '<div id="input_arr_'.$sprache.'_'.$key.'">';
+			foreach($value as $val)
+				echo '<input name="'.$sprache.'['.$key.'][]" size="50" type="text" value="'.$db->convert_html_chars($val).'" '.($locked?'readonly="readonly"':'').'><br>';
+			echo '</div>';
+			if(!$locked)
+				echo '<a href="#add" onclick="addInput(\''.$sprache.'\',\''.$key.'\');return false;"><img src="../../../skin/images/plus.png" height="20px" alt="Eintrag hinzufügen"/></a>';
+			break;
+
+		default:
+			echo '<input name="'.$sprache.'['.$key.']" type="text" '.($locked?'readonly="readonly"':'').' value="'.$db->convert_html_chars($data[$key]).'">';
+	}
+}
+
+/**
+ * Liefert die Daten zum Speichern 
+ * @param $sprache Sprache die geliefert werden soll
+ * @param $set LVInfo SET das gespeichert werden soll
+ * @return array mit den Daten
+ */
+function getSet($sprache, $set)
+{
+	$data = array();
+
+	foreach($set as $row)
+	{
+		switch($row->lvinfo_set_typ)
+		{
+			case 'boolean':
+				if(isset($_POST[$sprache][$row->lvinfo_set_kurzbz]))
+					$data[$row->lvinfo_set_kurzbz]=true;
+				else
+					$data[$row->lvinfo_set_kurzbz]=false;
+				break;
+
+			case 'array':
+				// Leere Array Elemente werden entfernt
+				if(isset($_POST[$sprache][$row->lvinfo_set_kurzbz]) && is_array($_POST[$sprache][$row->lvinfo_set_kurzbz]))
+				{
+					foreach($_POST[$sprache][$row->lvinfo_set_kurzbz] as $item)
+					{
+						if($item!='')
+							$data[$row->lvinfo_set_kurzbz][] = $item;
+					}
+				}
+				break;
+
+			case 'text':
+			default:
+				$data[$row->lvinfo_set_kurzbz] = $_POST[$sprache][$row->lvinfo_set_kurzbz];
+				break;
+
+		}
+	}
+	return $data;
+}
+
+/**
+ * Liefert die Unterschiede zwischen der uebergebenen LVInfo und der zuvor freigegebenen 
+ * @param $lvinfo_id
+ * @return string mit den Diff
+ */
+function getDiffPrevious($lvinfo_id)
+{
+	$ret='';
+
+	$lvinfo = new lvinfo();
+	$lvinfo->load($lvinfo_id);
+
+	$lvinfo_prev = new lvinfo();
+	$lvinfo_prev->loadPreviousLvinfo($lvinfo_id);
+
+	if(!is_array($lvinfo->data))
+		$keys1 = array();
+	else
+		$keys1 = array_keys($lvinfo->data);	
+
+	if(!is_array($lvinfo_prev->data))
+		$keys2 = array();
+	else
+		$keys2 = array_keys($lvinfo_prev->data);
+
+	$keys = array_unique(array_merge($keys1, $keys2));
+
+	$ret.='<table>';
+	foreach($keys as $row)
+	{
+		$set = new lvinfo();
+		$set->load_lvinfo_set_kurzbz_nearest($row, $lvinfo->studiensemester_kurzbz);
+		$ret .='<tr>';
+		$ret.= '<td valign="top"><b>'.$set->lvinfo_set_bezeichnung[DEFAULT_LANGUAGE].'</b></td><td valign="top"> ';
+		
+		switch($set->lvinfo_set_typ)
+		{
+			case 'array':
+				if(isset($lvinfo->data[$row]))
+				{
+					foreach($lvinfo->data[$row] as $item_key=>$item)
+					{
+						if(isset($lvinfo->data[$row][$item_key]))
+							$a = $lvinfo->data[$row][$item_key];
+						else
+							$a='';
+
+						if(isset($lvinfo_prev->data[$row][$item_key]))
+							$b = $lvinfo_prev->data[$row][$item_key];
+						else
+							$b='';
+
+						if(!is_array($a) && !is_array($b))
+						{
+							// Feinere Version pro Buchstabe
+							//$diff = new cogpowered\FineDiff\Diff;
+
+							$granularity = new cogpowered\FineDiff\Granularity\Word;
+							$diff = new cogpowered\FineDiff\Diff($granularity);
+							$ret.=$diff->render($b, $a).'<br>';
+						}
+					}
+				}
+				break;
+
+			case 'boolean':
+				if(isset($lvinfo->data[$row]))
+					$a = ($lvinfo->data[$row]?'Ja':'Nein');
+				else
+					$a='';
+
+				if(isset($lvinfo_prev->data[$row]))
+					$b = ($lvinfo_prev->data[$row]?'Ja':'Nein');
+				else
+					$b='';
+
+				// Feinere Version pro Buchstabe
+				//$diff = new cogpowered\FineDiff\Diff;
+
+				$granularity = new cogpowered\FineDiff\Granularity\Word;
+				$diff = new cogpowered\FineDiff\Diff($granularity);
+				$ret.=$diff->render($b, $a);
+
+				break;
+
+			case 'text':
+			default:
+				if(isset($lvinfo->data[$row]))
+					$a = $lvinfo->data[$row];
+				else
+					$a='';
+
+				if(isset($lvinfo_prev->data[$row]))
+					$b = $lvinfo_prev->data[$row];
+				else
+					$b='';
+
+				// Feinere Version pro Buchstabe
+				//$diff = new cogpowered\FineDiff\Diff;
+
+				$granularity = new cogpowered\FineDiff\Granularity\Word;
+				$diff = new cogpowered\FineDiff\Diff($granularity);
+				$ret.=$diff->render($b, $a);
+				break;
+		}
+		$ret.='</td></tr>';
+	}
+	$ret.='</table>';
+	return $ret;
+}
+?><br><br><br><br><br>
 </body>
 </html>
