@@ -104,20 +104,20 @@ if(!$result = @$db->db_query("SELECT 1 FROM addon.tbl_lvinfo_set"))
 			NO MAXVALUE
 			NO MINVALUE
 			CACHE 1;
-			
+
 			ALTER TABLE addon.tbl_lvinfo_set ALTER COLUMN lvinfo_set_id SET DEFAULT nextval('addon.tbl_lvinfo_set_lvinfo_set_id_seq');
-			
+
 			COMMENT ON TABLE addon.tbl_lvinfo_set IS 'Hier wird definiert, welche Felder es bei den LVInfos geben soll und ab welchem Studiensemester sie fuer welche OE gueltig sind';
 			COMMENT ON COLUMN addon.tbl_lvinfo_set.sort IS 'Reihenfolge im Formular';
 			COMMENT ON COLUMN addon.tbl_lvinfo_set.lvinfo_set_typ IS 'text, array, boolean, ...';
 			COMMENT ON COLUMN addon.tbl_lvinfo_set.gueltigab_studiensemester_kurzbz IS 'Ab welchem Studiensemester gilt dieses Feld';
-		
+
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfo_set TO vilesci;
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfo_set TO web;
-			
+
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfo_set_lvinfo_set_id_seq TO vilesci;
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfo_set_lvinfo_set_id_seq TO web;
-		
+
 			";
 
 	if(!$db->db_query($qry))
@@ -144,23 +144,23 @@ if(!$result = @$db->db_query("SELECT 1 FROM addon.tbl_lvinfo"))
 				updateamum timestamp,
 				updatevon varchar(32)
 			);
-		
+
 			ALTER TABLE addon.tbl_lvinfo ADD CONSTRAINT pk_addon_lvinfo PRIMARY KEY (lvinfo_id);
 			ALTER TABLE addon.tbl_lvinfo ADD CONSTRAINT fk_lvinfo_sprache FOREIGN KEY (sprache) REFERENCES public.tbl_sprache(sprache) ON DELETE RESTRICT ON UPDATE CASCADE;
 			ALTER TABLE addon.tbl_lvinfo ADD CONSTRAINT fk_lvinfo_lehrveranstaltung FOREIGN KEY (lehrveranstaltung_id) REFERENCES lehre.tbl_lehrveranstaltung (lehrveranstaltung_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 			ALTER TABLE addon.tbl_lvinfo ADD CONSTRAINT fk_lvinfo_studiensemester FOREIGN KEY (studiensemester_kurzbz) REFERENCES public.tbl_studiensemester(studiensemester_kurzbz) ON DELETE RESTRICT ON UPDATE CASCADE;
-			
+
 			CREATE SEQUENCE addon.tbl_lvinfo_lvinfo_id_seq
 			INCREMENT BY 1
 			NO MAXVALUE
 			NO MINVALUE
 			CACHE 1;
-			
+
 			ALTER TABLE addon.tbl_lvinfo ALTER COLUMN lvinfo_id SET DEFAULT nextval('addon.tbl_lvinfo_lvinfo_id_seq');
-			
+
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfo TO vilesci;
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfo TO web;
-			
+
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfo_lvinfo_id_seq TO vilesci;
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfo_lvinfo_id_seq TO web;
 			";
@@ -180,7 +180,7 @@ if(!$result = @$db->db_query("SELECT 1 FROM addon.tbl_lvinfostatus"))
 			CREATE TABLE addon.tbl_lvinfostatus
 			(
 				lvinfostatus_kurzbz varchar(32) NOT NULL,
-				tbl_lvinfostatus_bezeichnung varchar(64)[],
+				bezeichnung varchar(64)[],
 				insertamum timestamp,
 				insertvon varchar(32),
 				updateamum timestamp,
@@ -188,7 +188,7 @@ if(!$result = @$db->db_query("SELECT 1 FROM addon.tbl_lvinfostatus"))
 			);
 
 			ALTER TABLE addon.tbl_lvinfostatus ADD CONSTRAINT pk_lvinfostatus PRIMARY KEY (lvinfostatus_kurzbz);
-		
+
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfostatus TO vilesci;
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfostatus TO web;
 			";
@@ -225,7 +225,7 @@ if(!$result = @$db->db_query("SELECT 1 FROM addon.tbl_lvinfostatus_zuordnung"))
 			NO MAXVALUE
 			NO MINVALUE
 			CACHE 1;
-			
+
 			ALTER TABLE addon.tbl_lvinfostatus_zuordnung ALTER COLUMN lvinfostatus_zuordnung_id SET DEFAULT nextval('addon.tbl_lvinfostatus_zuordnung_lvinfostatus_zuordnung_id_seq');
 
 			ALTER TABLE addon.tbl_lvinfostatus_zuordnung ADD CONSTRAINT fk_lvinfo FOREIGN KEY (lvinfo_id) REFERENCES addon.tbl_lvinfo(lvinfo_id) ON DELETE RESTRICT ON UPDATE CASCADE;

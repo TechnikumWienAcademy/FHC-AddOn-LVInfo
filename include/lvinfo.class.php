@@ -47,7 +47,7 @@ class lvinfo extends basis_db
 	public $updatevon=0;						// varchar(32)
 	public $insertamum;							// timestamp
 	public $insertvon=0;						// varchar(32)
-	
+
 	/**
 	 * Konstruktor
 	 * @param $conn Connection zur DB
@@ -56,7 +56,7 @@ class lvinfo extends basis_db
 	public function __construct($lvinfo_id=null)
 	{
 		parent::__construct();
-		
+
 		if($lvinfo_id != null && is_numeric($lvinfo_id))
 			$this->load($lvinfo_id);
 	}
@@ -73,7 +73,7 @@ class lvinfo extends basis_db
 			$this->errormsg = 'lvinfo_id ist ungültig';
 			return false;
 		}
-		$qry = "SELECT * FROM addon.tbl_lvinfo 
+		$qry = "SELECT * FROM addon.tbl_lvinfo
 				WHERE lvinfo_id = ".$this->db_add_param($lvinfo_id, FHC_INTEGER).";";
 
 		if(!$this->db_query($qry))
@@ -81,7 +81,7 @@ class lvinfo extends basis_db
 			$this->errormsg = 'Fehler beim Laden des Datensatzes';
 			return false;
 		}
-		
+
 		if($row = $this->db_fetch_object())
 		{
 			$this->lvinfo_id				= $row->lvinfo_id;
@@ -101,39 +101,44 @@ class lvinfo extends basis_db
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Laedt eine LVInfo nach lehrveranstaltung und studiensemester
 	 * @param integer $lehrveranstaltung_id
 	 * @param string $studiensemester_kurzbz
 	 * @return true wenn ok, false im Fehlerfall
 	 */
-	public function loadLvinfo($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache=null)
+	public function loadLvinfo($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache=null, $freigegeben=null)
 	{
 		if($lehrveranstaltung_id == '' || !is_numeric($lehrveranstaltung_id))
 		{
 			$this->errormsg = 'Lehrveranstaltung_id ist ungültig';
 			return false;
 		}
-		$qry = "SELECT 
-					* 
-				FROM 
+		$qry = "SELECT
+					*
+				FROM
 					addon.tbl_lvinfo
-				WHERE 
-					lehrveranstaltung_id=".$this->db_add_param($lehrveranstaltung_id, FHC_INTEGER)." 
+				WHERE
+					lehrveranstaltung_id=".$this->db_add_param($lehrveranstaltung_id, FHC_INTEGER)."
 					AND studiensemester_kurzbz=".$this->db_add_param($studiensemester_kurzbz, FHC_STRING);
 
 		if(!is_null($sprache))
 		{
 			$qry.=" AND sprache=".$this->db_add_param($sprache);
 		}
-		
+
+		if(!is_null($freigegeben) && $freigegeben===true)
+		{
+			$qry.=" AND EXISTS(SELECT * FROM addon.tbl_lvinfostatus_zuordnung WHERE lvinfo_id=tbl_lvinfo.lvinfo_id AND lvinfostatus_kurzbz='freigegeben')";
+		}
+
 		if($result = $this->db_query($qry))
 		{
 			while($row = $this->db_fetch_object($result))
 			{
 				$lv = new lvinfo();
-				
+
 				$lv->lvinfo_id = $row->lvinfo_id;
 				$lv->sprache = $row->sprache;
 				$lv->lehrveranstaltung_id = $row->lehrveranstaltung_id;
@@ -143,7 +148,7 @@ class lvinfo extends basis_db
 				$lv->insertvon = $row->insertvon;
 				$lv->updateamum = $row->updateamum;
 				$lv->updatevon = $row->updatevon;
-				
+
 				$this->result[] = $lv;
 			}
 			return true;
@@ -154,7 +159,7 @@ class lvinfo extends basis_db
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Laedt die vorhergehende Version einer LVInfo
 	 * @param integer $lvinfo_id
@@ -167,18 +172,18 @@ class lvinfo extends basis_db
 			$this->errormsg = 'lvinfo_id ist ungültig';
 			return false;
 		}
-		$qry = "SELECT 
-					tbl_lvinfo.* 
-				FROM 
+		$qry = "SELECT
+					tbl_lvinfo.*
+				FROM
 					addon.tbl_lvinfo
 					JOIN public.tbl_studiensemester USING(studiensemester_kurzbz)
-				WHERE 
-					(lehrveranstaltung_id,sprache)=(SELECT lehrveranstaltung_id,sprache FROM addon.tbl_lvinfo 
-						WHERE lvinfo_id=".$this->db_add_param($lvinfo_id, FHC_INTEGER).") 
-					AND EXISTS(SELECT 1 FROM addon.tbl_lvinfostatus_zuordnung 
+				WHERE
+					(lehrveranstaltung_id,sprache)=(SELECT lehrveranstaltung_id,sprache FROM addon.tbl_lvinfo
+						WHERE lvinfo_id=".$this->db_add_param($lvinfo_id, FHC_INTEGER).")
+					AND EXISTS(SELECT 1 FROM addon.tbl_lvinfostatus_zuordnung
 						WHERE lvinfo_id=tbl_lvinfo.lvinfo_id AND lvinfostatus_kurzbz='freigegeben')
-					AND tbl_studiensemester.start<(SELECT start FROM public.tbl_studiensemester 
-						WHERE studiensemester_kurzbz=(SELECT studiensemester_kurzbz FROM addon.tbl_lvinfo 
+					AND tbl_studiensemester.start<(SELECT start FROM public.tbl_studiensemester
+						WHERE studiensemester_kurzbz=(SELECT studiensemester_kurzbz FROM addon.tbl_lvinfo
 							WHERE lvinfo_id=".$this->db_add_param($lvinfo_id, FHC_INTEGER).'))
 				ORDER BY tbl_studiensemester.start DESC LIMIT 1;';
 
@@ -217,30 +222,30 @@ class lvinfo extends basis_db
 	 */
 	public function getGueltigesStudiensemester($studiensemester_kurbz)
 	{
-		$qry = "	SELECT 
-						gueltigab_studiensemester_kurzbz 
-					FROM 
-						addon.tbl_lvinfo_set 
-					JOIN 
-						public.tbl_studiensemester ON(gueltigab_studiensemester_kurzbz=studiensemester_kurzbz) 
-					WHERE 
+		$qry = "	SELECT
+						gueltigab_studiensemester_kurzbz
+					FROM
+						addon.tbl_lvinfo_set
+					JOIN
+						public.tbl_studiensemester ON(gueltigab_studiensemester_kurzbz=studiensemester_kurzbz)
+					WHERE
 						gueltigab_studiensemester_kurzbz IN (
-							SELECT 
-								studiensemester_kurzbz 
-							FROM 
-								public.tbl_studiensemester 
-							WHERE 
+							SELECT
+								studiensemester_kurzbz
+							FROM
+								public.tbl_studiensemester
+							WHERE
 								ende<=(
-									SELECT 
-										ende 
-									FROM 
-										public.tbl_studiensemester 
-									WHERE 
+									SELECT
+										ende
+									FROM
+										public.tbl_studiensemester
+									WHERE
 										studiensemester_kurzbz=".$this->db_add_param($studiensemester_kurbz, FHC_STRING)."
 									)
 							ORDER BY start DESC)
 					ORDER BY ende DESC LIMIT 1";
-		
+
 		if($result = $this->db_query($qry))
 		{
 			if($row = $this->db_fetch_object($result))
@@ -260,7 +265,7 @@ class lvinfo extends basis_db
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Laedt das LVInfo Set mit Gueltigkeit fuer das Uebergebene Studiensemester
 	 * @param string $studiensemester_kurbz
@@ -270,22 +275,22 @@ class lvinfo extends basis_db
 	{
 		$sprache = new sprache();
 		$lvinfo_set_bezeichnung = $sprache->getSprachQuery('lvinfo_set_bezeichnung');
-		
+
 		$studiensemester = $this->getGueltigesStudiensemester($studiensemester_kurbz);
-		$qry = "SELECT 
+		$qry = "SELECT
 					*, $lvinfo_set_bezeichnung
-				FROM 
-					addon.tbl_lvinfo_set 
-				WHERE 
+				FROM
+					addon.tbl_lvinfo_set
+				WHERE
 					gueltigab_studiensemester_kurzbz=".$this->db_add_param($studiensemester, FHC_STRING)."
 				ORDER BY sort";
-		
+
 		if($result = $this->db_query($qry))
 		{
 			while($row = $this->db_fetch_object($result))
 			{
 				$set = new lvinfo();
-				
+
 				$set->lvinfo_set_id = $row->lvinfo_set_id;
 				$set->lvinfo_set_kurzbz = $row->lvinfo_set_kurzbz;
 				$set->lvinfo_set_bezeichnung = $sprache->parseSprachResult('lvinfo_set_bezeichnung', $row);
@@ -297,7 +302,7 @@ class lvinfo extends basis_db
 				$set->insertvon = $row->insertvon;
 				$set->updateamum = $row->updateamum;
 				$set->updatevon = $row->updatevon;
-		
+
 				$this->result[] = $set;
 			}
 			return true;
@@ -308,7 +313,7 @@ class lvinfo extends basis_db
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Laedt das LVInfo Set einer bestimmten kurzbezeichnung und eines bestimmten Studiensemesters
 	 * @param string $lvinfo_set_kurzbz
@@ -319,18 +324,18 @@ class lvinfo extends basis_db
 	{
 		$sprache = new sprache();
 		$lvinfo_set_bezeichnung = $sprache->getSprachQuery('lvinfo_set_bezeichnung');
-	
+
 		$studiensemester = $this->getGueltigesStudiensemester($studiensemester_kurbz);
-		$qry = "SELECT 
+		$qry = "SELECT
 					*, $lvinfo_set_bezeichnung
-				FROM 
-					addon.tbl_lvinfo_set 
-				WHERE 
+				FROM
+					addon.tbl_lvinfo_set
+				WHERE
 					lvinfo_set_kurzbz=".$this->db_add_param($lvinfo_set_kurzbz, FHC_STRING)."
 				AND
 					gueltigab_studiensemester_kurzbz=".$this->db_add_param($studiensemester, FHC_STRING)."
 				ORDER BY sort";
-	
+
 		if($result = $this->db_query($qry))
 		{
 			if($row = $this->db_fetch_object($result))
@@ -371,14 +376,14 @@ class lvinfo extends basis_db
 	{
 		$sprache = new sprache();
 		$lvinfo_set_bezeichnung = $sprache->getSprachQuery('lvinfo_set_bezeichnung');
-	
+
 		$studiensemester = $this->getGueltigesStudiensemester($studiensemester_kurzbz);
-		$qry = "SELECT 
+		$qry = "SELECT
 					tbl_lvinfo_set.*, $lvinfo_set_bezeichnung
-				FROM 
-					addon.tbl_lvinfo_set 
+				FROM
+					addon.tbl_lvinfo_set
 					JOIN public.tbl_studiensemester ON(tbl_studiensemester.studiensemester_kurzbz=gueltigab_studiensemester_kurzbz)
-				WHERE 
+				WHERE
 					lvinfo_set_kurzbz=".$this->db_add_param($lvinfo_set_kurzbz, FHC_STRING)."
 				ORDER BY tbl_studiensemester.start LIMIT 1";
 
@@ -411,7 +416,7 @@ class lvinfo extends basis_db
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Speichert den aktuellen Datensatz
 	 * @return true wenn ok, false im Fehlerfall
@@ -426,7 +431,7 @@ class lvinfo extends basis_db
 		{
 			//Neuen Datensatz anlegen
 			$qry = 'INSERT INTO addon.tbl_lvinfo (sprache, lehrveranstaltung_id, studiensemester_kurzbz, data, insertamum, insertvon, updateamum, updatevon) VALUES ('.
-				
+
 				$this->db_add_param($this->sprache).', '.
 				$this->db_add_param($this->lehrveranstaltung_id, FHC_INTEGER).','.
 				$this->db_add_param($this->studiensemester_kurzbz).', '.
@@ -506,7 +511,14 @@ class lvinfo extends basis_db
 	 */
 	public function getLastStatus($lvinfo_id)
 	{
-		$qry = "SELECT * FROM addon.tbl_lvinfostatus_zuordnung WHERE lvinfo_id=".$this->db_add_param($lvinfo_id)." 
+		$sprache = new sprache();
+		$qry = "SELECT
+					tbl_lvinfostatus_zuordnung.*,".
+					$sprache->getSprachQuery('bezeichnung')."
+				FROM
+					addon.tbl_lvinfostatus_zuordnung
+					JOIN addon.tbl_lvinfostatus USING(lvinfostatus_kurzbz)
+				WHERE lvinfo_id=".$this->db_add_param($lvinfo_id)."
 				ORDER BY gesetztamum DESC limit 1";
 
 		if($result = $this->db_query($qry))
@@ -520,6 +532,7 @@ class lvinfo extends basis_db
 				$this->lvinfo_id = $row->lvinfo_id;
 				$this->insertamum = $row->insertamum;
 				$this->updateamum = $row->updateamum;
+				$this->bezeichnung = $sprache->parseSprachResult('bezeichnung',$row);
 
 				return true;
 			}
@@ -533,7 +546,7 @@ class lvinfo extends basis_db
 		{
 			$this->errormsg = 'Fehler beim Laden der Daten';
 			return false;
-		}		
+		}
 	}
 }
 ?>
