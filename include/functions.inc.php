@@ -145,7 +145,9 @@ function getDiffPreviousData($lvinfo_id)
 
 function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz)
 {
+	global $sprache;
 	$db = new basis_db();
+	$sprache_obj = new sprache();
 
 	$lv = new lehrveranstaltung();
 	$lv->load($lehrveranstaltung_id);
@@ -153,21 +155,24 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz)
 	$studiengang = new studiengang();
 	$studiengang->load($lv->studiengang_kz);
 
-	$oe = new organisationseinheit();
-	$oe->load($lv->oe_kurzbz);
-
-	$benutzerfunktion = new benutzerfunktion();
-	$benutzerfunktion->getBenutzerFunktionen('Leitung',$lv->oe_kurzbz);
-
 	$leitung='';
-	foreach($benutzerfunktion->result as $row);
+	$oe = new organisationseinheit();
+
+	if($lv->oe_kurzbz!='')
 	{
-	    $benutzer = new benutzer();
-	    $benutzer->load($row->uid);
+		$oe->load($lv->oe_kurzbz);
 
-	    $leitung .= trim($benutzer->titelpre.' '.$benutzer->vorname.' '.$benutzer->nachname.' '.$benutzer->titelpost);
+		$benutzerfunktion = new benutzerfunktion();
+		$benutzerfunktion->getBenutzerFunktionen('Leitung',$lv->oe_kurzbz);
+
+		foreach($benutzerfunktion->result as $row)
+		{
+			$benutzer = new benutzer();
+			$benutzer->load($row->uid);
+
+			$leitung .= trim($benutzer->titelpre.' '.$benutzer->vorname.' '.$benutzer->nachname.' '.$benutzer->titelpost);
+		}
 	}
-
 	$koordinator = '';
 
 	$koord = new lehrveranstaltung();
@@ -187,11 +192,16 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz)
 	$lektoren='';
 	if(isset($lem->result) && is_array($lem->result))
 	{
+		$lkt_arr=array();
 	    foreach($lem->result as $row)
 	    {
-	        $lektoren.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).',';
+			if(!in_array($row->uid,$lkt_arr))
+			{
+		        $lektoren.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).', ';
+				$lkt_arr[]=$row->uid;
+			}
 	    }
-		$lektoren = mb_substr($lektoren, 0, -1);
+		$lektoren = mb_substr($lektoren, 0, -2);
 	}
 
 	echo '
@@ -222,7 +232,7 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz)
 	    </tr>
 	    <tr>
 	        <td>Sprache:</td>
-	        <td>'.$db->convert_html_chars($lv->sprache).'</td>
+	        <td>'.$db->convert_html_chars($sprache_obj->getBezeichnung($lv->sprache,$sprache)).'</td>
 	    </tr>
 	    <tr>
 	        <td>ECTS:</td>

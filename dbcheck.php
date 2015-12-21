@@ -189,6 +189,10 @@ if(!$result = @$db->db_query("SELECT 1 FROM addon.tbl_lvinfostatus"))
 
 			ALTER TABLE addon.tbl_lvinfostatus ADD CONSTRAINT pk_lvinfostatus PRIMARY KEY (lvinfostatus_kurzbz);
 
+			INSERT INTO addon.tbl_lvinfostatus VALUES ('bearbeitung', '{\"in Bearbeitung\",\"In progress\"}', NULL, NULL, NULL, NULL);
+			INSERT INTO addon.tbl_lvinfostatus VALUES ('abgeschickt', '{\"Zur Freigabe abgeschickt\",\"Waiting for Release\"}', NULL, NULL, NULL, NULL);
+			INSERT INTO addon.tbl_lvinfostatus VALUES ('freigegeben', '{Freigegeben,Released}', NULL, NULL, NULL, NULL);
+
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfostatus TO vilesci;
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfostatus TO web;
 			";
@@ -251,7 +255,7 @@ $error=false;
 $tabellen=array(
 	"addon.tbl_lvinfo_set"  => array("lvinfo_set_id","lvinfo_set_kurzbz","lvinfo_set_bezeichnung","sort","lvinfo_set_typ","gueltigab_studiensemester_kurzbz","oe_kurzbz","insertamum","insertvon","updateamum","updatevon"),
 	"addon.tbl_lvinfo"  => array("lvinfo_id","sprache","lehrveranstaltung_id","studiensemester_kurzbz","data","insertamum","insertvon","updateamum","updatevon"),
-	"addon.tbl_lvinfostatus"  => array("lvinfostatus_kurzbz","tbl_lvinfostatus_bezeichnung","insertamum","insertvon","updateamum","updatevon"),
+	"addon.tbl_lvinfostatus"  => array("lvinfostatus_kurzbz","bezeichnung","insertamum","insertvon","updateamum","updatevon"),
 	"addon.tbl_lvinfostatus_zuordnung"  => array("lvinfo_id","lvinfostatus_kurzbz","gesetztamum","uid","insertamum","insertvon","updateamum","updatevon"),
 );
 
