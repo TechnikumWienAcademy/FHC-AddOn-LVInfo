@@ -26,41 +26,6 @@ addon.push(
 	init: function() 
 	{
 		// Diese Funktion wird nach dem Laden des FAS aufgerufen
-
-		/*
-
-		// Hinzufuegen eines zusaetzlichen Tabs bei Mitarbeitern mit einem Label darin
-		var tabitem = document.createElement("tab");
-		tabitem.setAttribute("id","addon-template-tab");
-		tabitem.setAttribute("label","Template");
-
-		var mitarbeitertabs = document.getElementById("mitarbeiter-tabs");
-		mitarbeitertabs.appendChild(tabitem);
-
-		var tabpanelitem = document.createElement("vbox");
-		tabpanelitem.setAttribute("id","addon-template-tabpannel-vbox");
-		var label = document.createElement("label");
-		label.setAttribute("value","Template");
-		tabpanelitem.appendChild(label);
-
-		var mitarbeitertabpanels=document.getElementById("mitarbeiter-tabpanels-main");
-		mitarbeitertabpanels.appendChild(tabpanelitem);
-
-		// zusaetzliche Funktion beim klicken des Suchen Button bei Mitarbeitern hinzufuegen
-		searchbutton = document.getElementById("mitarbeiter-toolbar-button-search");
-		searchbutton.addEventListener("command",AddonTemplateMitarbeiterSearch, true);
-
-		// Menuepunkt hinzufuegen
-		statistikmenue = document.getElementById("menu-statistic-popup");
-
-		var menuentry = document.createElement("menuitem");
-		menuentry.setAttribute("id","addons-template-mymenuentry");
-		menuentry.setAttribute("label","Addon Template Menu Entry");
-		menuentry.addEventListener("command",AddonTemplateMenuEntry, true);
-	
-		statistikmenue.appendChild(menuentry);
-		
-		*/
 	},
 	selectMitarbeiter: function(person_id, mitarbeiter_uid)
 	{
@@ -78,13 +43,3 @@ addon.push(
 	{
 	}
 });
-
-function AddonTemplateMitarbeiterSearch()
-{
-	alert("AddonTemplateSearchButtonClicked");
-}
-
-function AddonTemplateMenuEntry()
-{
-	alert("AddonTemplateMenuEntry clicked");
-}

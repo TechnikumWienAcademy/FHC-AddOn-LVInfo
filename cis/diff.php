@@ -69,7 +69,7 @@ echo '<h1>Unterschiede zur Vorversion</h1>';
 
 $data = getDiffPreviousData($lvinfo_id);
 
-printInfoTable($data['new']->lehrveranstaltung_id, $data['new']->studiensemester_kurzbz);
+printInfoTable($data['new']->lehrveranstaltung_id, $data['new']->studiensemester_kurzbz, $sprache);
 
 echo'<div class="lvinfo">';
 foreach($data['diff'] as $key=>$row_data)

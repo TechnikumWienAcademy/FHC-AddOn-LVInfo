@@ -51,14 +51,16 @@ $db = new basis_db();
 
 $lehrveranstaltung_id = filter_input(INPUT_GET, 'lehrveranstaltung_id');
 $studiensemester_kurzbz = filter_input(INPUT_GET, 'studiensemester_kurzbz');
-$sprache = filter_input(INPUT_GET, 'sprache');
+$lvinfo_sprache = filter_input(INPUT_GET, 'sprache');
 $lvinfo_id = filter_input(INPUT_GET, 'lvinfo_id');
 
+if($lvinfo_sprache=='')
+    $lvinfo_sprache=$sprache;
 $lvinfo = new lvinfo();
 
 if($lvinfo_id=='')
 {
-    $lvinfo->loadLvinfo($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache, true);
+    $lvinfo->loadLvinfo($lehrveranstaltung_id, $studiensemester_kurzbz, $lvinfo_sprache, true);
     if(isset($lvinfo->result[0]))
         $lvinfo = $lvinfo->result[0];
     else
@@ -86,9 +88,26 @@ echo '<!DOCTYPE html>
 </head>
 <body>
 ';
-echo '<h1>'.$p->t('lvinfo/lvinformationen').'</h1>';
+echo '<h1>'.$p->t('lvinfo/lehrveranstaltungsinformationen').'</h1>';
 
-printInfoTable($lvinfo->lehrveranstaltung_id, $lvinfo->studiensemester_kurzbz);
+echo $p->t('lvinfo/verfuegbareSprachen').':';
+$sprache_obj = new sprache();
+$sprache_obj->getAll(true);
+foreach($sprache_obj->result as $row)
+{
+    $sprache_arr[$row->sprache]=$row->bezeichnung_arr[$sprache];
+}
+
+$lvinfosprachen = new lvinfo();
+if($lvinfosprachen->loadLvinfo($lvinfo->lehrveranstaltung_id, $lvinfo->studiensemester_kurzbz, null, true))
+{
+    foreach($lvinfosprachen->result as $row)
+    {
+        echo ' <a href="view.php?lehrveranstaltung_id='.$lvinfo->lehrveranstaltung_id.'&studiensemester_kurzbz='.$lvinfo->studiensemester_kurzbz.'&sprache='.$row->sprache.'">'.$sprache_arr[$row->sprache].'</a>';
+    }
+}
+
+printInfoTable($lvinfo->lehrveranstaltung_id, $lvinfo->studiensemester_kurzbz, $sprache);
 
 $lvinfo_set = new lvinfo();
 $setstsem = $lvinfo_set->getGueltigesStudiensemester($lvinfo->studiensemester_kurzbz);
@@ -102,18 +121,18 @@ foreach($lvinfo_set->result as $row_set)
     if(!isset($lvinfo->data[$key]))
         continue;
 
-    echo '<h2>'.$row_set->lvinfo_set_bezeichnung[$lvinfo->sprache].'</h2>';
+    $header='<h2>'.$row_set->lvinfo_set_bezeichnung[$lvinfo->sprache].'</h2>';
 
-    echo '<div class="lvinfo_data">';
+    $body='';
     switch($row_set->lvinfo_set_typ)
 	{
 		case 'boolean':
             $p1 = new phrasen($lvinfo->sprache);
 
 			if(isset($lvinfo->data[$key]) && $lvinfo->data[$key]===true)
-                echo $p1->t('global/ja');
+                $body.= $p1->t('global/ja');
             else
-                echo $p1->t('global/nein');
+                $body.= $p1->t('global/nein');
 			break;
 
 		case 'array':
@@ -122,19 +141,25 @@ foreach($lvinfo_set->result as $row_set)
 			else
 				$value=array();
 
-			echo '<ul>';
+			$body.= '<ul>';
 			foreach($value as $val)
-				echo '<li>'.$db->convert_html_chars($val).'</li>';
-			echo '</ul>';
+				$body.= '<li>'.$db->convert_html_chars($val).'</li>';
+			$body.= '</ul>';
 			break;
 
         case 'text':
 		default:
             if(isset($lvinfo->data[$key]))
-		         echo $db->convert_html_chars($lvinfo->data[$key]);
+		         $body.= $db->convert_html_chars($lvinfo->data[$key]);
     }
 
-	echo '</div>';
+    if($body!='')
+    {
+        echo $header;
+        echo '<div class="lvinfo_data">';
+        echo $body;
+	    echo '</div>';
+    }
 }
 echo '</div>';
 

@@ -238,6 +238,8 @@ if(!$result = @$db->db_query("SELECT 1 FROM addon.tbl_lvinfostatus_zuordnung"))
 
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfostatus_zuordnung TO vilesci;
 			GRANT SELECT, INSERT, UPDATE, DELETE ON addon.tbl_lvinfostatus_zuordnung TO web;
+			GRANT SELECT, UPDATE ON addon.tbl_lvinfostatus_zuordnung_lvinfostatus_zuordnung_id_seq  TO web;
+			GRANT SELECT, UPDATE ON addon.tbl_lvinfostatus_zuordnung_lvinfostatus_zuordnung_id_seq  TO vilesci;
 			";
 
 	if(!$db->db_query($qry))

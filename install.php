@@ -17,7 +17,7 @@
  *
  */
 /**
- * FH-Complete Addon Template Installation
+ * FH-Complete Addon LVInfo Installation
  *
  * Installationsscript zur Erstinitialisierung des Addons
  */
@@ -27,8 +27,7 @@ require_once('../../config/system.config.inc.php');
 require_once('../../include/functions.inc.php');
 require_once('../../include/benutzerberechtigung.class.php');
 
-echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-        "http://www.w3.org/TR/html4/strict.dtd">
+echo '<!DOCTYPE HTML>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">

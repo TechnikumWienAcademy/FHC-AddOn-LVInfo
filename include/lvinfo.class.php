@@ -47,6 +47,7 @@ class lvinfo extends basis_db
 	public $updatevon=0;						// varchar(32)
 	public $insertamum;							// timestamp
 	public $insertvon=0;						// varchar(32)
+	public $bezeichnung;
 
 	/**
 	 * Konstruktor

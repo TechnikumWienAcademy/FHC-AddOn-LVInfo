@@ -143,9 +143,9 @@ function getDiffPreviousData($lvinfo_id)
 	return $ret;
 }
 
-function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz)
+function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache)
 {
-	global $sprache;
+	$p = new phrasen($sprache);
 	$db = new basis_db();
 	$sprache_obj = new sprache();
 
@@ -207,44 +207,44 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz)
 	echo '
 	<table class="tablesorter">
 	    <tr>
-	        <td>Lehrveranstaltung:</td>
+	        <td>'.$p->t('global/lehrveranstaltung').':</td>
 	        <td>'.$db->convert_html_chars($lv->bezeichnung).'</td>
 	    </tr>
 	    <tr>
-	        <td>Studiengang:</td>
+	        <td>'.$p->t('global/studiengang').':</td>
 	        <td>'.$db->convert_html_chars($studiengang->kurzbzlang).'</td>
 	    </tr>
 	    <tr>
-	        <td>Ausbildungssemester:</td>
+	        <td>'.$p->t('global/semester').':</td>
 	        <td>'.$db->convert_html_chars($lv->semester).'</td>
 	    </tr>
 	    <tr>
-	        <td>Studiensemester:</td>
+	        <td>'.$p->t('global/studiensemester').':</td>
 	        <td>'.$db->convert_html_chars($studiensemester_kurzbz).'</td>
 	    </tr>
 	    <tr>
-	        <td>Organisationsform:</td>
+	        <td>'.$p->t('global/organisationsform').':</td>
 	        <td>'.$db->convert_html_chars($lv->orgform_kurzbz).'</td>
 	    </tr>
 	    <tr>
-	        <td>Lehrbeauftrage(r):</td>
+	        <td>'.$p->t('lehre/lehrbeauftragter').':</td>
 	        <td>'.$db->convert_html_chars($lektoren).'</td>
 	    </tr>
 	    <tr>
-	        <td>Sprache:</td>
+	        <td>'.$p->t('global/sprache').':</td>
 	        <td>'.$db->convert_html_chars($sprache_obj->getBezeichnung($lv->sprache,$sprache)).'</td>
 	    </tr>
 	    <tr>
-	        <td>ECTS:</td>
+	        <td>'.$p->t('global/ects').':</td>
 	        <td>'.$db->convert_html_chars($lv->ects).'</td>
 	    </tr>
 	    <tr>
-	        <td>Incomingplätze:</td>
+	        <td>'.$p->t('lvinfo/incomingplaetze').':</td>
 	        <td>'.$db->convert_html_chars($lv->incoming).'</td>
 	    </tr>
 	    <tr>
-	     	  <td>Institut:</td>
-	          <td>'.$db->convert_html_chars($oe->bezeichnung).' (Leitung:'.$db->convert_html_chars($leitung).' Koordination: '.$db->convert_html_chars($koordinator).')</td>
+	     	  <td>'.$p->t('global/institut').':</td>
+	          <td>'.$db->convert_html_chars($oe->bezeichnung).' ('.$p->t('global/leitung').':'.$db->convert_html_chars($leitung).' '.$p->t('global/koordination').': '.$db->convert_html_chars($koordinator).')</td>
 	    </tr>
 	</table>';
 

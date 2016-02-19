@@ -34,7 +34,7 @@ if(!$rechte->isBerechtigt('admin'))
 $db = new basis_db();
 /*
  - Alle LV Infos aus Core Holen
- - Basis Set erstellen 
+ - Basis Set erstellen
  - LVInfos für das aktuelle Jahr setzen
 	- Lernergebnisse aufsplitten
 	- HTML Tags herausfiltern
@@ -102,8 +102,9 @@ if($result = $db->db_query($qry))
 		$data = array();
 		$data['kurzbesch']=clearStuff($row->kurzbeschreibung);
 		$data['methodik']=clearStuff($row->methodik);
-	
+
 		$row->lehrziele=mb_str_replace('Nach erfolgreichem Abschluss sind die Studierenden in der Lage, ...<br>','', $row->lehrziele);
+		$row->lehrziele=mb_str_replace('Nach erfolgreichem Abschluss sind die Studierenden in der Lage,... <br>','', $row->lehrziele);
 		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to ...<br>','',$row->lehrziele);
 		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to...<br>','',$row->lehrziele);
 
@@ -136,9 +137,9 @@ if($result = $db->db_query($qry))
 				{
 					$lvinfo_id = $row_seq->id;
 
-					if($row->genehmigt)
+					if($db->db_parse_bool($row->genehmigt))
 					{
-						$qry_ins="INSERT INTO addon.tbl_lvinfostatus_zuordnung(lvinfo_id, lvinfostatus_kurzbz, gesetztamum, uid, 
+						$qry_ins="INSERT INTO addon.tbl_lvinfostatus_zuordnung(lvinfo_id, lvinfostatus_kurzbz, gesetztamum, uid,
 							insertamum, insertvon, updateamum, updatevon) VALUES(".$db->db_add_param($lvinfo_id).",'freigegeben',".
 							$db->db_add_param($row->updateamum).",".$db->db_add_param($row->updatevon).", 'migrate',now(),null, null);";
 					}

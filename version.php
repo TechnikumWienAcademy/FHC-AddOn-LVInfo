@@ -21,10 +21,10 @@
 $addon_name = 'Lvinfo';
 
 // Versionsnummer des Addons
-$addon_version = '0.01';
+$addon_version = '0.5';
 
 // FH-Complete Min-Version
-$fhcomplete_target_version = '3.0';
+$fhcomplete_target_version = '3.2';
 
 $addon_description = '
 Verwaltung und Anzeige der Lehrveranstaltungsinformationen
