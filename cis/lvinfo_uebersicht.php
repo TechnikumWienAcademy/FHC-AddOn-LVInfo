@@ -94,19 +94,56 @@ if(isset($_POST['action']))
     {
         case 'freigabe':
             $lvinfo_id = $_POST['lvinfo_id'];
-            // TODO Rechte prüfen
+
             $lvinfo = new lvinfo();
             if($lvinfo->load($lvinfo_id))
-                if($lvinfo->setStatus($lvinfo_id,'freigegeben',$user))
-                    echo 'Gespeichert '.$lvinfo_id;
+            {
+                // Berechtigung pruefen
+                $lva = new lehrveranstaltung();
+            	$lva->load($lvinfo->lehrveranstaltung_id);
+            	$oes = $lva->getAllOe();
+            	$oes[]=$lva->oe_kurzbz;
+            	if($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
+            	{
+                    if($lvinfo->setStatus($lvinfo_id,'freigegeben',$user))
+                        echo 'Gespeichert '.$lvinfo_id;
+                }
+                else
+                {
+            		echo '<span class="error">'.$p->t('global/keineBerechtigungFuerDieseSeite').'</span>';
+            	}
+            }
+            else
+            {
+                echo '<span class="error">'.$p->t('global/fehlerBeimAktualisierenDerDaten').'</span>';
+            }
             break;
 
         case 'reset':
             $lvinfo_id = $_POST['lvinfo_id'];
-            // TODO Rechte prüfen
+
             $lvinfo = new lvinfo();
             if($lvinfo->load($lvinfo_id))
-                $lvinfo->setStatus($lvinfo_id,'bearbeitung',$user);
+            {
+                // Berechtigung pruefen
+                $lva = new lehrveranstaltung();
+            	$lva->load($lvinfo->lehrveranstaltung_id);
+            	$oes = $lva->getAllOe();
+            	$oes[]=$lva->oe_kurzbz;
+            	if($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
+            	{
+                    if($lvinfo->setStatus($lvinfo_id,'bearbeitung',$user))
+                        echo 'Gespeichert '.$lvinfo_id;
+                }
+                else
+                {
+                    echo '<span class="error">'.($p->t('global/keineBerechtigungFuerDieseSeite')).'</span>';
+                }
+            }
+            else
+            {
+                echo '<span class="error">'.$p->t('global/fehlerBeimAktualisierenDerDaten').'</span>';
+            }
 
             break;
     }

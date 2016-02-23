@@ -90,7 +90,8 @@ echo '<!DOCTYPE html>
 ';
 echo '<h1>'.$p->t('lvinfo/lehrveranstaltungsinformationen').'</h1>';
 
-echo $p->t('lvinfo/verfuegbareSprachen').':';
+// Link zu den unterschiedlichen Sprachen anzeigen
+$sprachenlinks='';
 $sprache_obj = new sprache();
 $sprache_obj->getAll(true);
 foreach($sprache_obj->result as $row)
@@ -103,10 +104,13 @@ if($lvinfosprachen->loadLvinfo($lvinfo->lehrveranstaltung_id, $lvinfo->studiense
 {
     foreach($lvinfosprachen->result as $row)
     {
-        echo ' <a href="view.php?lehrveranstaltung_id='.$lvinfo->lehrveranstaltung_id.'&studiensemester_kurzbz='.$lvinfo->studiensemester_kurzbz.'&sprache='.$row->sprache.'">'.$sprache_arr[$row->sprache].'</a>';
+        $sprachenlinks .= ' <a href="view.php?lehrveranstaltung_id='.$lvinfo->lehrveranstaltung_id.'&studiensemester_kurzbz='.$lvinfo->studiensemester_kurzbz.'&sprache='.$row->sprache.'">'.$sprache_arr[$row->sprache].'</a>';
     }
 }
+if($sprachenlinks!='')
+    echo $p->t('lvinfo/verfuegbareSprachen').':'.$sprachenlinks;
 
+// Tabelle mit Informationen zur LV anzeigen
 printInfoTable($lvinfo->lehrveranstaltung_id, $lvinfo->studiensemester_kurzbz, $sprache);
 
 $lvinfo_set = new lvinfo();

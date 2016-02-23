@@ -104,7 +104,7 @@ if(isset($_POST['save']) || isset($_POST['saveAndSend']))
     	$lva->load($lv_id);
     	$oes = $lva->getAllOe();
     	$oes[]=$lva->oe_kurzbz; // Institut
-    	if(!$rechte->isBerechtigtMultipleOe('lehre/lvinfo',$oes,'s'))
+    	if(!$rechte->isBerechtigtMultipleOe('addon/lvinfo',$oes,'s'))
     	{
     		die($p->t('global/keineBerechtigungFuerDieseSeite'));
     	}
@@ -159,7 +159,7 @@ if(isset($_POST['save']) || isset($_POST['saveAndSend']))
             $lvinfostatus = new lvinfo();
             $lvinfostatus->getLastStatus($lvinfo->lvinfo_id);
             if($lvinfostatus->lvinfostatus_kurzbz=='')
-                $lvinfo->setStatus($lvinfo->lvinfo_id,'bearbeitung',$user);
+                $lvinfostatus->setStatus($lvinfo->lvinfo_id,'bearbeitung',$user);
         }
 
 		$id_array[$lvinfo->sprache]=$lvinfo->lvinfo_id;
@@ -232,7 +232,7 @@ $stg = new studiengang();
 $stg->load($lv->studiengang_kz);
 
 echo '<H1>'.$p->t('lvinfo/lehrveranstaltungsinformationen').' - '.$db->convert_html_chars($stg->kurzbzlang.'-'.$lv->semester.($lv->orgform_kurzbz!=''?'-'.$lv->orgform_kurzbz:'').' - '.$lv->bezeichnung).'</H1>';
-echo '<a href="lvinfo_uebersicht.php">'.$p->t('lvinfo/uebersichtsliste').'</a>';
+
 echo '<table width="100%"><tr><td valign="top">';
 echo '<form name="auswahlFrm" action="lvinfo.php" method="GET">';
 
@@ -383,7 +383,9 @@ else
 echo '</table>';
 echo '<input type="submit" value="'.$p->t('global/anzeigen').'">';
 echo '</form>';
+
 echo '</td><td>';
+echo '<a href="lvinfo_uebersicht.php?stg_kz='.$stg_kz.'&semester='.$semester.'&orgform_kurzbz='.$orgform_kurzbz.'&studiensemester_kurzbz='.$studiensemester_kurzbz.'">'.$p->t('lvinfo/uebersichtsliste').'</a>';
 printInfoTable($lv_id, $studiensemester_kurzbz, $sprache);
 echo '</td></tr></table>';
 
@@ -399,7 +401,7 @@ if(!$lem->existsLV($lv_id, $studiensemester_kurzbz,  $user))
     $lva->load($lv_id);
     $oes = $lva->getAllOe();
     $oes[]=$lva->oe_kurzbz; // Institut
-    if(!$rechte->isBerechtigtMultipleOe('lehre/lvinfo',$oes,'s'))
+    if(!$rechte->isBerechtigtMultipleOe('addon/lvinfo',$oes,'s'))
     {
         die($p->t('global/keineBerechtigungFuerDieseSeite'));
     }
@@ -484,7 +486,7 @@ foreach($config_lvinfo_sprachen as $lvinfo_sprache)
     }
 	echo '
 		<th colspan="2">
-			'.$sprachen_obj->bezeichnung_arr[$sprache].' '.$aktuellerStatus.' '.$data_obj[$lvinfo_sprache]->lvinfo_id.'
+			'.$sprachen_obj->bezeichnung_arr[$sprache].' '.$aktuellerStatus.' '.(isset($data_obj[$lvinfo_sprache])?$data_obj[$lvinfo_sprache]->lvinfo_id:'').'
 		</th>';
 }
 echo '</tr></thead>

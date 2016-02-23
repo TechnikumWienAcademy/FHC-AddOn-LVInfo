@@ -431,8 +431,8 @@ class lvinfo extends basis_db
 		if($this->new)
 		{
 			//Neuen Datensatz anlegen
-			$qry = 'INSERT INTO addon.tbl_lvinfo (sprache, lehrveranstaltung_id, studiensemester_kurzbz, data, insertamum, insertvon, updateamum, updatevon) VALUES ('.
-
+			$qry = 'BEGIN;INSERT INTO addon.tbl_lvinfo (sprache, lehrveranstaltung_id, studiensemester_kurzbz,
+				data, insertamum, insertvon, updateamum, updatevon) VALUES ('.
 				$this->db_add_param($this->sprache).', '.
 				$this->db_add_param($this->lehrveranstaltung_id, FHC_INTEGER).','.
 				$this->db_add_param($this->studiensemester_kurzbz).', '.
@@ -441,18 +441,17 @@ class lvinfo extends basis_db
 				$this->db_add_param($this->insertvon).', '.
 				$this->db_add_param($this->updateamum).', '.
 				$this->db_add_param($this->updatevon).');';
-
 		}
 		else
 		{
 			//bestehenden Datensatz akualisieren
 
 			//Pruefen ob lvinfo_id gueltig ist
-			/*if($this->lehrveranstaltung_id == '' || !is_numeric($this->lehrveranstaltung_id))
+			if($this->lvinfo_id == '' || !is_numeric($this->lvinfo_id))
 			{
-				$this->errormsg = 'lehrveranstaltung_id '.$this->lehrveranstaltung_id.' ungültig';
+				$this->errormsg = 'lvinfo_id ist ungültig';
 				return false;
-			}*/
+			}
 
 			$qry = 'UPDATE addon.tbl_lvinfo SET '.
 				'sprache='.$this->db_add_param($this->sprache).','.
@@ -469,7 +468,35 @@ class lvinfo extends basis_db
 		if($this->db_query($qry))
 		{
 			$this->lastqry=$qry;
-			return true;
+			if($this->new)
+			{
+				$qry = "SELECT currval('addon.tbl_lvinfo_lvinfo_id_seq') as id";
+				if($result = $this->db_query($qry))
+				{
+					if($row = $this->db_fetch_object($result))
+					{
+						$this->lvinfo_id = $row->id;
+						$this->db_query('COMMIT;');
+						return true;
+					}
+					else
+					{
+						$this->db_query('ROLLBACK;');
+						$this->errormsg = 'Fehler beim Auslesen der Sequence';
+						return false;
+					}
+				}
+				else
+				{
+					$this->db_query('ROLLBACK;');
+					$this->errormsg = 'Fehler beim Auslesen der Sequence';
+					return false;
+				}
+			}
+			else
+			{
+				return true;
+			}
 		}
 		else
 		{

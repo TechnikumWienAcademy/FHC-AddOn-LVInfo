@@ -46,8 +46,8 @@ if(!defined('CIS_LEHRVERANSTALTUNG_LVINFO_ANZEIGEN') || CIS_LEHRVERANSTALTUNG_LV
 	// Oder Berechtigung zum Bearbeiten eingetragen ist
 	if((!defined('CIS_LEHRVERANSTALTUNG_LVINFO_LEKTOR_EDIT') && $lektor_der_lv)
 	  || (defined('CIS_LEHRVERANSTALTUNG_LVINFO_LEKTOR_EDIT') && CIS_LEHRVERANSTALTUNG_LVINFO_LEKTOR_EDIT==true && $lektor_der_lv)
-	  || $rechte->isBerechtigt('lehre/lvinfo',$studiengang_kz)
-	  || $rechte->isBerechtigtMultipleOe('lehre/lvinfo', $lehrfach_oe_kurzbz_arr)
+	  || $rechte->isBerechtigt('addon/lvinfo',$studiengang_kz)
+	  || $rechte->isBerechtigtMultipleOe('addon/lvinfo', $lehrfach_oe_kurzbz_arr)
 	  )
 	{
 		$text.= "<a href='../../../addons/lvinfo/cis/lvinfo.php?lv_id=$lvid&studiensemester_kurzbz=$angezeigtes_stsem' target='_blank' class='Item'>".$p->t('lehre/lvInfoBearbeiten')."</a>";
