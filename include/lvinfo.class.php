@@ -24,7 +24,7 @@ require_once(dirname(__FILE__).'/../../../include/sprache.class.php');
 
 class lvinfo extends basis_db
 {
-	public $new;
+	public $new=true;
 	public $result = array();
 
 	//Tabellenspalten
@@ -48,6 +48,7 @@ class lvinfo extends basis_db
 	public $insertamum;							// timestamp
 	public $insertvon=0;						// varchar(32)
 	public $bezeichnung;
+	public $oe_kurzbz;
 
 	/**
 	 * Konstruktor
@@ -263,6 +264,52 @@ class lvinfo extends basis_db
 		else
 		{
 			$this->errormsg = 'Es konnte kein gueltige Studiensemester geladen werden';
+			return false;
+		}
+	}
+
+	/**
+	 * Laedt das LVInfo Set anhand der ID
+	 * @param integer $lvinfo_set_id
+	 * @return true wenn ok, false im Fehlerfall
+	 */
+	public function loadSet($lvinfo_set_id)
+	{
+		$qry = "SELECT
+					*
+				FROM
+					addon.tbl_lvinfo_set
+				WHERE
+					lvinfo_set_id=".$this->db_add_param($lvinfo_set_id, FHC_INTEGER);
+
+		if($result = $this->db_query($qry))
+		{
+			if($row = $this->db_fetch_object($result))
+			{
+				$this->lvinfo_set_id = $row->lvinfo_set_id;
+				$this->lvinfo_set_kurzbz = $row->lvinfo_set_kurzbz;
+				$this->lvinfo_set_bezeichnung = $this->db_parse_lang_array($row->lvinfo_set_bezeichnung);
+				$this->sort = $row->sort;
+				$this->lvinfo_set_typ = $row->lvinfo_set_typ;
+				$this->gueltigab_studiensemester_kurzbz = $row->gueltigab_studiensemester_kurzbz;
+				$this->oe_kurzbz = $row->oe_kurzbz;
+				$this->insertamum = $row->insertamum;
+				$this->insertvon = $row->insertvon;
+				$this->updateamum = $row->updateamum;
+				$this->updatevon = $row->updatevon;
+				$this->new=false;
+
+				return true;
+			}
+			else
+			{
+				$this->errormsg = 'Eintrag wurde nicht gefunden';
+				return false;
+			}
+		}
+		else
+		{
+			$this->errormsg = 'Fehler beim Laden der Daten';
 			return false;
 		}
 	}
@@ -505,6 +552,125 @@ class lvinfo extends basis_db
 		}
 	}
 
+	/**
+	 * Prueft die Daten des Sets vor dem Speichern
+	 * @return true wenn ok, false im Fehlerfall
+	 */
+	private function validateSet()
+	{
+		if(!is_numeric($this->sort))
+		{
+			$this->errormsg = 'Sort muss eine gültige Zahl sein';
+			return false;
+		}
+		if(mb_strlen($this->lvinfo_set_kurzbz)>16)
+		{
+			$this->errormsg = 'Kurzbezeichung darf nicht länger als 16 Zeichen sein';
+			return false;
+		}
+		if($this->lvinfo_set_kurzbz=='')
+		{
+			$this->errormsg = 'Kurzbezeichnung darf nicht leer sein';
+			return false;
+		}
+		if($this->lvinfo_set_typ=='')
+		{
+			$this->errormsg = 'Typ darf nicht leer sein';
+			return false;
+		}
+		if(!preg_match('/^[A-Za-z0-9_]*$/',$this->lvinfo_set_kurzbz))
+		{
+			$this->errormsg = 'Kurzbezeichnung darf keine Sonderzeichen und Leerzeichen enthalten';
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Speichert ein LVInfoSet
+	 * @return true wenn ok, false im Fehlerfall
+	 */
+	public function saveSet()
+	{
+		if(!$this->validateSet())
+			return false;
+
+		if($this->new)
+		{
+			//Neuen Datensatz anlegen
+			$qry = 'BEGIN;INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ,
+				gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('.
+				$this->db_add_param($this->lvinfo_set_kurzbz).', '.
+				$this->db_add_param($this->lvinfo_set_bezeichnung, FHC_LANG_ARRAY).','.
+				$this->db_add_param($this->sort).', '.
+				$this->db_add_param($this->lvinfo_set_typ).', '.
+				$this->db_add_param($this->gueltigab_studiensemester_kurzbz).', '.
+				$this->db_add_param($this->oe_kurzbz).', '.
+				$this->db_add_param($this->insertamum).', '.
+				$this->db_add_param($this->insertvon).', '.
+				$this->db_add_param($this->updateamum).', '.
+				$this->db_add_param($this->updatevon).');';
+		}
+		else
+		{
+			//Pruefen ob lvinfo_id gueltig ist
+			if($this->lvinfo_set_id == '' || !is_numeric($this->lvinfo_set_id))
+			{
+				$this->errormsg = 'lvinfo_set_id ist ungültig';
+				return false;
+			}
+
+			$qry = 'UPDATE addon.tbl_lvinfo_set SET '.
+				'lvinfo_set_kurzbz='.$this->db_add_param($this->lvinfo_set_kurzbz).','.
+				'lvinfo_set_bezeichnung='.$this->db_add_param($this->lvinfo_set_bezeichnung, FHC_LANG_ARRAY).','.
+				'sort='.$this->db_add_param($this->sort, FHC_INTEGER).', '.
+				'lvinfo_set_typ='.$this->db_add_param($this->lvinfo_set_typ).', '.
+				'gueltigab_studiensemester_kurzbz='.$this->db_add_param($this->gueltigab_studiensemester_kurzbz).', '.
+				'oe_kurzbz='.$this->db_add_param($this->oe_kurzbz).', '.
+				'updateamum='.$this->db_add_param($this->updateamum).', '.
+				'updatevon='.$this->db_add_param($this->updatevon).' '.
+				'WHERE lvinfo_set_id = '.$this->db_add_param($this->lvinfo_set_id, FHC_INTEGER).";";
+		}
+
+		if($this->db_query($qry))
+		{
+			$this->lastqry=$qry;
+			if($this->new)
+			{
+				$qry = "SELECT currval('addon.tbl_lvinfo_set_lvinfo_set_id_seq') as id";
+				if($result = $this->db_query($qry))
+				{
+					if($row = $this->db_fetch_object($result))
+					{
+						$this->lvinfo_set_id = $row->id;
+						$this->db_query('COMMIT;');
+						return true;
+					}
+					else
+					{
+						$this->db_query('ROLLBACK;');
+						$this->errormsg = 'Fehler beim Auslesen der Sequence';
+						return false;
+					}
+				}
+				else
+				{
+					$this->db_query('ROLLBACK;');
+					$this->errormsg = 'Fehler beim Auslesen der Sequence';
+					return false;
+				}
+			}
+			else
+			{
+				return true;
+			}
+		}
+		else
+		{
+			$this->errormsg = 'Fehler beim Speichern des Datensatzes';
+			return false;
+		}
+	}
 
 	/**
 	 * Setzt den Status eines LVInfo Eintrages
@@ -573,6 +739,24 @@ class lvinfo extends basis_db
 		else
 		{
 			$this->errormsg = 'Fehler beim Laden der Daten';
+			return false;
+		}
+	}
+
+	/**
+	 * Loescht ein LVInfo Set
+	 * @param integer $lvinfo_set_id
+	 * @return boolean true wenn ok, false im Fehlerfall
+	 */
+	public function deleteSet($lvinfo_set_id)
+	{
+		$qry = "DELETE FROM addon.tbl_lvinfo_set WHERE lvinfo_set_id=".$this->db_add_param($lvinfo_set_id, FHC_INTEGER);
+
+		if($this->db_query($qry))
+			return true;
+		else
+		{
+			$this->errormsg = 'Fehler beim Löschen der Daten';
 			return false;
 		}
 	}

@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2013 FH Technikum-Wien
+/* Copyright (C) 2016 fhcomplete.org
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -20,25 +20,28 @@ require_once('../../../config/vilesci.config.inc.php');
 require_once('../../../include/functions.inc.php');
 require_once('../../../include/benutzerberechtigung.class.php');
 
-echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-        "http://www.w3.org/TR/html4/strict.dtd">
+echo '<!doctype html>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="stylesheet" href="../../../skin/fhcomplete.css" type="text/css">
 	<link rel="stylesheet" href="../../../skin/vilesci.css" type="text/css">
-	<title>Template</title>
+	<title>LV-Information</title>
 </head>
 <body>
-<h1>Template</h1>';
+<h1>LV-Information</h1>';
 
 $uid = get_uid();
 $rechte = new benutzerberechtigung();
 $rechte->getBerechtigungen($uid);
 
-if(!$rechte->isBerechtigt('basis/addon'))
+if(!$rechte->isBerechtigt('addon/lvinfoAdmin'))
 {
-	die('Sie haben keine Berechtigung fuer diese Seite');
+	die($rechte->errormsg);
 }
-echo 'Template Addon Vilesci Integration';
+echo '
+<ul>
+    <li><a href="lvinfoset.php">Set Administrieren</a></li>
+    <li><a href="copy.php">LV-Informationen kopieren</a></li>
+</ul>';
 ?>

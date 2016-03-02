@@ -17,16 +17,19 @@ function getDiffPrevious($lvinfo_id)
 
 		$ret.='<div class="lvinfo_data">';
 
-		if(is_array($row_data['diff']))
+		if(isset($row_data['diff']))
 		{
-			$ret.='<ul>';
-			foreach($row_data['diff'] as $item)
-				$ret.='<li>'.$item.'</li>';
-			$ret.='</ul>';
-		}
-		else
-		{
-			$ret.=$row_data['diff'];
+			if(is_array($row_data['diff']))
+			{
+				$ret.='<ul>';
+				foreach($row_data['diff'] as $item)
+					$ret.='<li>'.$item.'</li>';
+				$ret.='</ul>';
+			}
+			else
+			{
+				$ret.=$row_data['diff'];
+			}
 		}
 		$ret.='</div>';
 	}

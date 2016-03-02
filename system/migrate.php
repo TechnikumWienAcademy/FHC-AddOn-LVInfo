@@ -140,10 +140,25 @@ if($result = $db->db_query($qry))
 					if($db->db_parse_bool($row->genehmigt))
 					{
 						$qry_ins="INSERT INTO addon.tbl_lvinfostatus_zuordnung(lvinfo_id, lvinfostatus_kurzbz, gesetztamum, uid,
-							insertamum, insertvon, updateamum, updatevon) VALUES(".$db->db_add_param($lvinfo_id).",'freigegeben',".
-							$db->db_add_param($row->updateamum).",".$db->db_add_param($row->updatevon).", 'migrate',now(),null, null);";
+							insertamum, insertvon, updatevon, updateamum) VALUES(".$db->db_add_param($lvinfo_id).",'freigegeben',".
+							($row->updateamum!=''?$db->db_add_param($row->updateamum):'now()').",".
+							($db->db_add_param($uid)).",".
+							$db->db_add_param($row->updateamum).",".$db->db_add_param($row->updatevon).", 'migrate',now());";
 					}
-					$db->db_query('Commit;');
+					else
+					{
+						$qry_ins="INSERT INTO addon.tbl_lvinfostatus_zuordnung(lvinfo_id, lvinfostatus_kurzbz, gesetztamum, uid,
+								insertamum, insertvon, updatevon, updateamum) VALUES(".$db->db_add_param($lvinfo_id).",'bearbeitung',".
+								($row->updateamum!=''?$db->db_add_param($row->updateamum):'now()').",".
+								($db->db_add_param($uid)).",".
+								$db->db_add_param($row->updateamum).",".$db->db_add_param($row->updatevon).", 'migrate',now());";
+
+					}
+					if($db->db_query($qry_ins))
+						$db->db_query('Commit;');
+					else
+						echo 'Fehler beim Setzen des Status:'.$qry;
+
 					echo '.';
 					$i++;
 					if($i%200==0)

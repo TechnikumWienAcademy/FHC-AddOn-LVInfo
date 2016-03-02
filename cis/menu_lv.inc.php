@@ -54,7 +54,7 @@ if(!defined('CIS_LEHRVERANSTALTUNG_LVINFO_ANZEIGEN') || CIS_LEHRVERANSTALTUNG_LV
 	}
 	elseif ($is_lector)
 	{
-		$text.= "<br>Bearbeiten der LV-Infos derzeit gesperrt";
+		$text.= "Bearbeiten der LV-Infos derzeit gesperrt";
 	}
 
 	$menu[]=array

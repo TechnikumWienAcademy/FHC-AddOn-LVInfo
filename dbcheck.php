@@ -278,6 +278,21 @@ if($result = $db->db_query("SELECT * FROM system.tbl_berechtigung WHERE berechti
 	}
 }
 
+//Neue Berechtigung für das Addon hinzufügen
+if($result = $db->db_query("SELECT * FROM system.tbl_berechtigung WHERE berechtigung_kurzbz='addon/lvinfoAdmin'"))
+{
+	if($db->db_num_rows($result)==0)
+	{
+		$qry = "INSERT INTO system.tbl_berechtigung(berechtigung_kurzbz, beschreibung)
+				VALUES('addon/lvinfoAdmin','Administrieren der Sets von LVInformationen');";
+
+		if(!$db->db_query($qry))
+			echo '<strong>Berechtigung: '.$db->db_last_error().'</strong><br>';
+		else
+			echo 'Neue Berechtigung addon/lvinfoAdmin hinzugefuegt!<br>';
+	}
+}
+
 echo '<br>Aktualisierung abgeschlossen<br><br>';
 echo '<h2>Gegenprüfung</h2>';
 
