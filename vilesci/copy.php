@@ -50,15 +50,15 @@ if(!$rechte->isBerechtigt('addon/lvinfoAdmin', null, 'suid'))
 
 $db = new basis_db();
 
-$quelle_studiengang_kz = filter_input(INPUT_POST, 'quelle_studiengang_kz');
-$quelle_semester = filter_input(INPUT_POST, 'quelle_semester');
-$quelle_studiensemester = filter_input(INPUT_POST, 'quelle_studiensemester');
-$quelle_lehrveranstaltung_id = filter_input(INPUT_POST, 'quelle_lehrveranstaltung_id');
+$quelle_studiengang_kz = (isset($_REQUEST['quelle_studiengang_kz'])?$_REQUEST['quelle_studiengang_kz']:'');
+$quelle_semester = (isset($_REQUEST['quelle_semester'])?$_REQUEST['quelle_semester']:'');
+$quelle_studiensemester = (isset($_REQUEST['quelle_studiensemester'])?$_REQUEST['quelle_studiensemester']:'');
+$quelle_lehrveranstaltung_id = (isset($_REQUEST['quelle_lehrveranstaltung_id'])?$_REQUEST['quelle_lehrveranstaltung_id']:'');
 
-$ziel_studiengang_kz = filter_input(INPUT_POST, 'ziel_studiengang_kz');
-$ziel_semester = filter_input(INPUT_POST, 'ziel_semester');
-$ziel_studiensemester = filter_input(INPUT_POST, 'ziel_studiensemester');
-$ziel_lehrveranstaltung_id = filter_input(INPUT_POST, 'ziel_lehrveranstaltung_id');
+$ziel_studiengang_kz = (isset($_REQUEST['ziel_studiengang_kz'])?$_REQUEST['ziel_studiengang_kz']:'');
+$ziel_semester = (isset($_REQUEST['ziel_semester'])?$_REQUEST['ziel_semester']:'');
+$ziel_studiensemester = (isset($_REQUEST['ziel_studiensemester'])?$_REQUEST['ziel_studiensemester']:'');
+$ziel_lehrveranstaltung_id = (isset($_REQUEST['ziel_lehrveranstaltung_id'])?$_REQUEST['ziel_lehrveranstaltung_id']:'');
 
 if($quelle_studiensemester=='')
 {
@@ -69,6 +69,15 @@ if($ziel_studiensemester=='')
 {
 	$studiensemester = new studiensemester();
 	$ziel_studiensemester = $studiensemester->getaktorNext();
+}
+
+if($ziel_lehrveranstaltung_id!='' && $ziel_studiengang_kz=='')
+{
+	// Wenn nur die LV uebergeben wird, dann Stg und Sem ermitteln
+	$lehrveranstaltung_obj = new lehrveranstaltung();
+	$lehrveranstaltung_obj->load($ziel_lehrveranstaltung_id);
+	$ziel_studiengang_kz = $lehrveranstaltung_obj->studiengang_kz;
+	$ziel_semester = $lehrveranstaltung_obj->semester;
 }
 
 if(isset($_POST['action']))
