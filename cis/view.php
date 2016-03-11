@@ -58,11 +58,25 @@ if($lvinfo_sprache=='')
     $lvinfo_sprache=$sprache;
 $lvinfo = new lvinfo();
 
-if($lvinfo_id=='')
+if($lvinfo_id=='' && $studiensemester_kurzbz!='')
 {
     $lvinfo->loadLvinfo($lehrveranstaltung_id, $studiensemester_kurzbz, $lvinfo_sprache, true);
     if(isset($lvinfo->result[0]))
         $lvinfo = $lvinfo->result[0];
+    else
+    {
+        die('Derzeit sind keine Informationen verfügbar');
+    }
+}
+elseif($lvinfo_id=='' && $lehrveranstaltung_id!='')
+{
+    if($lvinfo->loadLastLvinfo($lehrveranstaltung_id, true))
+    {
+        if(isset($lvinfo->result[0]))
+            $lvinfo = $lvinfo->result[0];
+        else
+            die('Derzeit sind keine Informationen verfügbar');
+    }
     else
     {
         die('Derzeit sind keine Informationen verfügbar');

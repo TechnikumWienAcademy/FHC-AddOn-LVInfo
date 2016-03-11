@@ -163,6 +163,68 @@ class lvinfo extends basis_db
 	}
 
 	/**
+	 * Die die letzte Version der LVInformationen zu einer Lehrveranstaltung
+	 * @param integer $lehrveranstaltung_id
+	 * @param string $studiensemester_kurzbz
+	 * @return true wenn ok, false im Fehlerfall
+	 */
+	public function loadLastLvinfo($lehrveranstaltung_id, $freigegeben=null)
+	{
+		if($lehrveranstaltung_id == '' || !is_numeric($lehrveranstaltung_id))
+		{
+			$this->errormsg = 'Lehrveranstaltung_id ist ungültig';
+			return false;
+		}
+		$qry = "SELECT
+					*
+				FROM
+					addon.tbl_lvinfo
+				WHERE
+					lehrveranstaltung_id=".$this->db_add_param($lehrveranstaltung_id, FHC_INTEGER)."
+					AND studiensemester_kurzbz=(SELECT studiensemester_kurzbz
+						FROM
+							addon.tbl_lvinfo
+							JOIN public.tbl_studiensemester USING(studiensemester_kurzbz)
+						WHERE lehrveranstaltung_id=".$this->db_add_param($lehrveranstaltung_id, FHC_INTEGER);
+		if(!is_null($freigegeben) && $freigegeben===true)
+		{
+			$qry.=" AND EXISTS(SELECT * FROM addon.tbl_lvinfostatus_zuordnung WHERE lvinfo_id=tbl_lvinfo.lvinfo_id AND lvinfostatus_kurzbz='freigegeben')";
+		}
+		$qry.="ORDER BY tbl_studiensemester.start desc LIMIT 1)";
+
+		if(!is_null($freigegeben) && $freigegeben===true)
+		{
+			$qry.=" AND EXISTS(SELECT * FROM addon.tbl_lvinfostatus_zuordnung WHERE lvinfo_id=tbl_lvinfo.lvinfo_id AND lvinfostatus_kurzbz='freigegeben')";
+		}
+
+		if($result = $this->db_query($qry))
+		{
+			while($row = $this->db_fetch_object($result))
+			{
+				$lv = new lvinfo();
+
+				$lv->lvinfo_id = $row->lvinfo_id;
+				$lv->sprache = $row->sprache;
+				$lv->lehrveranstaltung_id = $row->lehrveranstaltung_id;
+				$lv->studiensemester_kurzbz = $row->studiensemester_kurzbz;
+				$lv->data = json_decode($row->data,true);
+				$lv->insertamum = $row->insertamum;
+				$lv->insertvon = $row->insertvon;
+				$lv->updateamum = $row->updateamum;
+				$lv->updatevon = $row->updatevon;
+
+				$this->result[] = $lv;
+			}
+			return true;
+		}
+		else
+		{
+			$this->errormsg = 'Fehler beim Laden der Daten';
+			return false;
+		}
+	}
+
+	/**
 	 * Laedt die vorhergehende Version einer LVInfo
 	 * @param integer $lvinfo_id
 	 * @return true wenn ok, false im Fehlerfall
