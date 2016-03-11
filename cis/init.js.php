@@ -32,6 +32,11 @@ addon.push(
 		switch(page)
 		{
 			case 'cis/public/incoming/incoming.php':
+				/**
+				 * LVInfo Link bei Lehrveranstaltungsauswahl in der
+				 * Incomingregistrierung wird überschrieben damit dieser ins
+				 * Addon verlinkt
+				 */
 				if(params.method=='lehrveranstaltungen')
 				{
 					$('a').each(function(){
@@ -57,6 +62,25 @@ addon.push(
 				}
 				break;
 
+			case 'cis/private/profile/studienplan.php':
+				/**
+				 * LVInfo Link bei Studienplanansicht fuer Studierende im CIS
+				 * wird überschrieben damit dieser ins Addon verlinkt
+				 */
+				 $('a').each(function(){
+					 if($(this).attr('href')=='#')
+					 {
+						 var oldlink = this.onclick+"";
+						 oldlink = oldlink.replace('../lehre/ects/preview.php?lv=', '../../../addons/lvinfo/cis/view.php?lehrveranstaltung_id=');
+						 oldlink = oldlink.replace('&language=de','&sprache=German');
+						 oldlink = oldlink.replace('&language=en','&sprache=English');
+						 oldlink = oldlink.replace('function onclick(event) {','');
+						 oldlink = oldlink.replace('}','');
+						 
+						 $(this).attr('onclick',oldlink);
+					 }
+				 });
+				break;
 			default:
 				break;
 		}
