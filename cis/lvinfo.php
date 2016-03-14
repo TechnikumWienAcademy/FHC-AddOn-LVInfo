@@ -86,7 +86,7 @@ $stsem = $stsem->getakt();
 
 $stg_kz = isset($_GET['stg_kz']) && $_GET['stg_kz']!=''?$_GET['stg_kz']:($lv_obj->studiengang_kz!=''?$lv_obj->studiengang_kz:'0');
 $semester = isset($_GET['semester']) && $_GET['semester']!=''?$_GET['semester']:($lv_obj->semester!=''?$lv_obj->semester:'1');
-$orgform_kurzbz = isset($_GET['orgform_kurzbz']) && $_GET['orgform_kurzbz']!=''?$_GET['orgform_kurzbz']:$lv_obj->orgform_kurzbz;
+$orgform_kurzbz = isset($_GET['orgform_kurzbz']) && $_GET['orgform_kurzbz']!=''?$_GET['orgform_kurzbz']:''; //$lv_obj->orgform_kurzbz
 $studiensemester_kurzbz = isset($_REQUEST['studiensemester_kurzbz'])?$_REQUEST['studiensemester_kurzbz']:$stsem;
 
 $errormsg = '';
@@ -338,7 +338,8 @@ if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_
 
 	if(count($lv_obj->lehrveranstaltungen)>0)
 	{
-		//Wenn die übergebene LV_ID nicht in der Liste der geladenen Objekte ist, zusätzlich anzeigen
+		//Wenn die übergebene LV_ID nicht in der Liste der geladenen Objekte ist,
+        // Dann die erste LV in der Liste markieren
 		$lv_ids = array();
 		foreach($lv_obj->lehrveranstaltungen as $row)
 		{
@@ -346,6 +347,7 @@ if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_
 		}
 		if($lv_id!='' && !in_array($lv_id, $lv_ids))
 		{
+            /*
 			$lv = new lehrveranstaltung();
 			$lv->load($lv_id);
 			if($lv->semester!='' && $lv->orgform_kurzbz=='')
@@ -355,11 +357,15 @@ if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_
 			if($lv->semester!='' && $lv->orgform_kurzbz!='')
 				$outputstring = $lv->orgform_kurzbz.' - '.$lv->semester.' - ';
 			echo '<option value="'.$lv_id.'" selected>'.$db->convert_html_chars($outputstring.$lv->bezeichnung).'</option>';
+            */
+            $lv_id = '';
 		}
 		$outputstring = '';
 		foreach($lv_obj->lehrveranstaltungen as $row)
 		{
 			$selected = '';
+            if($lv_id=='')
+                $lv_id=$row->lehrveranstaltung_id;
 			if($row->lehrveranstaltung_id==$lv_id)
 				$selected = 'selected';
 			if($semester!='' && $orgform_kurzbz=='' && $row->orgform_kurzbz!='')
