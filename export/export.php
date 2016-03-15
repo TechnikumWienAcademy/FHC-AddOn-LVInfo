@@ -53,8 +53,10 @@ for($semester=1;$semester<=$studiengang->max_semester;$semester++)
     $studiensemester_kurzbz = $studiensemester_obj->getNearest($semester);
 
     $studienplan = new studienplan();
-    $studienplan_id = $studienplan->getStudienplan($studiengang_kz, $studiensemester_kurzbz, $semester, $orgform_kurzbz);
-
+    $studienplan->getStudienplaeneFromSem($studiengang_kz, $studiensemester_kurzbz, $semester, $orgform_kurzbz);
+    if(!isset($studienplan->result[0]))
+        die('Es wurde kein eindeutiger Studienplan gefunden');
+    $studienplan_id = $studienplan->result[0]->studienplan_id;
     $lehrveranstaltung = new lehrveranstaltung();
 
     $lehrveranstaltung->loadLehrveranstaltungStudienplan($studienplan_id, $semester);
@@ -98,7 +100,7 @@ function bauen($tree)
                 $lvinfodataelem='<h2>'.$row_set->lvinfo_set_bezeichnung[$row_lvinfo->sprache].'</h2>';
                 if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
                     $lvinfodataelem.=$row_set->einleitungstext[$row_lvinfo->sprache].'<br><br>';
-                    
+
                 $key = $row_set->lvinfo_set_kurzbz;
                 $lvinfodataelembody='';
                 switch($row_set->lvinfo_set_typ)
@@ -126,7 +128,7 @@ function bauen($tree)
 
                     case 'text':
                     default:
-                        if(isset($lvinfo->data[$key]))
+                        if(isset($row_lvinfo->data[$key]))
                              $lvinfodataelembody.= $db->convert_html_chars($row_lvinfo->data[$key]);
                 }
                 if($lvinfodataelembody!='')
