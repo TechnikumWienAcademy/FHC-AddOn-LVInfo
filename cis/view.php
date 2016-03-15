@@ -140,7 +140,9 @@ foreach($lvinfo_set->result as $row_set)
         continue;
 
     $header='<h2>'.$row_set->lvinfo_set_bezeichnung[$lvinfo->sprache].'</h2>';
-
+    if(isset($row_set->einleitungstext[$lvinfo->sprache]))
+        $header.=$row_set->einleitungstext[$lvinfo->sprache];
+    
     $body='';
     switch($row_set->lvinfo_set_typ)
 	{

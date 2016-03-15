@@ -116,6 +116,11 @@ switch($action)
 			if(isset($_POST['bezeichnung'.$row_sprache->sprache]))
 				$set->lvinfo_set_bezeichnung[$row_sprache->sprache]=$_POST['bezeichnung'.$row_sprache->sprache];
 		}
+		foreach($sprache->result as $row_sprache)
+		{
+			if(isset($_POST['einleitungstext'.$row_sprache->sprache]))
+				$set->einleitungstext[$row_sprache->sprache]=$_POST['einleitungstext'.$row_sprache->sprache];
+		}
 		$set->gueltigab_studiensemester_kurzbz = $_POST['gueltigab_studiensemester_kurzbz'];
 		$set->updateamum = date('Y-m-d H:i:s');
 		$set->updatevon = $uid;
@@ -255,6 +260,11 @@ foreach($sprache->result as $s)
  		echo '<input type="text" size="60" maxlength="64" name="bezeichnung'.$s->sprache.'" value="'.(isset($set->lvinfo_set_bezeichnung[$s->sprache])?$db->convert_html_chars($set->lvinfo_set_bezeichnung[$s->sprache]):'').'" /></td></tr>';
 }
 
+foreach($sprache->result as $s)
+{
+ 		echo '<tr><td>Einleitungstext '.$s->sprache.'</td><td>';
+ 		echo '<input type="text" size="60" maxlength="512" name="einleitungstext'.$s->sprache.'" value="'.(isset($set->einleitungstext[$s->sprache])?$db->convert_html_chars($set->einleitungstext[$s->sprache]):'').'" /></td></tr>';
+}
 echo '
 <tr>
 	<td>Organisationseinheit</td>

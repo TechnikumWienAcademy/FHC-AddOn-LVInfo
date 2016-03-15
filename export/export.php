@@ -96,6 +96,9 @@ function bauen($tree)
             foreach($lvinfo_set->result as $row_set)
             {
                 $lvinfodataelem='<h2>'.$row_set->lvinfo_set_bezeichnung[$row_lvinfo->sprache].'</h2>';
+                if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
+                    $lvinfodataelem.=$row_set->einleitungstext[$row_lvinfo->sprache].'<br><br>';
+                    
                 $key = $row_set->lvinfo_set_kurzbz;
                 $lvinfodataelembody='';
                 switch($row_set->lvinfo_set_typ)

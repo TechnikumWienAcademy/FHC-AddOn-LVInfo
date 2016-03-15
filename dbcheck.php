@@ -293,13 +293,24 @@ if($result = $db->db_query("SELECT * FROM system.tbl_berechtigung WHERE berechti
 	}
 }
 
+if(!$result = @$db->db_query("SELECT einleitungstext FROM addon.tbl_lvinfo_set"))
+{
+	$qry = "ALTER TABLE addon.tbl_lvinfo_set ADD COLUMN einleitungstext varchar(512)[]";
+
+	if(!$db->db_query($qry))
+		echo '<strong>addon.tbl_lvinfo_set: '.$db->db_last_error().'</strong><br>';
+	else
+		echo '<br>Spalte einleitungstext zu Tabelle addon.tbl_lvinfo_set hinzugefuegt!';
+
+}
+
 echo '<br>Aktualisierung abgeschlossen<br><br>';
 echo '<h2>Gegenprüfung</h2>';
 
 $error=false;
 // Liste der verwendeten Tabellen / Spalten des Addons
 $tabellen=array(
-	"addon.tbl_lvinfo_set"  => array("lvinfo_set_id","lvinfo_set_kurzbz","lvinfo_set_bezeichnung","sort","lvinfo_set_typ","gueltigab_studiensemester_kurzbz","oe_kurzbz","insertamum","insertvon","updateamum","updatevon"),
+	"addon.tbl_lvinfo_set"  => array("lvinfo_set_id","lvinfo_set_kurzbz","lvinfo_set_bezeichnung","sort","lvinfo_set_typ","gueltigab_studiensemester_kurzbz","oe_kurzbz","insertamum","insertvon","updateamum","updatevon","einleitungstext"),
 	"addon.tbl_lvinfo"  => array("lvinfo_id","sprache","lehrveranstaltung_id","studiensemester_kurzbz","data","insertamum","insertvon","updateamum","updatevon"),
 	"addon.tbl_lvinfostatus"  => array("lvinfostatus_kurzbz","bezeichnung","insertamum","insertvon","updateamum","updatevon"),
 	"addon.tbl_lvinfostatus_zuordnung"  => array("lvinfo_id","lvinfostatus_kurzbz","gesetztamum","uid","insertamum","insertvon","updateamum","updatevon"),

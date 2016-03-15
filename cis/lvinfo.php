@@ -515,6 +515,8 @@ foreach($lvinfo_set->result as $row_set)
 
 		echo '<td valign="top">'.$row_set->lvinfo_set_bezeichnung[$lvinfo_sprache].'</td>
 		<td valign="top">';
+        if(isset($row_set->einleitungstext[$lvinfo_sprache]))
+            echo $row_set->einleitungstext[$lvinfo_sprache].'<br><br>';
 		printData($lvinfo_sprache, $row_set->lvinfo_set_typ, $row_set->lvinfo_set_kurzbz, (isset($data_set[$lvinfo_sprache])?$data_set[$lvinfo_sprache]:array()), $locked);
 		echo '</td>';
 	}

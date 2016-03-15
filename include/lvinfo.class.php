@@ -30,7 +30,8 @@ class lvinfo extends basis_db
 	//Tabellenspalten
 	public $lvinfo_set_id;						// integer
 	public $lvinfo_set_kurzbz;					// varchar(16)
-	public $lvinfo_set_bezeichnung;				// varchar(64)
+	public $lvinfo_set_bezeichnung;				// varchar(64)[]
+	public $einleitungstext;					// varchar(512)[]
 	public $sort;								// integer
 	public $lvinfo_set_typ;						// varchar(32)
 	public $gueltigab_studiensemester_kurzbz;	// varchar(6)
@@ -351,6 +352,7 @@ class lvinfo extends basis_db
 				$this->lvinfo_set_id = $row->lvinfo_set_id;
 				$this->lvinfo_set_kurzbz = $row->lvinfo_set_kurzbz;
 				$this->lvinfo_set_bezeichnung = $this->db_parse_lang_array($row->lvinfo_set_bezeichnung);
+				$this->einleitungstext = $this->db_parse_lang_array($row->einleitungstext);
 				$this->sort = $row->sort;
 				$this->lvinfo_set_typ = $row->lvinfo_set_typ;
 				$this->gueltigab_studiensemester_kurzbz = $row->gueltigab_studiensemester_kurzbz;
@@ -383,12 +385,9 @@ class lvinfo extends basis_db
 	 */
 	public function load_lvinfo_set($studiensemester_kurbz)
 	{
-		$sprache = new sprache();
-		$lvinfo_set_bezeichnung = $sprache->getSprachQuery('lvinfo_set_bezeichnung');
-
 		$studiensemester = $this->getGueltigesStudiensemester($studiensemester_kurbz);
 		$qry = "SELECT
-					*, $lvinfo_set_bezeichnung
+					*
 				FROM
 					addon.tbl_lvinfo_set
 				WHERE
@@ -403,7 +402,8 @@ class lvinfo extends basis_db
 
 				$set->lvinfo_set_id = $row->lvinfo_set_id;
 				$set->lvinfo_set_kurzbz = $row->lvinfo_set_kurzbz;
-				$set->lvinfo_set_bezeichnung = $sprache->parseSprachResult('lvinfo_set_bezeichnung', $row);
+				$set->lvinfo_set_bezeichnung = $this->db_parse_lang_array($row->lvinfo_set_bezeichnung);
+				$set->einleitungstext = $this->db_parse_lang_array($row->einleitungstext);
 				$set->sort = $row->sort;
 				$set->lvinfo_set_typ = $row->lvinfo_set_typ;
 				$set->gueltigab_studiensemester_kurzbz = $row->gueltigab_studiensemester_kurzbz;
@@ -660,10 +660,12 @@ class lvinfo extends basis_db
 		if($this->new)
 		{
 			//Neuen Datensatz anlegen
-			$qry = 'BEGIN;INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ,
+			$qry = 'BEGIN;INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung,
+			 	einleitungstext, sort, lvinfo_set_typ,
 				gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('.
 				$this->db_add_param($this->lvinfo_set_kurzbz).', '.
 				$this->db_add_param($this->lvinfo_set_bezeichnung, FHC_LANG_ARRAY).','.
+				$this->db_add_param($this->einleitungstext, FHC_LANG_ARRAY).','.
 				$this->db_add_param($this->sort).', '.
 				$this->db_add_param($this->lvinfo_set_typ).', '.
 				$this->db_add_param($this->gueltigab_studiensemester_kurzbz).', '.
@@ -685,6 +687,7 @@ class lvinfo extends basis_db
 			$qry = 'UPDATE addon.tbl_lvinfo_set SET '.
 				'lvinfo_set_kurzbz='.$this->db_add_param($this->lvinfo_set_kurzbz).','.
 				'lvinfo_set_bezeichnung='.$this->db_add_param($this->lvinfo_set_bezeichnung, FHC_LANG_ARRAY).','.
+				'einleitungstext='.$this->db_add_param($this->einleitungstext, FHC_LANG_ARRAY).','.
 				'sort='.$this->db_add_param($this->sort, FHC_INTEGER).', '.
 				'lvinfo_set_typ='.$this->db_add_param($this->lvinfo_set_typ).', '.
 				'gueltigab_studiensemester_kurzbz='.$this->db_add_param($this->gueltigab_studiensemester_kurzbz).', '.
