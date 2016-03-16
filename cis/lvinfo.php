@@ -603,7 +603,7 @@ function printData($sprache, $typ, $key, $data, $locked)
 				echo '<input name="'.$sprache.'['.$key.'][]" size="50" type="text" value="'.$db->convert_html_chars($val).'" '.($locked?'readonly="readonly"':'').'><br>';
 			echo '</div>';
 			if(!$locked)
-				echo '<a href="#add" onclick="addInput(\''.$sprache.'\',\''.$key.'\');return false;"><img src="../../../skin/images/plus.png" height="20px" alt="Eintrag hinzufügen"/></a>';
+				echo '<a href="#add" onclick="addInput(\''.$sprache.'\',\''.$key.'\');return false;"><img src="../../../skin/images/list-add.png" height="20px" alt="Eintrag hinzufügen"/></a>';
 			break;
 
 		default:

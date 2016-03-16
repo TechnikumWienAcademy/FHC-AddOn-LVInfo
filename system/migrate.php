@@ -75,7 +75,7 @@ if($result = $db->db_query($qry))
 $qry = "
 INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('kurzbesch', '{Kurzbeschreibung,\"Course Description\"}', 1, 'text', 'WS2015', 'gst', now(), 'migrate', now(), 'migrate');
 INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('methodik', '{Methodik,\"Teaching Methods\"}', 2, 'text', 'WS2015', 'gst', now(), 'migrate', now(), 'migrate');
-INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('lernerg', '{Lernergebnisse,\"Learning outcomes\"}', 3, 'array', 'WS2015', 'gst', now(), 'migrate', now(), 'migrate');
+INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon,einleitungstext) VALUES ('lernerg', '{Lernergebnisse,\"Learning outcomes\"}', 3, 'array', 'WS2015', 'gst', now(), 'migrate', now(), 'migrate','{\"Nach erfolgreichem Abschluss sind die Studierenden in der Lage, ...\",\"After passing this course successfully students are able to ...\"}');
 INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('lehrinhalte', '{Lehrinhalte,\"Course Contents\"}', 4, 'array', 'WS2015', 'gst', now(), 'migrate', now(), 'migrate');
 INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('vorkenntnisse', '{Vorkenntnisse,\"Prerequisites\"}', 5, 'text', 'WS2015', 'gst', now(), 'migrate', now(), 'migrate');
 INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('literatur', '{Literatur,\"Recommended Reading and Material\"}', 6, 'array', 'WS2015', 'gst', now(), 'migrate', now(), 'migrate');
@@ -104,9 +104,23 @@ if($result = $db->db_query($qry))
 		$data['methodik']=clearStuff($row->methodik);
 
 		$row->lehrziele=mb_str_replace('Nach erfolgreichem Abschluss sind die Studierenden in der Lage, ...<br>','', $row->lehrziele);
+		$row->lehrziele=mb_str_replace('Nach erfolgreichem Abschluss sind die Studierenden in der Lage,...<br>','', $row->lehrziele);
 		$row->lehrziele=mb_str_replace('Nach erfolgreichem Abschluss sind die Studierenden in der Lage,... <br>','', $row->lehrziele);
+		$row->lehrziele=mb_str_replace('Nach erfolgreichem Abschluss sind die Studierenden in der Lage, ... <br>','', $row->lehrziele);
+		$row->lehrziele=mb_str_replace('Nach erfolgreichem Abschluss sind die Studierenden in der Lage,<br>','', $row->lehrziele);
+		$row->lehrziele=mb_str_replace('Nach erfolgreichem Abschluss sind die Studierenden in der Lage, <br>','', $row->lehrziele);
+		$row->lehrziele=mb_str_replace('Nach erfolgreichem Abschluss sind die Studierenden in der Lage:<br>','', $row->lehrziele);
+
 		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to ...<br>','',$row->lehrziele);
 		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to...<br>','',$row->lehrziele);
+		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to... <br>','',$row->lehrziele);
+		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to,... <br>','',$row->lehrziele);
+		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to:<br>','',$row->lehrziele);
+		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to ','',$row->lehrziele);
+
+
+
+
 
 		$data['lernerg']=getArray($row->lehrziele);
 		$data['lehrinhalte']=getArray($row->lehrinhalte);

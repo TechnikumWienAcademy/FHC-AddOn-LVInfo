@@ -332,8 +332,8 @@ if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_
 
                     echo '
                     <td>
-                        <a href="lvinfo.php?lv_id='.$row_lvinfo->lehrveranstaltung_id.'&studiensemester_kurzbz='.$studiensemester_kurzbz.'"><img src="../../../skin/images/edit.png" height="20px" title="bearbeiten"></a>
-                        <a href="view.php?lvinfo_id='.$row_lvinfo->lvinfo_id.'"><img src="../../../skin/images/eye.png" height="20px" title="anzeigen"></a>
+                        <a href="lvinfo.php?lv_id='.$row_lvinfo->lehrveranstaltung_id.'&studiensemester_kurzbz='.$studiensemester_kurzbz.'"><img src="../../../skin/images/text-x-generic_with_pencil.png" height="20px" title="bearbeiten"></a>
+                        <a href="view.php?lvinfo_id='.$row_lvinfo->lvinfo_id.'"><img src="../../../skin/images/system-index-search.png" height="20px" title="anzeigen"></a>
                         <a href="diff.php?lvinfo_id='.$row_lvinfo->lvinfo_id.'"><img src="../../../skin/images/merge.png" height="20px" title="Unterschiede zur Vorversion anzeigen"/></a>
                     ';
 
