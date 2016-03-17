@@ -340,22 +340,29 @@ if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_
                     if(isset($status->bezeichnung[$sprache]))
                         echo '<b>'.$status->bezeichnung[$sprache].'</b>';
 
-                    switch($status->lvinfostatus_kurzbz)
-                    {
-                        case 'abgeschickt':
-                            // Freigabe oder Reject
-                            echo ' Freigeben:';
-                            echo ' <a href="#freigabe" onclick="freigabe(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="LVInfo freischalten"><img src="../../../skin/images/true.png" /></a>';
-                            echo ' <a href="#zuruecksetzen" onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="Nicht freischalten und Sperre aufheben"><img src="../../../skin/images/false.png" /></a>';
-                            break;
-                        case 'freigegeben':
-                            // freigabe aufheben
-                            echo ' <a href="#zuruecksetzen"  onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;">Sperre aufheben</a>';
-                            break;
-                        case 'bearbeitung':
-                        default:
+                    $lva = new lehrveranstaltung();
+                	$lva->load($row_lvinfo->lehrveranstaltung_id);
+                	$oes = $lva->getAllOe();
+                	$oes[]=$lva->oe_kurzbz;
+                	if($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
+                	{
+                        switch($status->lvinfostatus_kurzbz)
+                        {
+                            case 'abgeschickt':
+                                // Freigabe oder Reject
+                                echo ' Freigeben:';
+                                echo ' <a href="#freigabe" onclick="freigabe(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="LVInfo freischalten"><img src="../../../skin/images/true.png" /></a>';
+                                echo ' <a href="#zuruecksetzen" onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="Nicht freischalten und Sperre aufheben"><img src="../../../skin/images/false.png" /></a>';
+                                break;
+                            case 'freigegeben':
+                                // freigabe aufheben
+                                echo ' <a href="#zuruecksetzen"  onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;">Sperre aufheben</a>';
+                                break;
+                            case 'bearbeitung':
+                            default:
 
-                            break;
+                                break;
+                        }
                     }
                     echo '</td>';
                 }
