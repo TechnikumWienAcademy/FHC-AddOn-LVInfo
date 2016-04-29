@@ -16,3 +16,10 @@ Features:
   * Postgresql >= 9.4
   * PHP >= 5.3.0
   * Composer
+
+## Installation
+
+  * Addon in Ordner /addons/lvinfo/ entpacken
+  * Datenbank Update starten addons/lvinfo/dbcheck.php
+  * LVInfos aus Core übernehmen addons/lvinfo/system/migrate.php
+  * Addon im Config aktivieren

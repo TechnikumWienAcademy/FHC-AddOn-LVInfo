@@ -825,5 +825,36 @@ class lvinfo extends basis_db
 			return false;
 		}
 	}
+
+	/**
+	 * Prueft ob eine LV-Information bereits vorhanden ist
+	 * @param $lehrveranstaltung_id ID der Lehrveranstaltung
+	 * @param $studiensemester_kurzbz Kurzbz des Studiensemesters
+	 * @param $sprache Sprache
+	 * @return boolean true wenn vorhanden, false wenn nicht vorhanden
+	 */
+	public function exists($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache)
+	{
+		$qry = "SELECT
+					1
+				FROM
+					addon.tbl_lvinfo
+				WHERE
+					lehrveranstaltung_id =".$this->db_add_param($lehrveranstaltung_id, FHC_INTEGER)."
+					AND studiensemester_kurzbz=".$this->db_add_param($studiensemester_kurzbz)."
+					AND sprache=".$this->db_add_param($sprache);
+		if($result = $this->db_query($qry))
+		{
+			if($this->db_num_rows($result)>0)
+				return true;
+			else
+				return false;
+		}
+		else
+		{
+			$this->errormsg = 'Fehler beim Laden der Daten';
+			return false;
+		}
+	}
 }
 ?>

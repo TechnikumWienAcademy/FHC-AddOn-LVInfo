@@ -93,22 +93,22 @@ $errormsg = '';
 
 if(isset($_POST['save']) || isset($_POST['saveAndSend']))
 {
-    // Berechtigungen pruefen
-    $lem = new lehreinheitmitarbeiter();
-    if(!$lem->existsLV($lv_id, $studiensemester_kurzbz,  $user))
-    {
-    	$rechte = new benutzerberechtigung();
-    	$rechte->getBerechtigungen($user);
+	// Berechtigungen pruefen
+	$lem = new lehreinheitmitarbeiter();
+	if(!$lem->existsLV($lv_id, $studiensemester_kurzbz,  $user))
+	{
+		$rechte = new benutzerberechtigung();
+		$rechte->getBerechtigungen($user);
 
-    	$lva = new lehrveranstaltung();
-    	$lva->load($lv_id);
-    	$oes = $lva->getAllOe();
-    	$oes[]=$lva->oe_kurzbz; // Institut
-    	if(!$rechte->isBerechtigtMultipleOe('addon/lvinfo',$oes,'s'))
-    	{
-    		die($p->t('global/keineBerechtigungFuerDieseSeite'));
-    	}
-    }
+		$lva = new lehrveranstaltung();
+		$lva->load($lv_id);
+		$oes = $lva->getAllOe();
+		$oes[]=$lva->oe_kurzbz; // Institut
+		if(!$rechte->isBerechtigtMultipleOe('addon/lvinfo',$oes,'s'))
+		{
+			die($p->t('global/keineBerechtigungFuerDieseSeite'));
+		}
+	}
 
 	$error = false;
 	//Formulardaten fuer Json-Encode vorbereiten
@@ -154,13 +154,13 @@ if(isset($_POST['save']) || isset($_POST['saveAndSend']))
 			$error = true;
 			$errorstr = "Fehler beim Speichern der Daten: $lvinfo->errormsg";
 		}
-        else
-        {
-            $lvinfostatus = new lvinfo();
-            $lvinfostatus->getLastStatus($lvinfo->lvinfo_id);
-            if($lvinfostatus->lvinfostatus_kurzbz=='')
-                $lvinfostatus->setStatus($lvinfo->lvinfo_id,'bearbeitung',$user);
-        }
+		else
+		{
+			$lvinfostatus = new lvinfo();
+			$lvinfostatus->getLastStatus($lvinfo->lvinfo_id);
+			if($lvinfostatus->lvinfostatus_kurzbz=='')
+				$lvinfostatus->setStatus($lvinfo->lvinfo_id,'bearbeitung',$user);
+		}
 
 		$id_array[$lvinfo->sprache]=$lvinfo->lvinfo_id;
 	}
@@ -173,9 +173,9 @@ if(isset($_POST['save']) || isset($_POST['saveAndSend']))
 		$diff ='';
 		foreach($config_lvinfo_sprachen as $lvinfo_sprache)
 		{
-            $lvinfo->getLastStatus($id_array[$lvinfo_sprache]);
-            if($lvinfo->lvinfostatus_kurzbz!='freigegeben')
-			    $lvinfo->setStatus($id_array[$lvinfo_sprache],'abgeschickt',$user);
+			$lvinfo->getLastStatus($id_array[$lvinfo_sprache]);
+			if($lvinfo->lvinfostatus_kurzbz!='freigegeben')
+				$lvinfo->setStatus($id_array[$lvinfo_sprache],'abgeschickt',$user);
 
 			$sprache_obj = new sprache();
 			$sprache_obj->load($lvinfo_sprache);
@@ -194,21 +194,29 @@ if(isset($_POST['save']) || isset($_POST['saveAndSend']))
 		Studiengang: '.$db->convert_html_chars($stg_obj->kuerzel_arr[$lv_obj->studiengang_kz]).'<br>
 		Semester: '.$db->convert_html_chars($lv_obj->semester).'<br>
 		Organisationsform: '.$db->convert_html_chars($lv_obj->orgform_kurzbz).'<br>
-        Studiensemester:'.$db->convert_html_chars($studiensemester_kurzbz).'<br>
+		Studiensemester:'.$db->convert_html_chars($studiensemester_kurzbz).'<br>
 		Änderung durch: '.$db->convert_html_chars($benutzer->vorname.' '.$benutzer->nachname).'<br><br>
 		Bitte bestätigen Sie die Freigabe über folgenden Link:
-        <a href="'.APP_ROOT.'addons/lvinfo/cis/lvinfo_uebersicht.php?stg_kz='.urlencode($lv_obj->studiengang_kz).'&semester='.urlencode($lv_obj->semester).'&orgform_kurzbz='.urlencode($lv_obj->orgform_kurzbz).'&studiensemester_kurzbz='.urlencode($studiensemester_kurzbz).'">Zur Freigabe</a><br>
+		<a href="'.APP_ROOT.'addons/lvinfo/cis/lvinfo_uebersicht.php?stg_kz='.urlencode($lv_obj->studiengang_kz).'&semester='.urlencode($lv_obj->semester).'&orgform_kurzbz='.urlencode($lv_obj->orgform_kurzbz).'&studiensemester_kurzbz='.urlencode($studiensemester_kurzbz).'">Zur Freigabe</a><br>
 		Folgende Änderungen wurde gegenüber der Vorversion durchgeführt:<br>
 		'.$diff;
 
 		// Empfaenger setzen
-        // Studiengangsleitung
-        $stgleitung = $stg_obj->getLeitung($lv_obj->studiengang_kz);
-        $to='';
-        foreach($stgleitung as $rowltg)
-            $to.=$rowltg.'@'.DOMAIN.',';
+		// Studiengangsleitung
+		$stgleitung = $stg_obj->getLeitung($lv_obj->studiengang_kz);
+		$to='';
+		foreach($stgleitung as $rowltg)
+			$to.=$rowltg.'@'.DOMAIN.',';
 
-        $to = mb_substr($to, 0,-1);
+		// geschaeftsfuehrende Studiengangsleitung
+		$stg_hlp = new studiengang();
+		$stg_hlp->load($lv_obj->studiengang_kz);
+		$bnf = new benutzerfunktion();
+		$bnf->getBenutzerFunktionen('gLtg', $stg_hlp->oe_kurzbz);
+		foreach($bnf->result as $rowbnf)
+			$to.=$rowbnf->uid.'@'.DOMAIN.',';
+
+		$to = mb_substr($to, 0,-1);
 		$from = 'noreply@'.DOMAIN;
 		$subject = 'Freigabe LV-Information';
 
@@ -339,7 +347,7 @@ if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_
 	if(count($lv_obj->lehrveranstaltungen)>0)
 	{
 		//Wenn die übergebene LV_ID nicht in der Liste der geladenen Objekte ist,
-        // Dann die erste LV in der Liste markieren
+		// Dann die erste LV in der Liste markieren
 		$lv_ids = array();
 		foreach($lv_obj->lehrveranstaltungen as $row)
 		{
@@ -347,7 +355,7 @@ if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_
 		}
 		if($lv_id!='' && !in_array($lv_id, $lv_ids))
 		{
-            /*
+			/*
 			$lv = new lehrveranstaltung();
 			$lv->load($lv_id);
 			if($lv->semester!='' && $lv->orgform_kurzbz=='')
@@ -357,15 +365,15 @@ if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_
 			if($lv->semester!='' && $lv->orgform_kurzbz!='')
 				$outputstring = $lv->orgform_kurzbz.' - '.$lv->semester.' - ';
 			echo '<option value="'.$lv_id.'" selected>'.$db->convert_html_chars($outputstring.$lv->bezeichnung).'</option>';
-            */
-            $lv_id = '';
+			*/
+			$lv_id = '';
 		}
 		$outputstring = '';
 		foreach($lv_obj->lehrveranstaltungen as $row)
 		{
 			$selected = '';
-            if($lv_id=='')
-                $lv_id=$row->lehrveranstaltung_id;
+			if($lv_id=='')
+				$lv_id=$row->lehrveranstaltung_id;
 			if($row->lehrveranstaltung_id==$lv_id)
 				$selected = 'selected';
 			if($semester!='' && $orgform_kurzbz=='' && $row->orgform_kurzbz!='')
@@ -400,17 +408,17 @@ echo '</td></tr></table>';
 $lem = new lehreinheitmitarbeiter();
 if(!$lem->existsLV($lv_id, $studiensemester_kurzbz,  $user))
 {
-    $rechte = new benutzerberechtigung();
-    $rechte->getBerechtigungen($user);
+	$rechte = new benutzerberechtigung();
+	$rechte->getBerechtigungen($user);
 
-    $lva = new lehrveranstaltung();
-    $lva->load($lv_id);
-    $oes = $lva->getAllOe();
-    $oes[]=$lva->oe_kurzbz; // Institut
-    if(!$rechte->isBerechtigtMultipleOe('addon/lvinfo',$oes,'s'))
-    {
-        die($p->t('global/keineBerechtigungFuerDieseSeite'));
-    }
+	$lva = new lehrveranstaltung();
+	$lva->load($lv_id);
+	$oes = $lva->getAllOe();
+	$oes[]=$lva->oe_kurzbz; // Institut
+	if(!$rechte->isBerechtigtMultipleOe('addon/lvinfo',$oes,'s'))
+	{
+		die($p->t('global/keineBerechtigungFuerDieseSeite'));
+	}
 }
 // LV Information anzeigen
 
@@ -470,8 +478,8 @@ foreach($lvinfo->result AS $row)
 
 echo '
 
-    <table width="100%" id="tablelvinfo" class="tablesorter">
-        <thead>
+	<table width="100%" id="tablelvinfo" class="tablesorter">
+		<thead>
 		<tr>';
 
 foreach($config_lvinfo_sprachen as $lvinfo_sprache)
@@ -479,17 +487,17 @@ foreach($config_lvinfo_sprachen as $lvinfo_sprache)
 	$sprachen_obj = new sprache();
 	$sprachen_obj->load($lvinfo_sprache);
 
-    // Aktuellen Status anzeigen
-    if(isset($laststatus_arr[$lvinfo_sprache])
-        && isset($laststatus_arr[$lvinfo_sprache]->bezeichnung[$lvinfo_sprache])
-        && $laststatus_arr[$lvinfo_sprache]->bezeichnung[$lvinfo_sprache]!='')
-    {
-        $aktuellerStatus = '('.$p->t('lvinfo/status').' '.$laststatus_arr[$lvinfo_sprache]->bezeichnung[$sprache].')';
-    }
-    else
-    {
-        $aktuellerStatus ='';
-    }
+	// Aktuellen Status anzeigen
+	if(isset($laststatus_arr[$lvinfo_sprache])
+		&& isset($laststatus_arr[$lvinfo_sprache]->bezeichnung[$lvinfo_sprache])
+		&& $laststatus_arr[$lvinfo_sprache]->bezeichnung[$lvinfo_sprache]!='')
+	{
+		$aktuellerStatus = '('.$p->t('lvinfo/status').' '.$laststatus_arr[$lvinfo_sprache]->bezeichnung[$sprache].')';
+	}
+	else
+	{
+		$aktuellerStatus ='';
+	}
 	echo '
 		<th colspan="2">
 			'.$sprachen_obj->bezeichnung_arr[$sprache].' '.$aktuellerStatus.' '.(isset($data_obj[$lvinfo_sprache])?$data_obj[$lvinfo_sprache]->lvinfo_id:'').'
@@ -503,7 +511,7 @@ $i=0;
 // Ausgabe der Felder
 foreach($lvinfo_set->result as $row_set)
 {
-    $i++;
+	$i++;
 	echo '<tr class="'.(($i%2==0)?'even':'odd').'">';
 
 	foreach($config_lvinfo_sprachen as $lvinfo_sprache)
@@ -515,8 +523,8 @@ foreach($lvinfo_set->result as $row_set)
 
 		echo '<td valign="top">'.$row_set->lvinfo_set_bezeichnung[$lvinfo_sprache].'</td>
 		<td valign="top">';
-        if(isset($row_set->einleitungstext[$lvinfo_sprache]))
-            echo $row_set->einleitungstext[$lvinfo_sprache].'<br><br>';
+		if(isset($row_set->einleitungstext[$lvinfo_sprache]))
+			echo $row_set->einleitungstext[$lvinfo_sprache].'<br><br>';
 		printData($lvinfo_sprache, $row_set->lvinfo_set_typ, $row_set->lvinfo_set_kurzbz, (isset($data_set[$lvinfo_sprache])?$data_set[$lvinfo_sprache]:array()), $locked);
 		echo '</td>';
 	}
@@ -551,9 +559,9 @@ foreach($config_lvinfo_sprachen as $lvinfo_sprache)
         $locked=false;
 echo '</tbody>
 <tfoot>
-    <tr>
+	<tr>
 	<td colspan="5">
-        <input type="submit" name="save" '.($locked?'disabled="disabled"':'').' value="'.$p->t('global/speichern').'">
+		<input type="submit" name="save" '.($locked?'disabled="disabled"':'').' value="'.$p->t('global/speichern').'">
 		<input type="submit" name="saveAndSend" '.($locked?'disabled="disabled"':'').' value="'.$p->t('lvinfo/speichernUndFreigeben').'">
 	</td>
 	</tr>';

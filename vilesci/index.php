@@ -41,7 +41,11 @@ if(!$rechte->isBerechtigt('addon/lvinfoAdmin'))
 }
 echo '
 <ul>
-    <li><a href="lvinfoset.php">Set Administrieren</a></li>
-    <li><a href="copy.php">LV-Informationen kopieren</a></li>
+	<li><a href="copy.php">LV-Informationen kopieren</a><br>
+		Kopiert LV-Informationen von einer LV zu einer anderen bzw von einem Studiensemester in ein anderes<br><br></li>
+	<li><a href="vorrueckung.php">LV-Informationen vorrücken</a><br>
+		Kopiert alle LV-Informationen eines Studiengangs in das nächste Studiensemester und setzt diese auf "in Bearbeitung"<br><br></li>
+	<li><a href="lvinfoset.php">Set Administrieren</a><br>
+		Administration der verfügbaren Felder von LV-Informationen</li>
 </ul>';
 ?>

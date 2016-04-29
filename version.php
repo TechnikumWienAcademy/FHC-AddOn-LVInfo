@@ -18,7 +18,7 @@
  */
 
 // Name des Addons
-$addon_name = 'Lvinfo';
+$addon_name = 'LV-Information';
 
 // Versionsnummer des Addons
 $addon_version = '0.5';

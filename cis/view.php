@@ -128,8 +128,7 @@ if($sprachenlinks!='')
 printInfoTable($lvinfo->lehrveranstaltung_id, $lvinfo->studiensemester_kurzbz, $sprache);
 
 $lvinfo_set = new lvinfo();
-$setstsem = $lvinfo_set->getGueltigesStudiensemester($lvinfo->studiensemester_kurzbz);
-$lvinfo_set->load_lvinfo_set($setstsem);
+$lvinfo_set->load_lvinfo_set($lvinfo->studiensemester_kurzbz);
 
 // Ausgabe der Felder
 echo '<div class="lvinfo">';
@@ -142,7 +141,7 @@ foreach($lvinfo_set->result as $row_set)
     $header='<h2>'.$row_set->lvinfo_set_bezeichnung[$lvinfo->sprache].'</h2>';
     if(isset($row_set->einleitungstext[$lvinfo->sprache]))
         $header.=$row_set->einleitungstext[$lvinfo->sprache];
-    
+
     $body='';
     switch($row_set->lvinfo_set_typ)
 	{
