@@ -60,18 +60,18 @@ $ziel_semester = (isset($_REQUEST['ziel_semester'])?$_REQUEST['ziel_semester']:'
 $ziel_studiensemester = (isset($_REQUEST['ziel_studiensemester'])?$_REQUEST['ziel_studiensemester']:'');
 $ziel_lehrveranstaltung_id = (isset($_REQUEST['ziel_lehrveranstaltung_id'])?$_REQUEST['ziel_lehrveranstaltung_id']:'');
 
-if($quelle_studiensemester=='')
+if($quelle_studiensemester == '')
 {
 	$studiensemester = new studiensemester();
 	$quelle_studiensemester = $studiensemester->getaktorNext();
 }
-if($ziel_studiensemester=='')
+if($ziel_studiensemester == '')
 {
 	$studiensemester = new studiensemester();
 	$ziel_studiensemester = $studiensemester->getaktorNext();
 }
 
-if($ziel_lehrveranstaltung_id!='' && $ziel_studiengang_kz=='')
+if($ziel_lehrveranstaltung_id != '' && $ziel_studiengang_kz == '')
 {
 	// Wenn nur die LV uebergeben wird, dann Stg und Sem ermitteln
 	$lehrveranstaltung_obj = new lehrveranstaltung();
@@ -82,11 +82,12 @@ if($ziel_lehrveranstaltung_id!='' && $ziel_studiengang_kz=='')
 
 if(isset($_POST['action']))
 {
-	echo 'Kopiere LVInformation von '.$quelle_lehrveranstaltung_id.' ('.$quelle_studiensemester.') nach '.$ziel_lehrveranstaltung_id.' ('.$ziel_studiensemester.')';
+	echo 'Kopiere LVInformation von '.$quelle_lehrveranstaltung_id.' ('.$quelle_studiensemester.')
+								nach '.$ziel_lehrveranstaltung_id.' ('.$ziel_studiensemester.')';
 	$lvinfo = new lvinfo();
 	if($lvinfo->loadLvinfo($ziel_lehrveranstaltung_id, $ziel_studiensemester))
 	{
-		if(count($lvinfo->result)>0)
+		if(count($lvinfo->result) > 0)
 		{
 			echo '<span class="error">Fehlgeschlagen: Es sind bereits LV-Infos für die Ziel Lehrveranstaltung vorhanden</span>';
 		}
@@ -111,7 +112,7 @@ if(isset($_POST['action']))
 						$lvinfo_neu_status = new lvinfo();
 						if($lvinfo_neu_status->getLastStatus($row_lvinfo->lvinfo_id))
 						{
-							if($lvinfo_neu_status->setStatus($lvinfo_neu->lvinfo_id,$lvinfo_neu_status->lvinfostatus_kurzbz,$uid))
+							if($lvinfo_neu_status->setStatus($lvinfo_neu->lvinfo_id, $lvinfo_neu_status->lvinfostatus_kurzbz, $uid))
 							{
 								echo '<span class="ok">OK</span>';
 							}
@@ -119,7 +120,6 @@ if(isset($_POST['action']))
 					}
 					else
 						echo '<span class="error">Failed:'.$lvinfo_neu->errormsg.'</span>';
-
 				}
 			}
 		}
@@ -131,19 +131,17 @@ $studiengang->getAll('typ, kurzbz');
 
 foreach($studiengang->result as $row)
 {
-	$stg_arr[$row->studiengang_kz]['max_semester']=$row->max_semester;
+	$stg_arr[$row->studiengang_kz]['max_semester'] = $row->max_semester;
 }
 echo '<h1>Kopieren von LV-Informationen</h1>';
-echo '
-<form action="copy.php" method="POST" name="auswahlFrm">';
+echo '<form action="copy.php" method="POST" name="auswahlFrm">';
 
 echo '<h2>Quell Lehrveranstaltung</h2>';
 
-printAuswahl('quelle',$quelle_studiengang_kz, $quelle_semester,$quelle_studiensemester,$quelle_lehrveranstaltung_id);
-
+printAuswahl('quelle', $quelle_studiengang_kz, $quelle_semester, $quelle_studiensemester, $quelle_lehrveranstaltung_id);
 
 echo '<h2>Ziel Lehrveranstaltung</h2>';
-printAuswahl('ziel',$ziel_studiengang_kz, $ziel_semester,$ziel_studiensemester,$ziel_lehrveranstaltung_id);
+printAuswahl('ziel', $ziel_studiengang_kz, $ziel_semester, $ziel_studiensemester, $ziel_lehrveranstaltung_id);
 
 echo '
 <br />
@@ -158,6 +156,12 @@ echo '
 
 /**
  * Erstellt das Auswahlmenue fuer die Lehrveranstaltungen
+ * @param string $typ ziel | quelle
+ * @param int $studiengang_kz Studiengangskennzahl
+ * @param smallint $semester Semester
+ * @param string $studiensemester Studiensemester Kurzbz
+ * @param int $lehrveranstaltung_id LehrveranstaltungsID
+ * @return void
  */
 function printAuswahl($typ, &$studiengang_kz, &$semester, &$studiensemester, &$lehrveranstaltung_id)
 {
@@ -169,12 +173,12 @@ function printAuswahl($typ, &$studiengang_kz, &$semester, &$studiensemester, &$l
 		<td><select name="'.$typ.'_studiengang_kz" onchange="window.document.auswahlFrm.submit()">';
 	foreach($studiengang->result as $row_stg)
 	{
-		if($studiengang_kz=='')
+		if($studiengang_kz == '')
 			$studiengang_kz = $row_stg->studiengang_kz;
-		if($studiengang_kz==$row_stg->studiengang_kz)
-			$selected='selected';
+		if($studiengang_kz == $row_stg->studiengang_kz)
+			$selected = 'selected';
 		else
-			$selected='';
+			$selected = '';
 		echo '<option value="'.$row_stg->studiengang_kz.'" '.$selected.'>'.$row_stg->kuerzel.' ('.$row_stg->bezeichnung.')</option>';
 	}
 	echo '
@@ -184,15 +188,15 @@ function printAuswahl($typ, &$studiengang_kz, &$semester, &$studiensemester, &$l
 		<td>Semester:</td>
 		<td><select name="'.$typ.'_semester" onchange="window.document.auswahlFrm.submit()">';
 
-	for($i=1;$i<=$stg_arr[$studiengang_kz]['max_semester'];$i++)
+	for($i = 1; $i <= $stg_arr[$studiengang_kz]['max_semester']; $i++)
 	{
-		if($semester=='')
-			$semester=$i;
+		if($semester == '')
+			$semester = $i;
 
-		if($i==$semester)
-			$selected='selected';
+		if($i == $semester)
+			$selected = 'selected';
 		else
-			$selected='';
+			$selected = '';
 
 		echo '<option value="'.$i.'" '.$selected.'>'.$i.'</option>';
 	}
@@ -209,12 +213,14 @@ function printAuswahl($typ, &$studiengang_kz, &$semester, &$studiensemester, &$l
 
 	foreach($studiensemester_obj->studiensemester as $row_stsem)
 	{
-		if($studiensemester==$row_stsem->studiensemester_kurzbz)
+		if($studiensemester == $row_stsem->studiensemester_kurzbz)
 			$selected = 'selected';
 		else
 			$selected = '';
 
-		echo '<option value="'.$row_stsem->studiensemester_kurzbz.'" '.$selected.'>'.$row_stsem->studiensemester_kurzbz.'</option>';
+		echo '<option value="'.$row_stsem->studiensemester_kurzbz.'" '.$selected.'>'.
+				$row_stsem->studiensemester_kurzbz.
+			'</option>';
 	}
 
 	echo '
@@ -224,19 +230,23 @@ function printAuswahl($typ, &$studiengang_kz, &$semester, &$studiensemester, &$l
 		<td>Lehrveranstaltung</td>
 		<td><select name="'.$typ.'_lehrveranstaltung_id" onchange="window.document.auswahlFrm.submit()">';
 	$lv_obj = new lehrveranstaltung();
-	if($lv_obj->load_lva($studiengang_kz,$semester,null,true,true))
+	if($lv_obj->load_lva($studiengang_kz, $semester, null, true, true))
 	{
 		foreach($lv_obj->lehrveranstaltungen as $row_lv)
 		{
-			if($lehrveranstaltung_id=='')
-				$lehrveranstaltung_id=$row_lv->lehrveranstaltung_id;
+			if($lehrveranstaltung_id == '')
+				$lehrveranstaltung_id = $row_lv->lehrveranstaltung_id;
 
-			if($row_lv->lehrveranstaltung_id==$lehrveranstaltung_id)
+			if($row_lv->lehrveranstaltung_id == $lehrveranstaltung_id)
 				$selected = 'selected';
 			else
 				$selected = '';
 
-			echo '<option value="'.$row_lv->lehrveranstaltung_id.'" '.$selected.'>'.$db->convert_html_chars($row_lv->bezeichnung).' '.$db->convert_html_chars($row_lv->orgform_kurzbz).' ('.$row_lv->lehrveranstaltung_id.')</option>';
+			echo '<option value="'.$row_lv->lehrveranstaltung_id.'" '.$selected.'>'.
+					$db->convert_html_chars($row_lv->bezeichnung).' '.
+					$db->convert_html_chars($row_lv->orgform_kurzbz).
+					' ('.$row_lv->lehrveranstaltung_id.')
+				</option>';
 		}
 	}
 	echo '</select></td>
@@ -248,7 +258,7 @@ function printAuswahl($typ, &$studiengang_kz, &$semester, &$studiensemester, &$l
 	$lvinfo = new lvinfo();
 	if($lvinfo->loadLvinfo($lehrveranstaltung_id, $studiensemester))
 	{
-		if(count($lvinfo->result)>0)
+		if(count($lvinfo->result) > 0)
 		{
 			echo '<span class="ok">LVinfo gefunden</span>';
 		}
@@ -261,4 +271,3 @@ function printAuswahl($typ, &$studiengang_kz, &$semester, &$studiensemester, &$l
 	</tr>
 	</table>';
 }
-?>

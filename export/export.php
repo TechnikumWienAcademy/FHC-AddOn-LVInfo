@@ -42,121 +42,121 @@ $prettyprint = filter_input(INPUT_GET, 'prettyprint');
 $datum_obj = new datum();
 
 if($orgform_kurzbz=='')
-    $orgform_kurzbz=null;
+	$orgform_kurzbz=null;
 
 $studiengang = new studiengang();
 $studiengang->load($studiengang_kz);
 $data = array();
 for($semester=1;$semester<=$studiengang->max_semester;$semester++)
 {
-    $studiensemester_obj = new studiensemester();
-    $studiensemester_kurzbz = $studiensemester_obj->getNearest($semester);
+	$studiensemester_obj = new studiensemester();
+	$studiensemester_kurzbz = $studiensemester_obj->getNearest($semester);
 
-    $studienplan = new studienplan();
-    $studienplan->getStudienplaeneFromSem($studiengang_kz, $studiensemester_kurzbz, $semester, $orgform_kurzbz);
-    if(!isset($studienplan->result[0]))
-        die('Es wurde kein eindeutiger Studienplan gefunden');
-    $studienplan_id = $studienplan->result[0]->studienplan_id;
-    $lehrveranstaltung = new lehrveranstaltung();
+	$studienplan = new studienplan();
+	$studienplan->getStudienplaeneFromSem($studiengang_kz, $studiensemester_kurzbz, $semester, $orgform_kurzbz);
+	if(!isset($studienplan->result[0]))
+		die('Es wurde kein eindeutiger Studienplan gefunden');
+	$studienplan_id = $studienplan->result[0]->studienplan_id;
+	$lehrveranstaltung = new lehrveranstaltung();
 
-    $lehrveranstaltung->loadLehrveranstaltungStudienplan($studienplan_id, $semester);
+	$lehrveranstaltung->loadLehrveranstaltungStudienplan($studienplan_id, $semester);
 
-    $tree = $lehrveranstaltung->getLehrveranstaltungTree();
+	$tree = $lehrveranstaltung->getLehrveranstaltungTree();
 
-    $data[$semester] = bauen($tree);
+	$data[$semester] = bauen($tree);
 }
 
 function bauen($tree)
 {
-    global $studiensemester_kurzbz, $sprache, $datum_obj;
-    $db = new basis_db();
-    $data = array();
-    $i=0;
-    $lastupdate='';
+	global $studiensemester_kurzbz, $sprache, $datum_obj;
+	$db = new basis_db();
+	$data = array();
+	$i=0;
+	$lastupdate='';
 
-    foreach($tree as $row)
-    {
-        $data[$i]['lehrveranstaltung_id']=$row->lehrveranstaltung_id;
-        $data[$i]['semester']=$row->semester;
-        $data[$i]['bezeichnung']=$row->bezeichnung;
-        $data[$i]['bezeichnung_englisch']=$row->bezeichnung_english;
-        $data[$i]['unterrichtssprache']=$row->sprache;
-        $data[$i]['ects']=$row->ects;
-        $data[$i]['organisationsform']=$row->orgform_kurzbz;
+	foreach($tree as $row)
+	{
+		$data[$i]['lehrveranstaltung_id']=$row->lehrveranstaltung_id;
+		$data[$i]['semester']=$row->semester;
+		$data[$i]['bezeichnung']=$row->bezeichnung;
+		$data[$i]['bezeichnung_englisch']=$row->bezeichnung_english;
+		$data[$i]['unterrichtssprache']=$row->sprache;
+		$data[$i]['ects']=$row->ects;
+		$data[$i]['organisationsform']=$row->orgform_kurzbz;
 
-        $lvinfo = new lvinfo();
-        $lvinfo->loadLvinfo($row->lehrveranstaltung_id, $studiensemester_kurzbz, null, true);
+		$lvinfo = new lvinfo();
+		$lvinfo->loadLvinfo($row->lehrveranstaltung_id, $studiensemester_kurzbz, null, true);
 
-        $lvinfo_set = new lvinfo();
-        $setstsem = $lvinfo_set->getGueltigesStudiensemester($studiensemester_kurzbz);
-        $lvinfo_set->load_lvinfo_set($setstsem);
+		$lvinfo_set = new lvinfo();
+		$setstsem = $lvinfo_set->getGueltigesStudiensemester($studiensemester_kurzbz);
+		$lvinfo_set->load_lvinfo_set($setstsem);
 
-        foreach($lvinfo->result as $row_lvinfo)
-        {
-            $lvinfodata = '';
-            // Ausgabe der Felder
-            foreach($lvinfo_set->result as $row_set)
-            {
-                $lvinfodataelem='<h2>'.$row_set->lvinfo_set_bezeichnung[$row_lvinfo->sprache].'</h2>';
-                if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
-                    $lvinfodataelem.=$row_set->einleitungstext[$row_lvinfo->sprache].'<br><br>';
+		foreach($lvinfo->result as $row_lvinfo)
+		{
+			$lvinfodata = '';
+			// Ausgabe der Felder
+			foreach($lvinfo_set->result as $row_set)
+			{
+				$lvinfodataelem='<h2>'.$row_set->lvinfo_set_bezeichnung[$row_lvinfo->sprache].'</h2>';
+				if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
+					$lvinfodataelem.=$row_set->einleitungstext[$row_lvinfo->sprache].'<br><br>';
 
-                $key = $row_set->lvinfo_set_kurzbz;
-                $lvinfodataelembody='';
-                switch($row_set->lvinfo_set_typ)
-                {
-                    case 'boolean':
-                        $p1 = new phrasen($lvinfo->sprache);
+				$key = $row_set->lvinfo_set_kurzbz;
+				$lvinfodataelembody='';
+				switch($row_set->lvinfo_set_typ)
+				{
+					case 'boolean':
+						$p1 = new phrasen($lvinfo->sprache);
 
-                        if(isset($row_lvinfo->data[$key]) && $row_lvinfo->data[$key]===true)
-                            $lvinfodataelembody.= $p1->t('global/ja');
-                        else
-                            $lvinfodataelembody.= $p1->t('global/nein');
-                        break;
+						if(isset($row_lvinfo->data[$key]) && $row_lvinfo->data[$key]===true)
+							$lvinfodataelembody.= $p1->t('global/ja');
+						else
+							$lvinfodataelembody.= $p1->t('global/nein');
+						break;
 
-                    case 'array':
-                        if(isset($row_lvinfo->data[$key]))
-                            $value=$row_lvinfo->data[$key];
-                        else
-                            $value=array();
+					case 'array':
+						if(isset($row_lvinfo->data[$key]))
+							$value=$row_lvinfo->data[$key];
+						else
+							$value=array();
 
-                        $lvinfodataelembody.= '<ul>';
-                        foreach($value as $val)
-                            $lvinfodataelembody.= '<li>'.$db->convert_html_chars($val).'</li>';
-                        $lvinfodataelembody.= '</ul>';
-                        break;
+						$lvinfodataelembody.= '<ul>';
+						foreach($value as $val)
+							$lvinfodataelembody.= '<li>'.$db->convert_html_chars($val).'</li>';
+						$lvinfodataelembody.= '</ul>';
+						break;
 
-                    case 'text':
-                    default:
-                        if(isset($row_lvinfo->data[$key]))
-                             $lvinfodataelembody.= $db->convert_html_chars($row_lvinfo->data[$key]);
-                }
-                if($lvinfodataelembody!='')
-                    $lvinfodata.=$lvinfodataelem.$lvinfodataelembody;
+					case 'text':
+					default:
+						if(isset($row_lvinfo->data[$key]))
+							 $lvinfodataelembody.= $db->convert_html_chars($row_lvinfo->data[$key]);
+				}
+				if($lvinfodataelembody!='')
+					$lvinfodata.=$lvinfodataelem.$lvinfodataelembody;
 
-            }
+			}
 
-            $data[$i]['lvinfo'][$row_lvinfo->sprache]=$lvinfodata;
-            $lastupdate = $row_lvinfo->updateamum;
-        }
-        $data[$i]['lastupdate']=$datum_obj->formatDatum($lastupdate,'Y-m-d H:i:s');
-        if(isset($row->childs) && count($row->childs)>0)
-        {
-            $data[$i]['childs']=bauen($row->childs);
-        }
-        $i++;
-    }
-    return $data;
+			$data[$i]['lvinfo'][$row_lvinfo->sprache]=$lvinfodata;
+			$lastupdate = $row_lvinfo->updateamum;
+		}
+		$data[$i]['lastupdate']=$datum_obj->formatDatum($lastupdate,'Y-m-d H:i:s');
+		if(isset($row->childs) && count($row->childs)>0)
+		{
+			$data[$i]['childs']=bauen($row->childs);
+		}
+		$i++;
+	}
+	return $data;
 }
 
 
 if($prettyprint)
 {
-    echo '<pre>';
-    echo $lehrveranstaltung->convert_html_chars(json_encode($data,JSON_PRETTY_PRINT));
-    echo '</pre>';
+	echo '<pre>';
+	echo $lehrveranstaltung->convert_html_chars(json_encode($data,JSON_PRETTY_PRINT));
+	echo '</pre>';
 }
 else
-    echo json_encode($data);
+	echo json_encode($data);
 
  ?>

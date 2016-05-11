@@ -29,44 +29,61 @@ unset($menu[array_search('core_menu_lvinfo', $addon_lvinfo_col)]);
 if(!defined('CIS_LEHRVERANSTALTUNG_LVINFO_ANZEIGEN') || CIS_LEHRVERANSTALTUNG_LVINFO_ANZEIGEN)
 {
 	$text='';
-    $link='';
-    $onclick='';
+	$link='';
+	$onclick='';
 
-    $lvinfo = new lvinfo();
-    $lvinfo->loadLvinfo($lvid, $angezeigtes_stsem, null, true);
-
-	if(count($lvinfo->result)>0)
-    {
-	       $link="../../../addons/lvinfo/cis/view.php?lehrveranstaltung_id=".urlencode($lvid)."&studiensemester_kurzbz=".urlencode($angezeigtes_stsem);
-           $onclick="javascript:window.open('".$link."','Lehrveranstaltungsinformation','width=700,height=750,resizable=yes,menuebar=no,toolbar=no,status=yes,scrollbars=yes');";
-           $link='#';
-	}
-
-	// Bearbeiten Button anzeigen wenn Lektor der LV und bearbeiten fuer Lektoren aktiviert ist
-	// Oder Berechtigung zum Bearbeiten eingetragen ist
-	if((!defined('CIS_LEHRVERANSTALTUNG_LVINFO_LEKTOR_EDIT') && $lektor_der_lv)
-	  || (defined('CIS_LEHRVERANSTALTUNG_LVINFO_LEKTOR_EDIT') && CIS_LEHRVERANSTALTUNG_LVINFO_LEKTOR_EDIT==true && $lektor_der_lv)
-	  || $rechte->isBerechtigt('addon/lvinfo',$studiengang_kz)
-	  || $rechte->isBerechtigtMultipleOe('addon/lvinfo', $lehrfach_oe_kurzbz_arr)
-	  )
+	if(!$lv->lvinfo)
 	{
-		$text.= "<a href='../../../addons/lvinfo/cis/lvinfo.php?lv_id=$lvid&studiensemester_kurzbz=$angezeigtes_stsem' target='_blank' class='Item'>".$p->t('lehre/lvInfoBearbeiten')."</a>";
+		// Wenn LVInformationen fuer diese LV deaktiviert sind,
+		// dann nichts anzeigen
+		$menu[]=array
+		(
+			'id'=>'addon_lvinfo_menu_lvinfo',
+			'position'=>'5',
+			'name'=>$p->t('lvinfo/lehrveranstaltungsinformationen'),
+			'icon'=>'../../../skin/images/button_lvinfo.png',
+			'text'=>''
+		);
 	}
-	elseif ($is_lector)
+	else
 	{
-		$text.= "Bearbeiten der LV-Infos derzeit gesperrt";
-	}
 
-	$menu[]=array
-	(
-		'id'=>'addon_lvinfo_menu_lvinfo',
-		'position'=>'5',
-		'name'=>$p->t('lvinfo/lehrveranstaltungsinformationen'),
-		'icon'=>'../../../skin/images/button_lvinfo.png',
-		'link'=>$link,
-        'link_onclick'=>$onclick,
-		'text'=>$text
-	);
+		$lvinfo = new lvinfo();
+		$lvinfo->loadLvinfo($lvid, $angezeigtes_stsem, null, true);
+
+		if(count($lvinfo->result)>0)
+		{
+			$link="../../../addons/lvinfo/cis/view.php?lehrveranstaltung_id=".urlencode($lvid)."&studiensemester_kurzbz=".urlencode($angezeigtes_stsem);
+			$onclick="javascript:window.open('".$link."','Lehrveranstaltungsinformation','width=700,height=750,resizable=yes,menuebar=no,toolbar=no,status=yes,scrollbars=yes');";
+			$link='#';
+		}
+
+		// Bearbeiten Button anzeigen wenn Lektor der LV und bearbeiten fuer Lektoren aktiviert ist
+		// Oder Berechtigung zum Bearbeiten eingetragen ist
+		if((!defined('CIS_LEHRVERANSTALTUNG_LVINFO_LEKTOR_EDIT') && $lektor_der_lv)
+		  || (defined('CIS_LEHRVERANSTALTUNG_LVINFO_LEKTOR_EDIT') && CIS_LEHRVERANSTALTUNG_LVINFO_LEKTOR_EDIT==true && $lektor_der_lv)
+		  || $rechte->isBerechtigt('addon/lvinfo',$studiengang_kz)
+		  || $rechte->isBerechtigtMultipleOe('addon/lvinfo', $lehrfach_oe_kurzbz_arr)
+		  )
+		{
+			$text.= "<a href='../../../addons/lvinfo/cis/lvinfo.php?lv_id=$lvid&studiensemester_kurzbz=$angezeigtes_stsem' target='_blank' class='Item'>".$p->t('lehre/lvInfoBearbeiten')."</a>";
+		}
+		elseif ($is_lector)
+		{
+			$text.= "Bearbeiten der LV-Infos derzeit gesperrt";
+		}
+
+		$menu[]=array
+		(
+			'id'=>'addon_lvinfo_menu_lvinfo',
+			'position'=>'5',
+			'name'=>$p->t('lvinfo/lehrveranstaltungsinformationen'),
+			'icon'=>'../../../skin/images/button_lvinfo.png',
+			'link'=>$link,
+			'link_onclick'=>$onclick,
+			'text'=>$text
+		);
+	}
 }
 
 ?>

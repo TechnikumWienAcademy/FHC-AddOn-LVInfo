@@ -42,7 +42,7 @@ if (!$db = new basis_db())
 $user = get_uid();
 
 if(!check_lektor($user))
-    die('Diese Seite ist nur fuer Lektoren zugänglich');
+	die('Diese Seite ist nur fuer Lektoren zugänglich');
 
 $rechte = new benutzerberechtigung();
 $rechte->getBerechtigungen($user);
@@ -58,10 +58,10 @@ $datum_obj = new datum();
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title><?php echo $p->t('lvinfo/lehrveranstaltungsinformationenuebersicht'); ?></title>
 	<link rel="stylesheet" href="../../../skin/style.css.php" type="text/css">
-    <link rel="stylesheet" href="../../../skin/tablesort.css" type="text/css">
-    <script src="../../../include/js/jquery1.9.min.js" type="text/javascript"></script>
-    <link rel="stylesheet" href="../../../skin/tablesort.css" type="text/css">
-    <script type="text/javascript" src="../../../include/js/jquery1.9.min.js"></script>
+	<link rel="stylesheet" href="../../../skin/tablesort.css" type="text/css">
+	<script src="../../../include/js/jquery1.9.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="../../../skin/tablesort.css" type="text/css">
+	<script type="text/javascript" src="../../../include/js/jquery1.9.min.js"></script>
 
 	<script type="text/javascript">
 	function addInput(sprache, key)
@@ -69,84 +69,83 @@ $datum_obj = new datum();
 		$('#input_arr_'+sprache+'_'+key).append('<input name="'+sprache+'['+key+'][]" size="50" type="text" value=""><br>');
 	}
 
-    function freigabe(lvinfo_id, stg_kz, semester, orgform_kurzbz, studiensemester_kurzbz)
-    {
-        var url='lvinfo_uebersicht.php?stg_kz='+stg_kz+'&semester='+semester+'&orgform_kurzbz='+orgform_kurzbz+'&studiensemester_kurzbz='+studiensemester_kurzbz;
-        $("#data").html('<form action="'+url+'" name="sendform" id="sendform" method="POST"><input type="hidden" name="action" value="freigabe" /><input type="hidden" name="lvinfo_id" value="'+lvinfo_id+'" /></form>');
-        document.sendform.submit();
-    }
+	function freigabe(lvinfo_id, stg_kz, semester, orgform_kurzbz, studiensemester_kurzbz)
+	{
+		var url='lvinfo_uebersicht.php?stg_kz='+stg_kz+'&semester='+semester+'&orgform_kurzbz='+orgform_kurzbz+'&studiensemester_kurzbz='+studiensemester_kurzbz;
+		$("#data").html('<form action="'+url+'" name="sendform" id="sendform" method="POST"><input type="hidden" name="action" value="freigabe" /><input type="hidden" name="lvinfo_id" value="'+lvinfo_id+'" /></form>');
+		document.sendform.submit();
+	}
 
-    function reset(lvinfo_id, stg_kz, semester, orgform_kurzbz, studiensemester_kurzbz)
-    {
-        var url='lvinfo_uebersicht.php?stg_kz='+stg_kz+'&semester='+semester+'&orgform_kurzbz='+orgform_kurzbz+'&studiensemester_kurzbz='+studiensemester_kurzbz;
-        $("#data").html('<form action="'+url+'" name="sendform" id="sendform" method="POST"><input type="hidden" name="action" value="reset" /><input type="hidden" name="lvinfo_id" value="'+lvinfo_id+'" /></form>');
-        document.sendform.submit();
-    }
+	function reset(lvinfo_id, stg_kz, semester, orgform_kurzbz, studiensemester_kurzbz)
+	{
+		var url='lvinfo_uebersicht.php?stg_kz='+stg_kz+'&semester='+semester+'&orgform_kurzbz='+orgform_kurzbz+'&studiensemester_kurzbz='+studiensemester_kurzbz;
+		$("#data").html('<form action="'+url+'" name="sendform" id="sendform" method="POST"><input type="hidden" name="action" value="reset" /><input type="hidden" name="lvinfo_id" value="'+lvinfo_id+'" /></form>');
+		document.sendform.submit();
+	}
 	</script>
 </head>
 <body>
-    <div id="data"></div>
+	<div id="data"></div>
 <?php
 
 if(isset($_POST['action']))
 {
-    switch($_POST['action'])
-    {
-        case 'freigabe':
-            $lvinfo_id = $_POST['lvinfo_id'];
+	switch($_POST['action'])
+	{
+		case 'freigabe':
+			$lvinfo_id = $_POST['lvinfo_id'];
 
-            $lvinfo = new lvinfo();
-            if($lvinfo->load($lvinfo_id))
-            {
-                // Berechtigung pruefen
-                $lva = new lehrveranstaltung();
-            	$lva->load($lvinfo->lehrveranstaltung_id);
-            	$oes = $lva->getAllOe();
-            	$oes[]=$lva->oe_kurzbz;
-            	if($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
-            	{
-                    if($lvinfo->setStatus($lvinfo_id,'freigegeben',$user))
-                        echo 'Gespeichert '.$lvinfo_id;
-                }
-                else
-                {
-            		echo '<span class="error">'.$p->t('global/keineBerechtigungFuerDieseSeite').'</span>';
-            	}
-            }
-            else
-            {
-                echo '<span class="error">'.$p->t('global/fehlerBeimAktualisierenDerDaten').'</span>';
-            }
-            break;
+			$lvinfo = new lvinfo();
+			if($lvinfo->load($lvinfo_id))
+			{
+				// Berechtigung pruefen
+				$lva = new lehrveranstaltung();
+				$lva->load($lvinfo->lehrveranstaltung_id);
+				$oes = $lva->getAllOe();
+				$oes[]=$lva->oe_kurzbz;
+				if($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
+				{
+					if($lvinfo->setStatus($lvinfo_id,'freigegeben',$user))
+					echo 'Gespeichert '.$lvinfo_id;
+				}
+				else
+				{
+					echo '<span class="error">'.$p->t('global/keineBerechtigungFuerDieseSeite').'</span>';
+				}
+			}
+			else
+			{
+				echo '<span class="error">'.$p->t('global/fehlerBeimAktualisierenDerDaten').'</span>';
+			}
+			break;
 
-        case 'reset':
-            $lvinfo_id = $_POST['lvinfo_id'];
+		case 'reset':
+			$lvinfo_id = $_POST['lvinfo_id'];
 
-            $lvinfo = new lvinfo();
-            if($lvinfo->load($lvinfo_id))
-            {
-                // Berechtigung pruefen
-                $lva = new lehrveranstaltung();
-            	$lva->load($lvinfo->lehrveranstaltung_id);
-            	$oes = $lva->getAllOe();
-            	$oes[]=$lva->oe_kurzbz;
-            	if($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
-            	{
-                    if($lvinfo->setStatus($lvinfo_id,'bearbeitung',$user))
-                        echo 'Gespeichert '.$lvinfo_id;
-                }
-                else
-                {
-                    echo '<span class="error">'.($p->t('global/keineBerechtigungFuerDieseSeite')).'</span>';
-                }
-            }
-            else
-            {
-                echo '<span class="error">'.$p->t('global/fehlerBeimAktualisierenDerDaten').'</span>';
-            }
-
-            break;
-    }
+			$lvinfo = new lvinfo();
+			if($lvinfo->load($lvinfo_id))
+			{
+				// Berechtigung pruefen
+				$lva = new lehrveranstaltung();
+				$lva->load($lvinfo->lehrveranstaltung_id);
+				$oes = $lva->getAllOe();
+				$oes[]=$lva->oe_kurzbz;
+				if($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
+				{
+					if($lvinfo->setStatus($lvinfo_id,'bearbeitung',$user))
+						echo 'Gespeichert '.$lvinfo_id;
+				}
+				else
+				{
+					echo '<span class="error">'.($p->t('global/keineBerechtigungFuerDieseSeite')).'</span>';
+				}
+			}
+			else
+			{
+				echo '<span class="error">'.$p->t('global/fehlerBeimAktualisierenDerDaten').'</span>';
+			}
+			break;
+	}
 }
 $lv_id = isset($_REQUEST['lv_id'])?$_REQUEST['lv_id']:'';
 //Wenn eine LV_ID übergeben wurde aber keine anderen Parameter, werden diese mit den Daten der LV befüllt
@@ -259,8 +258,6 @@ echo '</table>';
 echo '<input type="submit" value="'.$p->t('global/anzeigen').'">';
 echo '</form>';
 
-
-
 //Liste der LVs anzeigen
 
 $order = 'orgform_kurzbz,semester,bezeichnung';
@@ -277,104 +274,102 @@ if($semester!='' && $orgform_kurzbz!='')
 $lv_obj = new lehrveranstaltung();
 if($lv_obj->load_lva($stg_kz,$semester,null,true,true,$order,null,null,$orgform_kurzbz))
 {
-
 	if(count($lv_obj->lehrveranstaltungen)>0)
 	{
-        echo '
-        <script type="text/javascript">
-        $(document).ready(function()
-        {
-            $("#t1").tablesorter(
-            {
-                sortList: [[0,0]],
-                widgets: ["zebra"]
-            });
-        });
-        </script>
-        <table id="t1" class="tablesorter" style="width:auto;">
-            <thead>
-            <tr>
-                <th>Lehrveranstaltung</th>';
-        foreach($config_lvinfo_sprachen as $row_sprache)
-        {
-            $sprache_obj = new sprache();
-            $sprache_obj->load($row_sprache);
-            echo '<th>'.$sprache_obj->bezeichnung_arr[$sprache].'</th>';
-        }
-        echo '</tr>';
+		echo '
+		<script type="text/javascript">
+		$(document).ready(function()
+		{
+			$("#t1").tablesorter(
+			{
+				sortList: [[0,0]],
+				widgets: ["zebra"]
+			});
+		});
+		</script>
+		<table id="t1" class="tablesorter" style="width:auto;">
+			<thead>
+			<tr>
+				<th>Lehrveranstaltung</th>';
+		foreach($config_lvinfo_sprachen as $row_sprache)
+		{
+			$sprache_obj = new sprache();
+			$sprache_obj->load($row_sprache);
+			echo '<th>'.$sprache_obj->bezeichnung_arr[$sprache].'</th>';
+		}
+		echo '</tr>';
 
-        echo '
-            </thead>
-            <tbody>
-            ';
+		echo '
+			</thead>
+			<tbody>
+		';
 
 		foreach($lv_obj->lehrveranstaltungen as $row)
 		{
-            echo '
-            <tr>
-                <td valign="top">'.$db->convert_html_chars($outputstring.$row->bezeichnung).'</td>
-                ';
-            $lvinfo = new lvinfo();
-            $lvinfo->loadLvinfo($row->lehrveranstaltung_id, $studiensemester_kurzbz);
+			echo '
+			<tr>
+				<td valign="top">'.$db->convert_html_chars($outputstring.$row->bezeichnung).'</td>
+			';
+			$lvinfo = new lvinfo();
+			$lvinfo->loadLvinfo($row->lehrveranstaltung_id, $studiensemester_kurzbz);
 
-            foreach($config_lvinfo_sprachen as $row_sprachen)
-            {
-                $found=false;
-                foreach($lvinfo->result as $row_lvinfo)
-                {
-                    if($row_sprachen != $row_lvinfo->sprache)
-                        continue;
+			foreach($config_lvinfo_sprachen as $row_sprachen)
+			{
+				$found=false;
+				foreach($lvinfo->result as $row_lvinfo)
+				{
+					if($row_sprachen != $row_lvinfo->sprache)
+						continue;
 
-                    $status = new lvinfo();
-                    $status->getLastStatus($row_lvinfo->lvinfo_id);
+					$status = new lvinfo();
+					$status->getLastStatus($row_lvinfo->lvinfo_id);
 
-                    $found=true;
+					$found=true;
 
-                    echo '
-                    <td>
-                        <a href="lvinfo.php?lv_id='.$row_lvinfo->lehrveranstaltung_id.'&studiensemester_kurzbz='.$studiensemester_kurzbz.'"><img src="../../../skin/images/text-x-generic_with_pencil.png" height="20px" title="bearbeiten"></a>
-                        <a href="view.php?lvinfo_id='.$row_lvinfo->lvinfo_id.'"><img src="../../../skin/images/system-index-search.png" height="20px" title="anzeigen"></a>
-                        <a href="diff.php?lvinfo_id='.$row_lvinfo->lvinfo_id.'"><img src="../../../skin/images/merge.png" height="20px" title="Unterschiede zur Vorversion anzeigen"/></a>
-                    ';
+					echo '
+					<td>
+						<a href="lvinfo.php?lv_id='.$row_lvinfo->lehrveranstaltung_id.'&studiensemester_kurzbz='.$studiensemester_kurzbz.'"><img src="../../../skin/images/text-x-generic_with_pencil.png" height="20px" title="bearbeiten"></a>
+						<a href="view.php?lvinfo_id='.$row_lvinfo->lvinfo_id.'"><img src="../../../skin/images/system-index-search.png" height="20px" title="anzeigen"></a>
+						<a href="diff.php?lvinfo_id='.$row_lvinfo->lvinfo_id.'"><img src="../../../skin/images/merge.png" height="20px" title="Unterschiede zur Vorversion anzeigen"/></a>
+					';
 
-                    if(isset($status->bezeichnung[$sprache]))
-                        echo '<b>'.$status->bezeichnung[$sprache].'</b>';
+					if(isset($status->bezeichnung[$sprache]))
+						echo '<b>'.$status->bezeichnung[$sprache].'</b>';
 
-                    $lva = new lehrveranstaltung();
-                	$lva->load($row_lvinfo->lehrveranstaltung_id);
-                	$oes = $lva->getAllOe();
-                	$oes[]=$lva->oe_kurzbz;
-                	if($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
-                	{
-                        switch($status->lvinfostatus_kurzbz)
-                        {
-                            case 'abgeschickt':
-                                // Freigabe oder Reject
-                                echo ' Freigeben:';
-                                echo ' <a href="#freigabe" onclick="freigabe(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="LVInfo freischalten"><img src="../../../skin/images/true.png" /></a>';
-                                echo ' <a href="#zuruecksetzen" onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="Nicht freischalten und Sperre aufheben"><img src="../../../skin/images/false.png" /></a>';
-                                break;
-                            case 'freigegeben':
-                                // freigabe aufheben
-                                echo ' <a href="#zuruecksetzen"  onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;">Sperre aufheben</a>';
-                                break;
-                            case 'bearbeitung':
-                            default:
-
-                                break;
-                        }
-                    }
-                    echo '</td>';
-                }
-                //echo '</td>';
-                if(!$found)
-                {
-                    echo '<td></td>';
-                }
-            }
-            echo '</tr>';
+					$lva = new lehrveranstaltung();
+					$lva->load($row_lvinfo->lehrveranstaltung_id);
+					$oes = $lva->getAllOe();
+					$oes[]=$lva->oe_kurzbz;
+					if($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
+					{
+						switch($status->lvinfostatus_kurzbz)
+						{
+							case 'abgeschickt':
+								// Freigabe oder Reject
+								echo ' Freigeben:';
+								echo ' <a href="#freigabe" onclick="freigabe(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="LVInfo freischalten"><img src="../../../skin/images/true.png" /></a>';
+								echo ' <a href="#zuruecksetzen" onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="Nicht freischalten und Sperre aufheben"><img src="../../../skin/images/false.png" /></a>';
+								break;
+							case 'freigegeben':
+								// freigabe aufheben
+								echo ' <a href="#zuruecksetzen"  onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;">Sperre aufheben</a>';
+								break;
+							case 'bearbeitung':
+							default:
+								break;
+						}
+					}
+					echo '</td>';
+				}
+				//echo '</td>';
+				if(!$found)
+				{
+					echo '<td></td>';
+				}
+			}
+			echo '</tr>';
 		}
-        echo '</tbody></table>';
+		echo '</tbody></table>';
 	}
 }
 else

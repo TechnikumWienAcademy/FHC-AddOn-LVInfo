@@ -10,30 +10,30 @@ function getDiffPrevious($lvinfo_id)
 
 	$data = getDiffPreviousData($lvinfo_id);
 
-	$ret.='<div class="lvinfo">';
+	$ret.='<div class="lvinfo">'."\n";
 	foreach($data['diff'] as $key=>$row_data)
 	{
-		$ret.= '<h2>'.$row_data['bezeichnung'].'</h2>';
+		$ret.= '<h2>'.$row_data['bezeichnung'].'</h2>'."\n";
 
-		$ret.='<div class="lvinfo_data">';
+		$ret.='<div class="lvinfo_data">'."\n";
 
 		if(isset($row_data['diff']))
 		{
 			if(is_array($row_data['diff']))
 			{
-				$ret.='<ul>';
+				$ret.='<ul>'."\n";
 				foreach($row_data['diff'] as $item)
-					$ret.='<li>'.$item.'</li>';
-				$ret.='</ul>';
+					$ret.='<li>'.$item.'</li>'."\n";
+				$ret.='</ul>'."\n";
 			}
 			else
 			{
 				$ret.=$row_data['diff'];
 			}
 		}
-		$ret.='</div>';
+		$ret.='</div>'."\n";
 	}
-	$ret.='</div>';
+	$ret.='</div>'."\n";
 	return $ret;
 }
 
@@ -185,7 +185,7 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 	{
 		foreach($koord->result as $row)
 		{
-		    $koordinator.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).',';
+			$koordinator.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).',';
 		}
 		$koordinator = mb_substr($koordinator, 0, -1);
 	}
@@ -196,59 +196,59 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 	if(isset($lem->result) && is_array($lem->result))
 	{
 		$lkt_arr=array();
-	    foreach($lem->result as $row)
-	    {
+		foreach($lem->result as $row)
+		{
 			if(!in_array($row->uid,$lkt_arr))
 			{
-		        $lektoren.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).', ';
+				$lektoren.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).', ';
 				$lkt_arr[]=$row->uid;
 			}
-	    }
+		}
 		$lektoren = mb_substr($lektoren, 0, -2);
 	}
 
 	echo '
 	<table class="tablesorter">
-	    <tr>
-	        <td>'.$p->t('global/lehrveranstaltung').':</td>
-	        <td>'.$db->convert_html_chars($lv->bezeichnung).'</td>
-	    </tr>
-	    <tr>
-	        <td>'.$p->t('global/studiengang').':</td>
-	        <td>'.$db->convert_html_chars($studiengang->kurzbzlang).'</td>
-	    </tr>
-	    <tr>
-	        <td>'.$p->t('global/semester').':</td>
-	        <td>'.$db->convert_html_chars($lv->semester).'</td>
-	    </tr>
-	    <tr>
-	        <td>'.$p->t('global/studiensemester').':</td>
-	        <td>'.$db->convert_html_chars($studiensemester_kurzbz).'</td>
-	    </tr>
-	    <tr>
-	        <td>'.$p->t('global/organisationsform').':</td>
-	        <td>'.$db->convert_html_chars($lv->orgform_kurzbz).'</td>
-	    </tr>
-	    <tr>
-	        <td>'.$p->t('lehre/lehrbeauftragter').':</td>
-	        <td>'.$db->convert_html_chars($lektoren).'</td>
-	    </tr>
-	    <tr>
-	        <td>'.$p->t('global/sprache').':</td>
-	        <td>'.$db->convert_html_chars($sprache_obj->getBezeichnung($lv->sprache,$sprache)).'</td>
-	    </tr>
-	    <tr>
-	        <td>'.$p->t('global/ects').':</td>
-	        <td>'.$db->convert_html_chars($lv->ects).'</td>
-	    </tr>
-	    <tr>
-	        <td>'.$p->t('lvinfo/incomingplaetze').':</td>
-	        <td>'.$db->convert_html_chars($lv->incoming).'</td>
-	    </tr>
-	    <tr>
-	     	  <td>'.$p->t('global/institut').':</td>
-	          <td>'.$db->convert_html_chars($oe->bezeichnung).' ('.$p->t('global/leitung').':'.$db->convert_html_chars($leitung).' '.$p->t('global/koordination').': '.$db->convert_html_chars($koordinator).')</td>
-	    </tr>
+		<tr>
+			<td>'.$p->t('global/lehrveranstaltung').':</td>
+			<td>'.$db->convert_html_chars($lv->bezeichnung).'</td>
+		</tr>
+		<tr>
+			<td>'.$p->t('global/studiengang').':</td>
+			<td>'.$db->convert_html_chars($studiengang->kurzbzlang).'</td>
+		</tr>
+		<tr>
+			<td>'.$p->t('global/semester').':</td>
+			<td>'.$db->convert_html_chars($lv->semester).'</td>
+		</tr>
+		<tr>
+			<td>'.$p->t('global/studiensemester').':</td>
+			<td>'.$db->convert_html_chars($studiensemester_kurzbz).'</td>
+		</tr>
+		<tr>
+			<td>'.$p->t('global/organisationsform').':</td>
+			<td>'.$db->convert_html_chars($lv->orgform_kurzbz).'</td>
+		</tr>
+		<tr>
+			<td>'.$p->t('lehre/lehrbeauftragter').':</td>
+			<td>'.$db->convert_html_chars($lektoren).'</td>
+		</tr>
+		<tr>
+			<td>'.$p->t('global/sprache').':</td>
+			<td>'.$db->convert_html_chars($sprache_obj->getBezeichnung($lv->sprache,$sprache)).'</td>
+		</tr>
+		<tr>
+			<td>'.$p->t('global/ects').':</td>
+			<td>'.$db->convert_html_chars($lv->ects).'</td>
+		</tr>
+		<tr>
+			<td>'.$p->t('lvinfo/incomingplaetze').':</td>
+			<td>'.$db->convert_html_chars($lv->incoming).'</td>
+		</tr>
+		<tr>
+		 	  <td>'.$p->t('global/institut').':</td>
+			  <td>'.$db->convert_html_chars($oe->bezeichnung).' ('.$p->t('global/leitung').':'.$db->convert_html_chars($leitung).' '.$p->t('global/koordination').': '.$db->convert_html_chars($koordinator).')</td>
+		</tr>
 	</table>';
 
 }

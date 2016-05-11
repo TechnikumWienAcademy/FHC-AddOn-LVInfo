@@ -58,9 +58,9 @@ echo '<!DOCTYPE html>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>'.$p->t('lvinfo/lvinformationen').'</title>
 	<link rel="stylesheet" href="../../../skin/style.css.php" type="text/css">
-    <link rel="stylesheet" href="../../../skin/tablesort.css" type="text/css">
-    <link rel="stylesheet" href="../skin/lvinfo.css" type="text/css">
-    <script src="../../../include/js/jquery1.9.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="../../../skin/tablesort.css" type="text/css">
+	<link rel="stylesheet" href="../skin/lvinfo.css" type="text/css">
+	<script src="../../../include/js/jquery1.9.min.js" type="text/javascript"></script>
 </head>
 <body>
 ';
@@ -73,22 +73,22 @@ printInfoTable($data['new']->lehrveranstaltung_id, $data['new']->studiensemester
 echo'<div class="lvinfo">';
 foreach($data['diff'] as $key=>$row_data)
 {
-    echo '<h2>'.$row_data['bezeichnung'].'</h2>';
+	echo '<h2>'.$row_data['bezeichnung'].'</h2>';
 
-    echo'<div class="lvinfo_data">';
+	echo'<div class="lvinfo_data">';
 
-    if(is_array($row_data['diff']))
-    {
-        echo'<ul>';
-        foreach($row_data['diff'] as $item)
-            echo'<li>'.$item.'</li>';
-        echo'</ul>';
-    }
-    else
-    {
-        echo$row_data['diff'];
-    }
-    echo'</div>';
+	if(is_array($row_data['diff']))
+	{
+		echo'<ul>';
+		foreach($row_data['diff'] as $item)
+			echo'<li>'.$item.'</li>';
+		echo'</ul>';
+	}
+	else
+	{
+		echo$row_data['diff'];
+	}
+	echo'</div>';
 }
 echo'</div>';
 

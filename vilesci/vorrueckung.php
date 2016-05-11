@@ -56,17 +56,17 @@ $db = new basis_db();
 $studiensemester_kurzbz_from = (isset($_POST['studiensemester_kurzbz_from'])?$_POST['studiensemester_kurzbz_from']:'');
 $studiensemester_kurzbz_to = (isset($_POST['studiensemester_kurzbz_to'])?$_POST['studiensemester_kurzbz_to']:'');
 $studiengang_kz = (isset($_POST['studiengang_kz'])?$_POST['studiengang_kz']:'');
-$anzahl_kopiert=0;
+$anzahl_kopiert = 0;
 
-if($studiensemester_kurzbz_from=='')
+if($studiensemester_kurzbz_from == '')
 {
 	$stsem = new studiensemester();
 	$studiensemester_kurzbz_from = $stsem->getPrevious();
 }
-if($studiensemester_kurzbz_to=='')
+if($studiensemester_kurzbz_to == '')
 {
 	$stsem = new studiensemester();
-	$studiensemester_kurzbz_to = $stsem->jump($studiensemester_kurzbz_from,2);
+	$studiensemester_kurzbz_to = $stsem->jump($studiensemester_kurzbz_from, 2);
 }
 
 echo '<form action="vorrueckung.php" method="POST">
@@ -78,11 +78,13 @@ $stg->getAll('typ, kurzbz');
 
 foreach($stg->result as $row)
 {
-	if($row->studiengang_kz==$studiengang_kz)
-		$selected='selected';
+	if($row->studiengang_kz == $studiengang_kz)
+		$selected = 'selected';
 	else
-		$selected='';
-	echo '<option value="'.$db->convert_html_chars($row->studiengang_kz).'" '.$selected.'>'.$row->kuerzel.' '.$row->bezeichnung.'</option>';
+		$selected = '';
+	echo '<option value="'.$db->convert_html_chars($row->studiengang_kz).'" '.$selected.'>'.
+			$row->kuerzel.' '.$row->bezeichnung.
+		'</option>';
 }
 echo '</select>';
 
@@ -93,11 +95,13 @@ $stsem->getAll();
 
 foreach($stsem->studiensemester as $row)
 {
-	if($row->studiensemester_kurzbz==$studiensemester_kurzbz_from)
+	if($row->studiensemester_kurzbz == $studiensemester_kurzbz_from)
 		$selected = 'selected';
 	else
 		$selected = '';
-	echo '<option value="'.$db->convert_html_chars($row->studiensemester_kurzbz).'" '.$selected.'>'.$db->convert_html_chars($row->studiensemester_kurzbz).'</option>';
+	echo '<option value="'.$db->convert_html_chars($row->studiensemester_kurzbz).'" '.$selected.'>'.
+			$db->convert_html_chars($row->studiensemester_kurzbz).
+		'</option>';
 }
 echo '</select>';
 
@@ -108,19 +112,23 @@ $stsem->getAll();
 
 foreach($stsem->studiensemester as $row)
 {
-	if($row->studiensemester_kurzbz==$studiensemester_kurzbz_to)
+	if($row->studiensemester_kurzbz == $studiensemester_kurzbz_to)
 		$selected = 'selected';
 	else
 		$selected = '';
-	echo '<option value="'.$db->convert_html_chars($row->studiensemester_kurzbz).'" '.$selected.'>'.$db->convert_html_chars($row->studiensemester_kurzbz).'</option>';
+	echo '<option value="'.$db->convert_html_chars($row->studiensemester_kurzbz).'" '.$selected.'>'.
+			$db->convert_html_chars($row->studiensemester_kurzbz).
+		'</option>';
 }
 echo '</select>';
 echo '<input type="submit" value="Vorruecken" name="copy" />';
 echo '</form>';
 
-if(isset($_POST['copy']) && $studiengang_kz!='' && $studiensemester_kurzbz_from!='' && $studiensemester_kurzbz_to!='')
+if(isset($_POST['copy']) && $studiengang_kz != '' && $studiensemester_kurzbz_from != '' && $studiensemester_kurzbz_to != '')
 {
-	echo '<br><br>Kopiere LV-Informationen von Studiengang '.$studiengang_kz.' von Studiensemester '.$studiensemester_kurzbz_from.' nach '.$studiensemester_kurzbz_to;
+	echo '<br><br>
+			Kopiere LV-Informationen von Studiengang '.$studiengang_kz.'
+			von Studiensemester '.$studiensemester_kurzbz_from.' nach '.$studiensemester_kurzbz_to;
 
 	$studienplan = new studienplan();
 	$lvs = array();
@@ -163,7 +171,7 @@ if(isset($_POST['copy']) && $studiengang_kz!='' && $studiensemester_kurzbz_from!
 					if($lvinfo_neu->save())
 					{
 						$lvinfo_neu_status = new lvinfo();
-						if($lvinfo_neu_status->setStatus($lvinfo_neu->lvinfo_id,'bearbeitung',$uid))
+						if($lvinfo_neu_status->setStatus($lvinfo_neu->lvinfo_id, 'bearbeitung', $uid))
 						{
 							echo ' <span class="ok">OK</span>';
 						}
@@ -175,7 +183,11 @@ if(isset($_POST['copy']) && $studiengang_kz!='' && $studiensemester_kurzbz_from!
 				}
 				else
 				{
-					echo '<br><span>'.$row_lvinfo->sprache.' von LV '.$lehrveranstaltung_id.' wird nicht kopiert da bereits eine Version vorhanden ist</span>';
+					echo '<br>
+						<span>
+							'.$row_lvinfo->sprache.' von LV '.$lehrveranstaltung_id.'
+							wird nicht kopiert da bereits eine Version vorhanden ist
+						</span>';
 				}
 			}
 		}
@@ -185,4 +197,3 @@ if(isset($_POST['copy']) && $studiengang_kz!='' && $studiensemester_kurzbz_from!
 
 echo '</body>
 </html>';
-?>

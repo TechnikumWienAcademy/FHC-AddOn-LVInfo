@@ -68,10 +68,56 @@ echo '<!DOCTYPE html>
 <body>
 <h1>Addon LV-Info Datenmigration</h1>';
 
-if(!isset($_GET['start']))
+if(!isset($_POST['start']))
 {
-	echo 'Dieses Script startet die Migration der LV-Infos vom FHC-Core in das Addon. Wollen Sie die Daten wirklich migrieren?
-	<br><br><input type="button" onclick="window.location.href=\'migrate.php?start\'" value="Ja, Migration starten"><br/><br/>';
+	echo 'Dieses Script startet die Migration der LV-Infos vom FHC-Core in das Addon.
+	<br><br>
+	<form action="migrate.php" method="POST">
+	Wählen sie die Organisationseinheit für die das Standard-Set erstellt werden soll:<br>
+	<select name="oe_kurzbz">';
+	$organisationseinheit = new organisationseinheit();
+	$organisationseinheit->getHeads();
+	$qry='';
+	foreach($organisationseinheit->result as $row_orgeinheit)
+	{
+		echo '<option value="'.$row_orgeinheit->oe_kurzbz.'">'.$row_orgeinheit->bezeichnung.'</option>';
+	}
+	echo '
+	</select>';
+
+	$stsem = new studiensemester();
+	$stsem->getAll();
+
+	echo '<br>Wählen sie das Ziel Studiensemester für ungerade Semester (Wintersemester):
+	<br>
+	<select name="stsem_ws">';
+
+	foreach($stsem->studiensemester as $row_stsem)
+	{
+		if($row_stsem->studiensemester_kurzbz=='WS2015')
+			$selected='selected';
+		else
+			$selected='';
+		echo '<option value="'.$row_stsem->studiensemester_kurzbz.'" '.$selected.'>'.$row_stsem->studiensemester_kurzbz.'</option>';
+	}
+	echo '</select>';
+
+	echo '<br>Wählen sie das Ziel Studiensemester für gerade Semester (Sommersemester):
+	<br>
+	<select name="stsem_ss">';
+
+	foreach($stsem->studiensemester as $row_stsem)
+	{
+		if($row_stsem->studiensemester_kurzbz=='SS2016')
+			$selected='selected';
+		else
+			$selected='';
+		echo '<option value="'.$row_stsem->studiensemester_kurzbz.'" '.$selected.'>'.$row_stsem->studiensemester_kurzbz.'</option>';
+	}
+	echo '</select>';
+	echo '<br><br>
+	<input type="submit" name="start" value="Migration starten"><br/><br/>
+	</form>';
 	exit;
 }
 $qry = 'SELECT * FROM addon.tbl_lvinfo_set';
@@ -84,23 +130,26 @@ if($result = $db->db_query($qry))
 	}
 }
 
-$organisationseinheit = new organisationseinheit();
-$organisationseinheit->getHeads();
-$qry='';
-foreach($organisationseinheit->result as $row_orgeinheit)
-{
-	$qry .= "
-	INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('kurzbesch', '{Kurzbeschreibung,\"Course Description\"}', 1, 'text', 'WS2015', ".$db->db_add_param($row_orgeinheit->oe_kurzbz).", now(), 'migrate', now(), 'migrate');
-	INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('methodik', '{Methodik,\"Teaching Methods\"}', 2, 'text', 'WS2015', ".$db->db_add_param($row_orgeinheit->oe_kurzbz).", now(), 'migrate', now(), 'migrate');
-	INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon,einleitungstext) VALUES ('lernerg', '{Lernergebnisse,\"Learning outcomes\"}', 3, 'array', 'WS2015', ".$db->db_add_param($row_orgeinheit->oe_kurzbz).", now(), 'migrate', now(), 'migrate','{\"Nach erfolgreichem Abschluss sind die Studierenden in der Lage, ...\",\"After passing this course successfully students are able to ...\"}');
-	INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('lehrinhalte', '{Lehrinhalte,\"Course Contents\"}', 4, 'array', 'WS2015', ".$db->db_add_param($row_orgeinheit->oe_kurzbz).", now(), 'migrate', now(), 'migrate');
-	INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('vorkenntnisse', '{Vorkenntnisse,\"Prerequisites\"}', 5, 'text', 'WS2015', ".$db->db_add_param($row_orgeinheit->oe_kurzbz).", now(), 'migrate', now(), 'migrate');
-	INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('literatur', '{Literatur,\"Recommended Reading and Material\"}', 6, 'array', 'WS2015', ".$db->db_add_param($row_orgeinheit->oe_kurzbz).", now(), 'migrate', now(), 'migrate');
-	INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('leistungsb', '{Leistungsbeurteilung,\"Assessment Methods\"}', 7, 'array', 'WS2015', ".$db->db_add_param($row_orgeinheit->oe_kurzbz).", now(), 'migrate', now(), 'migrate');
-	INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('anwesenheit', '{Anwesenheit,\"Attendance\"}', 8, 'text', 'WS2015', ".$db->db_add_param($row_orgeinheit->oe_kurzbz).", now(), 'migrate', now(), 'migrate');
-	INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('anmerkungen', '{Anmerkungen,\"Comments\"}', 9, 'text', 'WS2015', ".$db->db_add_param($row_orgeinheit->oe_kurzbz).", now(), 'migrate', now(), 'migrate');
-	";
-}
+if(!isset($_POST['oe_kurzbz']))
+	die('Fehler bei Parameterübergabe. oe_kurzbz fehlt');
+if(!isset($_POST['stsem_ws']))
+	die('Fehler bei Parameterübergabe. stsem_ws fehlt');
+if(!isset($_POST['stsem_ss']))
+	die('Fehler bei Parameterübergabe. stsem_ss fehlt');
+$oe_kurzbz = $_POST['oe_kurzbz'];
+
+$qry = "
+INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('kurzbesch', '{Kurzbeschreibung,\"Course Description\"}', 1, 'text', 'WS2015', ".$db->db_add_param($oe_kurzbz).", now(), 'migrate', now(), 'migrate');
+INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('methodik', '{Methodik,\"Teaching Methods\"}', 2, 'text', 'WS2015', ".$db->db_add_param($oe_kurzbz).", now(), 'migrate', now(), 'migrate');
+INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon,einleitungstext) VALUES ('lernerg', '{Lernergebnisse,\"Learning outcomes\"}', 3, 'array', 'WS2015', ".$db->db_add_param($oe_kurzbz).", now(), 'migrate', now(), 'migrate','{\"Nach erfolgreichem Abschluss sind die Studierenden in der Lage, ...\",\"After passing this course successfully students are able to ...\"}');
+INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('lehrinhalte', '{Lehrinhalte,\"Course Contents\"}', 4, 'array', 'WS2015', ".$db->db_add_param($oe_kurzbz).", now(), 'migrate', now(), 'migrate');
+INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('vorkenntnisse', '{Vorkenntnisse,\"Prerequisites\"}', 5, 'text', 'WS2015', ".$db->db_add_param($oe_kurzbz).", now(), 'migrate', now(), 'migrate');
+INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('literatur', '{Literatur,\"Recommended Reading and Material\"}', 6, 'array', 'WS2015', ".$db->db_add_param($oe_kurzbz).", now(), 'migrate', now(), 'migrate');
+INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('leistungsb', '{Leistungsbeurteilung,\"Assessment Methods\"}', 7, 'array', 'WS2015', ".$db->db_add_param($oe_kurzbz).", now(), 'migrate', now(), 'migrate');
+INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('anwesenheit', '{Anwesenheit,\"Attendance\"}', 8, 'text', 'WS2015', ".$db->db_add_param($oe_kurzbz).", now(), 'migrate', now(), 'migrate');
+INSERT INTO addon.tbl_lvinfo_set (lvinfo_set_kurzbz, lvinfo_set_bezeichnung, sort, lvinfo_set_typ, gueltigab_studiensemester_kurzbz, oe_kurzbz, insertamum, insertvon, updateamum, updatevon) VALUES ('anmerkungen', '{Anmerkungen,\"Comments\"}', 9, 'text', 'WS2015', ".$db->db_add_param($oe_kurzbz).", now(), 'migrate', now(), 'migrate');
+";
+
 
 if(!$db->db_query($qry))
 	die('Fehler beim Anlegen des SETS');
@@ -113,9 +162,9 @@ if($result = $db->db_query($qry))
 	while($row = $db->db_fetch_object($result))
 	{
 		if($row->ausbildungssemester%2==1)
-			$studiensemester_kurzbz = 'WS2015';
+			$studiensemester_kurzbz = $_POST['stsem_ws'];
 		else
-			$studiensemester_kurzbz = 'SS2015';
+			$studiensemester_kurzbz = $_POST['stsem_ss'];
 
 		$data = array();
 		$data['kurzbesch']=clearStuff($row->kurzbeschreibung);
@@ -135,10 +184,6 @@ if($result = $db->db_query($qry))
 		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to,... <br>','',$row->lehrziele);
 		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to:<br>','',$row->lehrziele);
 		$row->lehrziele=mb_str_replace('After passing this course successfully students are able to ','',$row->lehrziele);
-
-
-
-
 
 		$data['lernerg']=getArray($row->lehrziele);
 		$data['lehrinhalte']=getArray($row->lehrinhalte);
