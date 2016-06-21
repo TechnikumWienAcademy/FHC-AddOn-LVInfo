@@ -77,7 +77,7 @@ foreach($data['diff'] as $key=>$row_data)
 
 	echo'<div class="lvinfo_data">';
 
-	if(is_array($row_data['diff']))
+	if(isset($row_data['diff']) && is_array($row_data['diff']))
 	{
 		echo'<ul>';
 		foreach($row_data['diff'] as $item)
@@ -86,7 +86,8 @@ foreach($data['diff'] as $key=>$row_data)
 	}
 	else
 	{
-		echo$row_data['diff'];
+		if(isset($row_data['diff']))
+			echo $row_data['diff'];
 	}
 	echo'</div>';
 }
