@@ -122,6 +122,20 @@ if(isset($_POST['action']))
 						echo '<span class="error">Failed:'.$lvinfo_neu->errormsg.'</span>';
 				}
 			}
+			// Lehreverzeichnis kopieren
+			// TODO dies ist nur fuer die Umstellung und sollte wieder entfernt werden!
+			$lv_obj_quelle = new lehrveranstaltung();
+			$lv_obj_quelle->load($quelle_lehrveranstaltung_id);
+			if($lv_obj_quelle->lehreverzeichnis!='')
+			{
+				$lv_obj_ziel = new lehrveranstaltung();
+				$lv_obj_ziel->load($ziel_lehrveranstaltung_id);
+				$lv_obj_ziel->lehreverzeichnis = $lv_obj_quelle->lehreverzeichnis;
+				if($lv_obj_ziel->save())
+				{
+					echo '<br>Lehreverzeichnis wurde korrigiert';
+				}
+			}
 		}
 	}
 }
