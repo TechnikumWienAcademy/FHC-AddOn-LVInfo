@@ -167,6 +167,7 @@ if (isset($_REQUEST["xmlformat"]) && $_REQUEST["xmlformat"] == "xml")
 		if(isset($lvinfo->result[0]) && isset($lvinfo->result[0]->data['lernerg']))
 		{
 			$lehrziele=implode('\n- ',$lvinfo->result[0]->data['lernerg']);
+			$lehrziele='\n- '.$lehrziele;
 		}
 	}
 	/*
