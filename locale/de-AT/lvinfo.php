@@ -12,4 +12,5 @@ $this->phrasen['lvinfo/verfuegbareSprachen']='Verfügbare Sprachen';
 $this->phrasen['lvinfo/uebersichtsliste']='Übersichtsliste';
 $this->phrasen['lvinfo/keineLVVorhanden']='Keine Lehrveranstaltungen für diese Auswahl vorhanden';
 $this->phrasen['lvinfo/status']='Status:';
+$this->phrasen['lvinfo/lvmodul']='LVs / Module:';
 ?>

@@ -90,7 +90,7 @@ $datum_obj = new datum();
 	<script type="text/javascript">
 	function addInput(sprache, key)
 	{
-		$('#input_arr_'+sprache+'_'+key).append('<input name="'+sprache+'['+key+'][]" size="50" type="text" value=""><br>');
+		$('#input_arr_'+sprache+'_'+key).append('<input name="'+sprache+'['+key+'][]" style="width:98%" type="text" value=""><br>');
 	}
 	</script>
 </head>
@@ -434,7 +434,7 @@ if($semester=='')
 if($lv_obj->loadLehrveranstaltungStudienplan($studienplan_id, $semester,'bezeichnung'))
 {
 	echo '<tr>
-		<td>'.$p->t('global/lehrveranstaltung').'</td>
+		<td>'.$p->t('lvinfo/lvmodul').'</td>
 		<td><SELECT name="lv_id" onChange="window.document.auswahlFrm.submit();">';
 
 	if(count($lv_obj->lehrveranstaltungen)>0)
@@ -668,7 +668,7 @@ function printData($sprache, $typ, $key, $data, $locked)
 				$value=$data[$key];
 			else
 				$value='';
-			echo '<textarea name="'.$sprache.'['.$key.']" rows="5" cols="50" '.($locked?'readonly="readonly"':'').'>'.$db->convert_html_chars($value).'</textarea>';
+			echo '<textarea name="'.$sprache.'['.$key.']" style="width:98%" rows="5" cols="50" '.($locked?'readonly="readonly"':'').'>'.$db->convert_html_chars($value).'</textarea>';
 			break;
 
 		case 'boolean':
@@ -688,14 +688,14 @@ function printData($sprache, $typ, $key, $data, $locked)
 
 			echo '<div id="input_arr_'.$sprache.'_'.$key.'">';
 			foreach($value as $val)
-				echo '<input name="'.$sprache.'['.$key.'][]" size="50" type="text" value="'.$db->convert_html_chars($val).'" '.($locked?'readonly="readonly"':'').'><br>';
+				echo '<input name="'.$sprache.'['.$key.'][]" style="width:98%" type="text" value="'.$db->convert_html_chars($val).'" '.($locked?'readonly="readonly"':'').'><br>';
 			echo '</div>';
 			if(!$locked)
 				echo '<a href="#add" onclick="addInput(\''.$sprache.'\',\''.$key.'\');return false;"><img src="../../../skin/images/list-add.png" height="20px" alt="Eintrag hinzufügen"/></a>';
 			break;
 
 		default:
-			echo '<input name="'.$sprache.'['.$key.']" type="text" '.($locked?'readonly="readonly"':'').' value="'.$db->convert_html_chars($data[$key]).'">';
+			echo '<input name="'.$sprache.'['.$key.']" style="width:98%" type="text" '.($locked?'readonly="readonly"':'').' value="'.$db->convert_html_chars($data[$key]).'">';
 	}
 }
 
