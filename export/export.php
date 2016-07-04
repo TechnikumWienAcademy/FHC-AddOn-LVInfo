@@ -117,6 +117,9 @@ function bauen($tree)
 
 	foreach($tree as $row)
 	{
+		if(!$row->export)
+			continue;
+		
 		$data[$i]['lehrveranstaltung_id'] = $row->lehrveranstaltung_id;
 		$data[$i]['semester'] = $row->semester;
 		$data[$i]['bezeichnung'] = $row->bezeichnung;
