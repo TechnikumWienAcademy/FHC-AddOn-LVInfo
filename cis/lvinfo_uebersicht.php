@@ -444,13 +444,13 @@ if($lv_obj->loadLehrveranstaltungStudienplan($studienplan_id, $semester,'bezeich
 						{
 							case 'abgeschickt':
 								// Freigabe oder Reject
-								echo ' Freigeben:';
-								echo ' <a href="#freigabe" onclick="freigabe(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="LVInfo freischalten"><img src="../../../skin/images/true.png" /></a>';
-								echo ' <a href="#zuruecksetzen" onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="Nicht freischalten und Sperre aufheben"><img src="../../../skin/images/false.png" /></a>';
+								echo ' Freigeben?';
+								echo ' <a href="#freigabe" onclick="freigabe(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="freigeben"><img src="../../../skin/images/true.png" /></a>';
+								echo ' <a href="#zuruecksetzen" onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="Nicht freigeben und auf \'in Bearbeitung\' zurücksetzen"><img src="../../../skin/images/false.png" /></a>';
 								break;
 							case 'freigegeben':
 								// freigabe aufheben
-								echo ' <a href="#zuruecksetzen"  onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;">Sperre aufheben</a>';
+								echo ' <a href="#zuruecksetzen"  onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="Freigabe aufheben und auf \'in Bearbeitung\' zurücksetzen">Sperre aufheben</a>';
 								break;
 							case 'bearbeitung':
 							default:
