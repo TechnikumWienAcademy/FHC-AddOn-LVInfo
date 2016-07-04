@@ -123,7 +123,21 @@ if(isset($_GET['studienplan_id']))
 }
 else
 {
-	$studienplan_id='';
+	if($lv_id!='' && $studiensemester_kurzbz!='')
+	{
+		$stp_obj = new studienplan();
+		$stp_obj->getStudienplanLehrveranstaltung($lv_id, $studiensemester_kurzbz);
+
+		if(isset($stp_obj->result[0]))
+		{
+	
+			$studienplan_id = $stp_obj->result[0]->studienplan_id;
+		}
+		else
+			$studienplan_id='';
+	}
+	else
+		$studienplan_id='';
 }
 
 $errormsg = '';
