@@ -119,8 +119,9 @@ function bauen($tree)
 	{
 		if(!$row->export)
 			continue;
-		
+
 		$data[$i]['lehrveranstaltung_id'] = $row->lehrveranstaltung_id;
+		$data[$i]['kurzbz'] = $row->kurzbz;
 		$data[$i]['semester'] = $row->semester;
 		$data[$i]['bezeichnung'] = $row->bezeichnung;
 		$data[$i]['bezeichnung_englisch'] = $row->bezeichnung_english;
