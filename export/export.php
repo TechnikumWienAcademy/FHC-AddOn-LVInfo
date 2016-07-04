@@ -33,6 +33,7 @@ require_once('../../../include/studiensemester.class.php');
 require_once('../../../include/organisationseinheit.class.php');
 require_once('../../../include/lehrveranstaltung.class.php');
 require_once('../../../include/studienplan.class.php');
+require_once('../../../include/studienordnung.class.php');
 require_once('../../../include/datum.class.php');
 require_once('../include/lvinfo.class.php');
 
@@ -46,25 +47,60 @@ if($orgform_kurzbz == '')
 
 $studiengang = new studiengang();
 $studiengang->load($studiengang_kz);
-$data = array();
-for($semester = 1; $semester <= $studiengang->max_semester; $semester++)
+
+$studienordnung = new studienordnung();
+$studienordnung->loadStudienordnungSTG($studiengang_kz);
+
+$studienordnung_id='';
+foreach($studienordnung->result as $row_sto)
+{
+	if(in_array($row_sto->status_kurzbz, array('approved','expired')))
+	{
+		$studienordnung = $row_sto;
+		$studienordnung_id = $row_sto->studienordnung_id;
+		break;
+	}
+}
+if($studienordnung_id=='')
+	die('Es wurde keine genehmigte Studienordnung gefunden');
+
+$studienplan = new studienplan();
+$studienplan->loadStudienplanSTO($studienordnung_id, $orgform_kurzbz);
+if(isset($studienplan->result[0]))
+	$studienplan = $studienplan->result[0];
+
+$semesterdata=array();
+for($semester = 1; $semester <= $studienplan->regelstudiendauer; $semester++)
 {
 	$studiensemester_obj = new studiensemester();
 	$studiensemester_kurzbz = $studiensemester_obj->getNearest($semester);
 
-	$studienplan = new studienplan();
-	$studienplan->getStudienplaeneFromSem($studiengang_kz, $studiensemester_kurzbz, $semester, $orgform_kurzbz);
-	if(!isset($studienplan->result[0]))
-		die('Es wurde kein eindeutiger Studienplan gefunden');
-	$studienplan_id = $studienplan->result[0]->studienplan_id;
 	$lehrveranstaltung = new lehrveranstaltung();
 
-	$lehrveranstaltung->loadLehrveranstaltungStudienplan($studienplan_id, $semester);
+	$lehrveranstaltung->loadLehrveranstaltungStudienplan($studienplan->studienplan_id, $semester);
 
 	$tree = $lehrveranstaltung->getLehrveranstaltungTree();
 
-	$data[$semester] = bauen($tree);
+	$semesterdata[$semester] = bauen($tree);
 }
+
+$gueltigvon_datum = '';
+if($studienordnung->gueltigvon!='')
+{
+	$studiensemester_obj=new studiensemester();
+	$studiensemester_obj->load($studienordnung->gueltigvon);
+	$gueltigvon_datum = $studiensemester_obj->start;
+}
+$data = array(
+	'studienordnung_id'=>$studienordnung_id,
+	'studienordnung_bezeichnung'=>$studienordnung->bezeichnung,
+	'studienplan_id'=>$studienplan->studienplan_id,
+	'studienplan_bezeichnung'=>$studienplan->bezeichnung,
+	'gueltig_von'=>$studienordnung->gueltigvon,
+	'gueltig_von_datum'=>$gueltigvon_datum,
+	'regelstudiendauer'=>$studienplan->regelstudiendauer,
+	'lehrveranstaltungen'=>$semesterdata
+);
 
 /**
  * Erstellt ein Array mit den Daten für ein Semester die Exportiert werden sollen
@@ -88,6 +124,9 @@ function bauen($tree)
 		$data[$i]['unterrichtssprache'] = $row->sprache;
 		$data[$i]['ects'] = $row->ects;
 		$data[$i]['organisationsform'] = $row->orgform_kurzbz;
+		$data[$i]['pflicht'] = $row->stpllv_pflicht;
+		$data[$i]['lehrtyp'] = $row->lehrtyp_kurzbz;
+		$data[$i]['lehrform'] = $row->lehrform_kurzbz;
 
 		$lvinfo = new lvinfo();
 		$lvinfo->loadLvinfo($row->lehrveranstaltung_id, $studiensemester_kurzbz, null, true);
@@ -98,15 +137,14 @@ function bauen($tree)
 
 		foreach($lvinfo->result as $row_lvinfo)
 		{
-			$lvinfodata = '';
+			$lvinfodata=array();
 			// Ausgabe der Felder
 			foreach($lvinfo_set->result as $row_set)
 			{
-				$lvinfodataelem = '<h2>'.$row_set->lvinfo_set_bezeichnung[$row_lvinfo->sprache].'</h2>';
-				if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
-					$lvinfodataelem .= $row_set->einleitungstext[$row_lvinfo->sprache].'<br><br>';
-
 				$key = $row_set->lvinfo_set_kurzbz;
+
+				if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
+					$lvinfodata[$key]['einleitungstext'] = $row_set->einleitungstext[$row_lvinfo->sprache];
 				$lvinfodataelembody = '';
 				switch($row_set->lvinfo_set_typ)
 				{
@@ -114,9 +152,9 @@ function bauen($tree)
 						$p1 = new phrasen($lvinfo->sprache);
 
 						if(isset($row_lvinfo->data[$key]) && $row_lvinfo->data[$key] === true)
-							$lvinfodataelembody .= $p1->t('global/ja');
+							$lvinfodataelembody = true;
 						else
-							$lvinfodataelembody .= $p1->t('global/nein');
+							$lvinfodataelembody = false;
 						break;
 
 					case 'array':
@@ -125,19 +163,20 @@ function bauen($tree)
 						else
 							$value = array();
 
-						$lvinfodataelembody .= '<ul>';
+
 						foreach($value as $val)
-							$lvinfodataelembody .= '<li>'.$db->convert_html_chars($val).'</li>';
-						$lvinfodataelembody .= '</ul>';
+							$lvinfodataelembody[] = $val;
 						break;
 
 					case 'text':
 					default:
 						if(isset($row_lvinfo->data[$key]))
-							 $lvinfodataelembody .= $db->convert_html_chars($row_lvinfo->data[$key]);
+							 $lvinfodataelembody = $row_lvinfo->data[$key];
 				}
-				if($lvinfodataelembody != '')
-					$lvinfodata .= $lvinfodataelem.$lvinfodataelembody;
+				if($lvinfodataelembody!=null)
+				{
+					$lvinfodata[$key]['data']=$lvinfodataelembody;
+				}
 			}
 
 			$data[$i]['lvinfo'][$row_lvinfo->sprache] = $lvinfodata;
