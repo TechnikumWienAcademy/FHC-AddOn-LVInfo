@@ -426,7 +426,7 @@ if($lv_obj->loadLehrveranstaltungStudienplan($studienplan_id, $semester,'bezeich
 
 					echo '
 					<td>
-						<a href="lvinfo.php?lv_id='.$row_lvinfo->lehrveranstaltung_id.'&studiensemester_kurzbz='.$studiensemester_kurzbz.'"><img src="../../../skin/images/text-x-generic_with_pencil.png" height="20px" title="bearbeiten"></a>
+						<a href="lvinfo.php?lv_id='.$row_lvinfo->lehrveranstaltung_id.'&studiensemester_kurzbz='.$studiensemester_kurzbz.'"><img src="../../../skin/images/text-x-generic_with_pencil.png" height="20px" title="zur LVInfo"></a>
 						<a href="view.php?lvinfo_id='.$row_lvinfo->lvinfo_id.'"><img src="../../../skin/images/system-index-search.png" height="20px" title="anzeigen"></a>
 						<a href="diff.php?lvinfo_id='.$row_lvinfo->lvinfo_id.'"><img src="../../../skin/images/merge.png" height="20px" title="Unterschiede zur Vorversion anzeigen"/></a>
 					';
