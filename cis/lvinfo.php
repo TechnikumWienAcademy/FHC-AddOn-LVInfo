@@ -234,53 +234,56 @@ if(isset($_POST['save']) || isset($_POST['saveAndSend']))
 			$diff .= getDiffPrevious($id_array[$lvinfo_sprache]);
 		}
 
-		$benutzer = new benutzer();
-		$benutzer->load($user);
-
-		$stg_obj = new studiengang();
-		$stg_obj->getAll('typ, kurzbz',false);
-
-		$text='Die Lehrveranstaltungsinformationen für eine Lehrveranstaltung wurde eingetragen/aktualisiert.<br>
-		Name der LV: '.$db->convert_html_chars($lv_obj->bezeichnung)."\n".'<br>
-		Studiengang: '.$db->convert_html_chars($stg_obj->kuerzel_arr[$lv_obj->studiengang_kz])."\n".'<br>
-		Semester: '.$db->convert_html_chars($lv_obj->semester)."\n".'<br>
-		Organisationsform: '.$db->convert_html_chars($lv_obj->orgform_kurzbz)."\n".'<br>
-		Studiensemester:'.$db->convert_html_chars($studiensemester_kurzbz)."\n".'<br>
-		Änderung durch: '.$db->convert_html_chars($benutzer->vorname.' '.$benutzer->nachname)."\n".'<br><br>
-		Bitte bestätigen Sie die Freigabe über folgenden Link:'."\n".'
-		<a href="'.APP_ROOT.'addons/lvinfo/cis/lvinfo_uebersicht.php?stg_kz='.urlencode($lv_obj->studiengang_kz).'&semester='.urlencode($lv_obj->semester).'&orgform_kurzbz='.urlencode($lv_obj->orgform_kurzbz).'&studiensemester_kurzbz='.urlencode($studiensemester_kurzbz).'">Zur Freigabe</a><br>
-		Folgende Änderungen wurde gegenüber der Vorversion durchgeführt:<br>'."\n".'
-		'.$diff;
-
-		// Empfaenger setzen
-		// Studiengangsleitung
-		$stgleitung = $stg_obj->getLeitung($lv_obj->studiengang_kz);
-		$to='';
-		foreach($stgleitung as $rowltg)
-			$to.=$rowltg.'@'.DOMAIN.',';
-
-		// geschaeftsfuehrende Studiengangsleitung
-		$stg_hlp = new studiengang();
-		$stg_hlp->load($lv_obj->studiengang_kz);
-		$bnf = new benutzerfunktion();
-		$bnf->getBenutzerFunktionen('gLtg', $stg_hlp->oe_kurzbz);
-		foreach($bnf->result as $rowbnf)
-			$to.=$rowbnf->uid.'@'.DOMAIN.',';
-
-		$to = mb_substr($to, 0,-1);
-		$from = 'noreply@'.DOMAIN;
-		$subject = 'Freigabe LV-Information';
-
-		$mail = new mail($to, $from, $subject, $text);
-		$mail->setHTMLContent($text);
-		$mail->setReplyTo($user.'@'.DOMAIN);
-		if($mail->send())
+		if(!defined('ADDON_LVINFO_SEND_FREIGABEMAIL') || ADDON_LVINFO_SEND_FREIGABEMAIL)
 		{
-			echo '<span class="ok">'.$p->t('lvinfo/mailVersandtAn',array($to)).'</span>';
-		}
-		else
-		{
-			echo '<span class="error">'.$p->t('lvinfo/mailVersandtFailed',array($to)).'</span>';
+			$benutzer = new benutzer();
+			$benutzer->load($user);
+
+			$stg_obj = new studiengang();
+			$stg_obj->getAll('typ, kurzbz',false);
+
+			$text='Die Lehrveranstaltungsinformationen für eine Lehrveranstaltung wurde eingetragen/aktualisiert.<br>
+			Name der LV: '.$db->convert_html_chars($lv_obj->bezeichnung)."\n".'<br>
+			Studiengang: '.$db->convert_html_chars($stg_obj->kuerzel_arr[$lv_obj->studiengang_kz])."\n".'<br>
+			Semester: '.$db->convert_html_chars($lv_obj->semester)."\n".'<br>
+			Organisationsform: '.$db->convert_html_chars($lv_obj->orgform_kurzbz)."\n".'<br>
+			Studiensemester:'.$db->convert_html_chars($studiensemester_kurzbz)."\n".'<br>
+			Änderung durch: '.$db->convert_html_chars($benutzer->vorname.' '.$benutzer->nachname)."\n".'<br><br>
+			Bitte bestätigen Sie die Freigabe über folgenden Link:'."\n".'
+			<a href="'.APP_ROOT.'addons/lvinfo/cis/lvinfo_uebersicht.php?stg_kz='.urlencode($lv_obj->studiengang_kz).'&semester='.urlencode($lv_obj->semester).'&orgform_kurzbz='.urlencode($lv_obj->orgform_kurzbz).'&studiensemester_kurzbz='.urlencode($studiensemester_kurzbz).'">Zur Freigabe</a><br>
+			Folgende Änderungen wurde gegenüber der Vorversion durchgeführt:<br>'."\n".'
+			'.$diff;
+
+			// Empfaenger setzen
+			// Studiengangsleitung
+			$stgleitung = $stg_obj->getLeitung($lv_obj->studiengang_kz);
+			$to='';
+			foreach($stgleitung as $rowltg)
+				$to.=$rowltg.'@'.DOMAIN.',';
+
+			// geschaeftsfuehrende Studiengangsleitung
+			$stg_hlp = new studiengang();
+			$stg_hlp->load($lv_obj->studiengang_kz);
+			$bnf = new benutzerfunktion();
+			$bnf->getBenutzerFunktionen('gLtg', $stg_hlp->oe_kurzbz);
+			foreach($bnf->result as $rowbnf)
+				$to.=$rowbnf->uid.'@'.DOMAIN.',';
+
+			$to = mb_substr($to, 0,-1);
+			$from = 'noreply@'.DOMAIN;
+			$subject = 'Freigabe LV-Information';
+
+			$mail = new mail($to, $from, $subject, $text);
+			$mail->setHTMLContent($text);
+			$mail->setReplyTo($user.'@'.DOMAIN);
+			if($mail->send())
+			{
+				echo '<span class="ok">'.$p->t('lvinfo/mailVersandtAn',array($to)).'</span>';
+			}
+			else
+			{
+				echo '<span class="error">'.$p->t('lvinfo/mailVersandtFailed',array($to)).'</span>';
+			}
 		}
 	}
 }
