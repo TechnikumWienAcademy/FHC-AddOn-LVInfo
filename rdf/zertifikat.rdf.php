@@ -264,6 +264,10 @@ if (isset($_REQUEST["xmlformat"]) && $_REQUEST["xmlformat"] == "xml")
 		$xml .= "				<lvleiter>".$leiter_titel." ".$leiter_vorname." ".$leiter_nachname.($leiter_titelpost!=''?', '.$leiter_titelpost:'')."</lvleiter>";
 		$xml .= "				<lehrinhalte><![CDATA[".clearHtmlTags($lehrinhalte)."]]></lehrinhalte>";
 		$xml .= "				<lehrziele><![CDATA[".clearHtmlTags($lehrziele)."]]></lehrziele>";
+		$xml .= "				<lehrziele_arr>";
+								foreach ($lvinfo->result[0]->data['lernerg'] AS $lehrziel)
+		$xml .= "					<lehrziel><![CDATA[".clearHtmlTags($lehrziel)."]]></lehrziel>";
+		$xml .= "				</lehrziele_arr>";
 
 
 		$xml .= "	</zertifikat>";
