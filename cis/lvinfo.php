@@ -303,7 +303,7 @@ $studiensemester = new studiensemester();
 $akt_studiensemester = $studiensemester->getakt();
 if($studiensemester->getPlusMinus(5,10))
 {
-	echo '<tr><td>'.$p->t('global/studiensemester').'</td><td><SELECT name="studiensemester_kurzbz" onChange="window.document.auswahlFrm.submit();">';
+	echo '<tr><td>'.$p->t('lvinfo/studiensemester').'</td><td><SELECT name="studiensemester_kurzbz" onChange="window.document.auswahlFrm.submit();">';
 
 	foreach($studiensemester->studiensemester as $row)
 	{
