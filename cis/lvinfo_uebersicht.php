@@ -89,16 +89,16 @@ $datum_obj = new datum();
 		$('#input_arr_'+sprache+'_'+key).append('<input name="'+sprache+'['+key+'][]" size="50" type="text" value=""><br>');
 	}
 
-	function freigabe(lvinfo_id, stg_kz, semester, orgform_kurzbz, studiensemester_kurzbz)
+	function freigabe(lvinfo_id, stg_kz, semester, orgform_kurzbz, studiensemester_kurzbz, studienplan_id)
 	{
-		var url='lvinfo_uebersicht.php?stg_kz='+stg_kz+'&semester='+semester+'&orgform_kurzbz='+orgform_kurzbz+'&studiensemester_kurzbz='+studiensemester_kurzbz;
+		var url='lvinfo_uebersicht.php?stg_kz='+stg_kz+'&semester='+semester+'&orgform_kurzbz='+orgform_kurzbz+'&studiensemester_kurzbz='+studiensemester_kurzbz+'&studienplan_id='+studienplan_id;
 		$("#data").html('<form action="'+url+'" name="sendform" id="sendform" method="POST"><input type="hidden" name="action" value="freigabe" /><input type="hidden" name="lvinfo_id" value="'+lvinfo_id+'" /></form>');
 		document.sendform.submit();
 	}
 
-	function reset(lvinfo_id, stg_kz, semester, orgform_kurzbz, studiensemester_kurzbz)
+	function reset(lvinfo_id, stg_kz, semester, orgform_kurzbz, studiensemester_kurzbz, studienplan_id)
 	{
-		var url='lvinfo_uebersicht.php?stg_kz='+stg_kz+'&semester='+semester+'&orgform_kurzbz='+orgform_kurzbz+'&studiensemester_kurzbz='+studiensemester_kurzbz;
+		var url='lvinfo_uebersicht.php?stg_kz='+stg_kz+'&semester='+semester+'&orgform_kurzbz='+orgform_kurzbz+'&studiensemester_kurzbz='+studiensemester_kurzbz+'&studienplan_id='+studienplan_id;
 		$("#data").html('<form action="'+url+'" name="sendform" id="sendform" method="POST"><input type="hidden" name="action" value="reset" /><input type="hidden" name="lvinfo_id" value="'+lvinfo_id+'" /></form>');
 		document.sendform.submit();
 	}
@@ -445,12 +445,12 @@ if($lv_obj->loadLehrveranstaltungStudienplan($studienplan_id, $semester,'bezeich
 							case 'abgeschickt':
 								// Freigabe oder Reject
 								echo ' Freigeben?';
-								echo ' <a href="#freigabe" onclick="freigabe(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="freigeben"><img src="../../../skin/images/true.png" /></a>';
-								echo ' <a href="#zuruecksetzen" onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="Nicht freigeben und auf \'in Bearbeitung\' zurücksetzen"><img src="../../../skin/images/false.png" /></a>';
+								echo ' <a href="#freigabe" onclick="freigabe(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\',\''.$studienplan_id.'\'); return false;" title="freigeben"><img src="../../../skin/images/true.png" /></a>';
+								echo ' <a href="#zuruecksetzen" onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\',\''.$studienplan_id.'\'); return false;" title="Nicht freigeben und auf \'in Bearbeitung\' zurücksetzen"><img src="../../../skin/images/false.png" /></a>';
 								break;
 							case 'freigegeben':
 								// freigabe aufheben
-								echo ' <a href="#zuruecksetzen"  onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\'); return false;" title="Freigabe aufheben und auf \'in Bearbeitung\' zurücksetzen">Sperre aufheben</a>';
+								echo ' <a href="#zuruecksetzen"  onclick="reset(\''.$row_lvinfo->lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\',\''.$studienplan_id.'\'); return false;" title="Freigabe aufheben und auf \'in Bearbeitung\' zurücksetzen">Sperre aufheben</a>';
 								break;
 							case 'bearbeitung':
 							default:
