@@ -93,6 +93,12 @@ $datum_obj = new datum();
 		$('#input_arr_'+sprache+'_'+key).append('<input name="'+sprache+'['+key+'][]" style="width:98%" type="text" value=""><br>');
 	}
 	</script>
+	<style type="text/css">
+	textarea
+	{
+		font-size: 9pt;
+	}
+	</style>
 </head>
 <body>
 <?php
@@ -270,6 +276,9 @@ if(isset($_POST['save']) || isset($_POST['saveAndSend']))
 				$to.=$rowbnf->uid.'@'.DOMAIN.',';
 
 			$to = mb_substr($to, 0,-1);
+			// Wenn kein Empfaenger gefunden wurde, an die Mailadresse des Studiengangs schicken
+			if ($to == '')
+				$to = $stg_hlp->email;
 			$from = 'noreply@'.DOMAIN;
 			$subject = 'Freigabe LV-Information';
 

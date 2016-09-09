@@ -43,7 +43,7 @@ require_once('../include/functions.inc.php');
 require_once('../vendor/autoload.php');
 require_once('../lvinfo.config.inc.php');
 
-$uid = get_uid();
+// $uid = get_uid(); Fuehrt zu Problemen bei der Incoming-Plattform, weil diese noch keinen Benutzer haben
 
 $sprache = getSprache();
 $p = new phrasen($sprache);
