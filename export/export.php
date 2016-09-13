@@ -127,6 +127,7 @@ function bauen($tree)
 		$data[$i]['bezeichnung_englisch'] = $row->bezeichnung_english;
 		$data[$i]['unterrichtssprache'] = $row->sprache;
 		$data[$i]['ects'] = $row->ects;
+		$data[$i]['sws'] = $row->sws;
 		$data[$i]['organisationsform'] = $row->orgform_kurzbz;
 		$data[$i]['pflicht'] = $row->stpllv_pflicht;
 		$data[$i]['lehrtyp'] = $row->lehrtyp_kurzbz;
