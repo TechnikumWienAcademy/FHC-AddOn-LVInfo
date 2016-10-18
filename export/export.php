@@ -143,6 +143,7 @@ function bauen($tree)
 		foreach($lvinfo->result as $row_lvinfo)
 		{
 			$lvinfodata=array();
+			$lvinfodatafound=false;
 			// Ausgabe der Felder
 			foreach($lvinfo_set->result as $row_set)
 			{
@@ -150,7 +151,7 @@ function bauen($tree)
 
 				if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
 					$lvinfodata[$key]['einleitungstext'] = $row_set->einleitungstext[$row_lvinfo->sprache];
-				$lvinfodataelembody = '';
+				$lvinfodataelembody = null;
 				switch($row_set->lvinfo_set_typ)
 				{
 					case 'boolean':
@@ -181,10 +182,11 @@ function bauen($tree)
 				if($lvinfodataelembody!=null)
 				{
 					$lvinfodata[$key]['data']=$lvinfodataelembody;
+					$lvinfodatafound=true;
 				}
 			}
-
-			$data[$i]['lvinfo'][$row_lvinfo->sprache] = $lvinfodata;
+			if($lvinfodatafound)
+				$data[$i]['lvinfo'][$row_lvinfo->sprache] = $lvinfodata;
 			$lastupdate = $row_lvinfo->updateamum;
 		}
 		$data[$i]['lastupdate'] = $datum_obj->formatDatum($lastupdate, 'Y-m-d H:i:s');
