@@ -149,8 +149,6 @@ function bauen($tree)
 			{
 				$key = $row_set->lvinfo_set_kurzbz;
 
-				if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
-					$lvinfodata[$key]['einleitungstext'] = $row_set->einleitungstext[$row_lvinfo->sprache];
 				$lvinfodataelembody = null;
 				switch($row_set->lvinfo_set_typ)
 				{
@@ -181,6 +179,9 @@ function bauen($tree)
 				}
 				if($lvinfodataelembody!=null)
 				{
+					if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
+						$lvinfodata[$key]['einleitungstext'] = $row_set->einleitungstext[$row_lvinfo->sprache];
+
 					$lvinfodata[$key]['data']=$lvinfodataelembody;
 					$lvinfodatafound=true;
 				}
