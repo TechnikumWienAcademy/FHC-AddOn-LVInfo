@@ -22,7 +22,8 @@
 require_once(dirname(__FILE__).'/../include/lvinfo.class.php');
 
 // LV-Info aus Core ausblenden
-$addon_lvinfo_col = array_column($menu,'id');
+foreach($menu as $key=>$row)
+	$addon_lvinfo_col[$key]=$row['id'];
 unset($menu[array_search('core_menu_lvinfo', $addon_lvinfo_col)]);
 
 // LVINFO Menuepunkt aus Addon einblenden
