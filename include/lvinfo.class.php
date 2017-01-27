@@ -133,7 +133,7 @@ class lvinfo extends basis_db
 
 		if(!is_null($freigegeben) && $freigegeben===true)
 		{
-			$qry.=" AND EXISTS(SELECT * FROM addon.tbl_lvinfostatus_zuordnung WHERE lvinfo_id=tbl_lvinfo.lvinfo_id AND lvinfostatus_kurzbz='freigegeben')";
+			$qry.=" AND 'freigegeben'= (SELECT lvinfostatus_kurzbz FROM addon.tbl_lvinfostatus_zuordnung WHERE lvinfo_id=tbl_lvinfo.lvinfo_id ORDER BY gesetztamum desc limit 1)";
 		}
 
 		if($result = $this->db_query($qry))

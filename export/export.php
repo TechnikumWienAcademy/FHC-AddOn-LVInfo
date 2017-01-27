@@ -127,6 +127,7 @@ function bauen($tree)
 		$data[$i]['bezeichnung_englisch'] = $row->bezeichnung_english;
 		$data[$i]['unterrichtssprache'] = $row->sprache;
 		$data[$i]['ects'] = $row->ects;
+		$data[$i]['sws'] = $row->sws;
 		$data[$i]['organisationsform'] = $row->orgform_kurzbz;
 		$data[$i]['pflicht'] = $row->stpllv_pflicht;
 		$data[$i]['lehrtyp'] = $row->lehrtyp_kurzbz;
@@ -142,14 +143,13 @@ function bauen($tree)
 		foreach($lvinfo->result as $row_lvinfo)
 		{
 			$lvinfodata=array();
+			$lvinfodatafound=false;
 			// Ausgabe der Felder
 			foreach($lvinfo_set->result as $row_set)
 			{
 				$key = $row_set->lvinfo_set_kurzbz;
 
-				if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
-					$lvinfodata[$key]['einleitungstext'] = $row_set->einleitungstext[$row_lvinfo->sprache];
-				$lvinfodataelembody = '';
+				$lvinfodataelembody = null;
 				switch($row_set->lvinfo_set_typ)
 				{
 					case 'boolean':
@@ -179,11 +179,15 @@ function bauen($tree)
 				}
 				if($lvinfodataelembody!=null)
 				{
+					if(isset($row_set->einleitungstext[$row_lvinfo->sprache]))
+						$lvinfodata[$key]['einleitungstext'] = $row_set->einleitungstext[$row_lvinfo->sprache];
+
 					$lvinfodata[$key]['data']=$lvinfodataelembody;
+					$lvinfodatafound=true;
 				}
 			}
-
-			$data[$i]['lvinfo'][$row_lvinfo->sprache] = $lvinfodata;
+			if($lvinfodatafound)
+				$data[$i]['lvinfo'][$row_lvinfo->sprache] = $lvinfodata;
 			$lastupdate = $row_lvinfo->updateamum;
 		}
 		$data[$i]['lastupdate'] = $datum_obj->formatDatum($lastupdate, 'Y-m-d H:i:s');
