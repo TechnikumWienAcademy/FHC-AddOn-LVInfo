@@ -265,8 +265,13 @@ if (isset($_REQUEST["xmlformat"]) && $_REQUEST["xmlformat"] == "xml")
 		$xml .= "				<lehrinhalte><![CDATA[".clearHtmlTags($lehrinhalte)."]]></lehrinhalte>";
 		$xml .= "				<lehrziele><![CDATA[".clearHtmlTags($lehrziele)."]]></lehrziele>";
 		$xml .= "				<lehrziele_arr>";
-								foreach ($lvinfo->result[0]->data['lernerg'] AS $lehrziel)
+								if (isset($lvinfo->result[0]->data['lernerg']))
+								{
+									foreach ($lvinfo->result[0]->data['lernerg'] AS $lehrziel)
 		$xml .= "					<lehrziel><![CDATA[".clearHtmlTags($lehrziel)."]]></lehrziel>";
+								}
+								else 
+		$xml .= "					<lehrziel></lehrziel>";
 		$xml .= "				</lehrziele_arr>";
 
 

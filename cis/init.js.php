@@ -42,7 +42,7 @@ addon.push(
 					$('a').each(function(){
 						if($(this).attr('href')=='#Deutsch')
 						{
-							var lvid = $('td:first-child', $(this).parent().parent()).html();
+							var lvid = $('td:last-child', $(this).parent().parent()).html();
 							this.onclick=function()
 							{
 								window.open('../../../addons/lvinfo/cis/view.php?lehrveranstaltung_id='+lvid+'&amp;sprache=German','Lehrveranstaltungsinformation','width=700,height=750,resizable=yes,menuebar=no,toolbar=no,status=yes,scrollbars=yes');
@@ -51,7 +51,7 @@ addon.push(
 						}
 						if($(this).attr('href')=='#Englisch')
 						{
-							var lvid = $('td:first-child', $(this).parent().parent()).html();
+							var lvid = $('td:last-child', $(this).parent().parent()).html();
 							this.onclick=function()
 							{
 								window.open('../../../addons/lvinfo/cis/view.php?lehrveranstaltung_id='+lvid+'&amp;sprache=English','Lehrveranstaltungsinformation','width=700,height=750,resizable=yes,menuebar=no,toolbar=no,status=yes,scrollbars=yes');
