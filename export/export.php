@@ -134,8 +134,7 @@ function bauen($tree)
 		$data[$i]['lehrform'] = $row->lehrform_kurzbz;
 
 		$lvinfo = new lvinfo();
-		$lvinfo->loadLvinfo($row->lehrveranstaltung_id, $studiensemester_kurzbz, null, true);
-
+		$lvinfo->loadLastLvinfo($row->lehrveranstaltung_id, true);
 		$lvinfo_set = new lvinfo();
 		$setstsem = $lvinfo_set->getGueltigesStudiensemester($studiensemester_kurzbz);
 		$lvinfo_set->load_lvinfo_set($setstsem);
