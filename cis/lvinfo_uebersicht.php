@@ -377,7 +377,7 @@ if($lv_obj->loadLehrveranstaltungStudienplan($studienplan_id, $semester,'bezeich
 		{
 			$("#t1").tablesorter(
 			{
-				sortList: [[0,0]],
+				sortList: [[1,0]],
 				widgets: ["zebra"]
 			});
 		});
@@ -385,6 +385,7 @@ if($lv_obj->loadLehrveranstaltungStudienplan($studienplan_id, $semester,'bezeich
 		<table id="t1" class="tablesorter" style="width:auto;">
 			<thead>
 			<tr>
+				<th>LV-ID</th>
 				<th>Lehrveranstaltung</th>';
 		foreach($config_lvinfo_sprachen as $row_sprache)
 		{
@@ -406,6 +407,7 @@ if($lv_obj->loadLehrveranstaltungStudienplan($studienplan_id, $semester,'bezeich
 
 			echo '
 			<tr>
+				<td valign="top">'.$row->lehrveranstaltung_id.'</td>
 				<td valign="top">'.$db->convert_html_chars($row->bezeichnung).' ( '.$row->lehrform_kurzbz.' )'.'</td>
 			';
 			$lvinfo = new lvinfo();
