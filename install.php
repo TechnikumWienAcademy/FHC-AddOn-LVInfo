@@ -44,7 +44,7 @@ $rechte->getBerechtigungen($uid);
 
 $v = pg_version();
 
-if(!$rechte->isBerechtigt('basis/addon'))
+if(!$rechte->isBerechtigt('basis/addon', null, 'suid'))
 {
 	exit('Sie haben keine Berechtigung für die Verwaltung von Addons');
 }
