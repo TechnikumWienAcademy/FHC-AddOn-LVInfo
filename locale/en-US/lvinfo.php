@@ -1,8 +1,8 @@
 <?php
-$this->phrasen['lvinfo/lvinformationen']='LV-Informationen';
-$this->phrasen['lvinfo/lehrveranstaltungsinformationen']='Lehrveranstaltungsinformationen';
-$this->phrasen['lvinfo/lehrveranstaltungsinformationenuebersicht']='Lehrveranstaltungsinformationen - Übersicht';
-$this->phrasen['lvinfo/organisationsform']='Organisationsform';
+$this->phrasen['lvinfo/lvinformationen']='Course Information';
+$this->phrasen['lvinfo/lehrveranstaltungsinformationen']='Course Information';
+$this->phrasen['lvinfo/lehrveranstaltungsinformationenuebersicht']='Course Information - Overview';
+$this->phrasen['lvinfo/organisationsform']='Organizational form';
 $this->phrasen['lvinfo/speichernUndFreigeben']='Speichern und zur Freigabe absenden';
 $this->phrasen['lvinfo/mailVersandtAn']='Freigabe-Mail wurde erfolgreich an %s versandt';
 $this->phrasen['lvinfo/mailVersandtFailed']='Es ist ein Fehler beim Mailversand an %s aufgetreten';
