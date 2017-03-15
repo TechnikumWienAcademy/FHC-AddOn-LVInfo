@@ -14,4 +14,14 @@ $this->phrasen['lvinfo/keineLVVorhanden']='Keine Lehrveranstaltungen für diese 
 $this->phrasen['lvinfo/status']='Status:';
 $this->phrasen['lvinfo/lvmodul']='LVs / Module:';
 $this->phrasen['lvinfo/studiensemester']='Studiensemester';
+$this->phrasen['lvinfo/keinEmpfaengerGefunden']='Kein Empfänger gefunden. Bitte kontaktieren Sie <a href="mailto:%s">%s</a>';
+$this->phrasen['lvinfo/keinSetHinterlegt']='Kein LV-Info-Set für das Studiensemester %s hinterlegt';
+$this->phrasen['lvinfo/erklaerungstextFreigabe']='Sichtbar im CIS und auf der Webseite.<br>Zur Bearbeitung muss die Freigabe aufgehoben werden*';
+$this->phrasen['lvinfo/erklaerungstextAbgeschickt']='Warte auf Freigabe*.<br>Nur freigegebene LV-Infos sind am CIS sichtbar';
+$this->phrasen['lvinfo/erklaerungstextBearbeitung']='Bitte Informationen eintragen und danach zur Freigabe* abschicken.<br>Nur freigegebene LV-Infos sind am CIS sichtbar';
+$this->phrasen['lvinfo/freigeben']='Freigeben';
+$this->phrasen['lvinfo/freigabeAufheben']='Freigabe aufheben';
+$this->phrasen['lvinfo/freigabeberechtigt']='*) Freigabeberechtigt:';
+$this->phrasen['lvinfo/freigabeKonnteNichtAufgehobenWerden']='Freigabe für LV-ID %s konnte nicht aufgehoben werden';
+$this->phrasen['lvinfo/freigabeKonnteNichtGesetztWerden']='Freigabe für LV-ID %s konnte nicht gesetzt werden';
 ?>

@@ -158,7 +158,7 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 	$studiengang = new studiengang();
 	$studiengang->load($lv->studiengang_kz);
 
-	$leitung='';
+	$leitung = array();
 	$oe = new organisationseinheit();
 
 	if($lv->oe_kurzbz!='')
@@ -173,10 +173,12 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 			$benutzer = new benutzer();
 			$benutzer->load($row->uid);
 
-			$leitung .= trim($benutzer->titelpre.' '.$benutzer->vorname.' '.$benutzer->nachname.' '.$benutzer->titelpost);
+			$leitung[] = $db->convert_html_chars(trim($benutzer->titelpre.' '.$benutzer->vorname.' '.$benutzer->nachname.' '.$benutzer->titelpost));
 		}
+		if (count($leitung) == 0)
+			$leitung[] = '-';
 	}
-	$koordinator = '';
+	$koordinator = array();
 
 	$koord = new lehrveranstaltung();
 	$koord->getKoordinator($lehrveranstaltung_id, $studiensemester_kurzbz);
@@ -185,10 +187,11 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 	{
 		foreach($koord->result as $row)
 		{
-			$koordinator.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).',';
+			$koordinator[] = $db->convert_html_chars(trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost));
 		}
-		$koordinator = mb_substr($koordinator, 0, -1);
 	}
+	if (count($koordinator) == 0)
+		$koordinator[] = '-';
 
 	$lem = new lehreinheitmitarbeiter();
 	$lem->getMitarbeiterLV($lehrveranstaltung_id, $studiensemester_kurzbz);
@@ -247,7 +250,7 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 		</tr>
 		<tr>
 		 	  <td>'.$p->t('global/institut').':</td>
-			  <td>'.$db->convert_html_chars($oe->bezeichnung).' ('.$p->t('global/leitung').':'.$db->convert_html_chars($leitung).' '.$p->t('global/koordination').': '.$db->convert_html_chars($koordinator).')</td>
+			  <td>'.$db->convert_html_chars($oe->bezeichnung).' (<i>'.$p->t('global/leitung').'</i>: '.implode(', ', $leitung).' <i>'.$p->t('global/koordination').'</i>: '.implode(', ', $koordinator).')</td>
 		</tr>
 	</table>';
 

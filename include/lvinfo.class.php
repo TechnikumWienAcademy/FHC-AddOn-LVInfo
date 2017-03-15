@@ -856,5 +856,33 @@ class lvinfo extends basis_db
 			return false;
 		}
 	}
+	
+	/**
+	 * Laedt alle Statuseintraege
+	 * @return array wenn ok, false im Fehlerfall
+	 */
+	public function getAllStatus()
+	{
+		$sprache = new sprache();
+		$qry = "SELECT
+					*,".$sprache->getSprachQuery('bezeichnung')."
+				FROM
+					addon.tbl_lvinfostatus";
+	
+		if($result = $this->db_query($qry))
+		{
+			$status = array();
+			while($row = $this->db_fetch_object($result))
+			{
+				$status[$row->lvinfostatus_kurzbz] = $sprache->parseSprachResult('bezeichnung',$row);
+			}
+			return $status;
+		}
+		else
+		{
+			$this->errormsg = 'Fehler beim Laden der Daten';
+			return false;
+		}
+	}
 }
 ?>
