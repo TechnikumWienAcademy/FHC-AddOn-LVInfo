@@ -92,6 +92,18 @@ $datum_obj = new datum();
 	{
 		$('#input_arr_'+sprache+'_'+key).append('<input name="'+sprache+'['+key+'][]" style="width:98%" type="text" value=""><br>');
 	}
+	function freigabe(lvinfo_id, stg_kz, semester, orgform_kurzbz, studiensemester_kurzbz, studienplan_id, lv_id)
+	{
+		var url='lvinfo.php?stg_kz='+stg_kz+'&semester='+semester+'&orgform_kurzbz='+orgform_kurzbz+'&studiensemester_kurzbz='+studiensemester_kurzbz+'&studienplan_id='+studienplan_id+'&lv_id='+lv_id;
+		$("#data").html('<form action="'+url+'" name="sendform" id="sendform" method="POST"><input type="hidden" name="action" value="freigeben" /><input type="hidden" name="lvinfo_id" value="'+lvinfo_id+'" /></form>');
+		document.sendform.submit();
+	}
+	function bearbeiten(lvinfo_id, stg_kz, semester, orgform_kurzbz, studiensemester_kurzbz, studienplan_id, lv_id)
+	{
+		var url='lvinfo.php?stg_kz='+stg_kz+'&semester='+semester+'&orgform_kurzbz='+orgform_kurzbz+'&studiensemester_kurzbz='+studiensemester_kurzbz+'&studienplan_id='+studienplan_id+'&lv_id='+lv_id;
+		$("#data").html('<form action="'+url+'" name="sendform" id="sendform" method="POST"><input type="hidden" name="action" value="reset" /><input type="hidden" name="lvinfo_id" value="'+lvinfo_id+'" /></form>');
+		document.sendform.submit();
+	}
 	</script>
 	<style type="text/css">
 	textarea, input
@@ -106,6 +118,7 @@ $datum_obj = new datum();
 	</style>
 </head>
 <body>
+<div id="data"></div>
 <?php
 $lv_id = isset($_REQUEST['lv_id'])?$_REQUEST['lv_id']:'';
 //Wenn eine LV_ID übergeben wurde aber keine anderen Parameter, werden diese mit den Daten der LV befüllt
@@ -635,6 +648,12 @@ foreach($lvinfo->result AS $row)
 // Ausgabe der Felder wenn Set vorhanden, sonst Hinweis anzeigen
 if (!$lvinfo_set->result == '')
 {
+	$lva = new lehrveranstaltung();
+	$lva->load($lv_id);
+	$oes = $lva->getAllOe();
+	$oes[]=$lva->oe_kurzbz; // Institut
+	
+	echo '<form name="editFrm" action="lvinfo.php?lv_id='.$lv_id.'" method="POST">';
 	echo '
 	
 		<table width="100%" id="tablelvinfo" class="tablesorter">
@@ -662,7 +681,7 @@ if (!$lvinfo_set->result == '')
 		$status = new lvinfo();
 		$status = $status->getAllStatus();
 	
-		echo '<form name="resetForm" action="lvinfo.php?lv_id='.$lv_id.'" method="POST">';
+		
 		echo '
 			<th style="text-align: center;" colspan="2">
 				<h3>'.$sprachen_obj->bezeichnung_arr[$sprache].' (ID '.$lvinfo_id.')</h3>
@@ -678,8 +697,7 @@ if (!$lvinfo_set->result == '')
 							if ($aktuellerStatus == 'bearbeitung' || $aktuellerStatus == '')
 							{
 								if ($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s') && $aktuellerStatus != '')
-									echo '	<button type="submit" name="action" value="freigeben">'.$p->t('lvinfo/freigeben').'</button>
-											<input type="hidden" name="lvinfo_id" value="'.$lvinfo_id.'" />';
+									echo '<button type="button" name="action" value="freigeben" onclick="freigabe(\''.$lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\',\''.$studienplan_id.'\',\''.$lv_id.'\'); return false;">'.$p->t('lvinfo/freigeben').'</button>';
 								else 
 									echo $p->t('lvinfo/erklaerungstextBearbeitung');
 							}
@@ -687,35 +705,26 @@ if (!$lvinfo_set->result == '')
 							if ($aktuellerStatus == 'abgeschickt')
 							{
 								if ($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
-									echo '	<button type="submit" name="action" value="freigeben">'.$p->t('lvinfo/freigeben').'</button>
-											<input type="hidden" name="lvinfo_id" value="'.$lvinfo_id.'" />';
-									else
-										echo $p->t('lvinfo/erklaerungstextAbgeschickt');
+									echo '<button type="button" name="action" value="freigeben" onclick="freigabe(\''.$lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\',\''.$studienplan_id.'\',\''.$lv_id.'\'); return false;">'.$p->t('lvinfo/freigeben').'</button>';
+								else
+									echo $p->t('lvinfo/erklaerungstextAbgeschickt');
 							}
 						echo '</td><td style="font-weight: normal; font-size: 8pt; text-align: center">';
 							if ($aktuellerStatus == 'freigegeben')
 							{
 								if ($rechte->isBerechtigtMultipleOe('addon/lvinfofreigabe',$oes,'s'))
-									echo '	<button type="submit" name="action" value="reset">'.$p->t('lvinfo/freigabeAufheben').'</button>
-											<input type="hidden" name="lvinfo_id" value="'.$lvinfo_id.'" />';
-									else
-										echo $p->t('lvinfo/erklaerungstextFreigabe');
+									echo '<button type="button" name="action" value="reset" onclick="bearbeiten(\''.$lvinfo_id.'\',\''.$stg_kz.'\',\''.$semester.'\',\''.$orgform_kurzbz.'\',\''.$studiensemester_kurzbz.'\',\''.$studienplan_id.'\',\''.$lv_id.'\'); return false;">'.$p->t('lvinfo/freigabeAufheben').'</button>';
+								else
+									echo $p->t('lvinfo/erklaerungstextFreigabe');
 							}
 						echo '</td>';
 					echo '</tr>
 				</table>
 			</th>';
-			echo '</form>';
 	}
 	echo '</tr></thead>
 	<tbody>';
-	
-	echo '<form name="editFrm" action="lvinfo.php?lv_id='.$lv_id.'" method="POST">';
-	
-	foreach($lvinfo->result AS $row)
-	{
-		echo '<input type="hidden" name="'.$row->sprache.'LVinfo_id" value="'.$row->lvinfo_id.'" />';
-	}
+
 	$locked = false;
 	$i = 0;
 
@@ -821,11 +830,15 @@ if (!$lvinfo_set->result == '')
 	echo '</tfoot></table>';
 	
 	echo '<input type="hidden" name="studiensemester_kurzbz" value="'.$db->convert_html_chars($studiensemester_kurzbz).'">';
+	foreach($lvinfo->result AS $row)
+	{
+		echo '<input type="hidden" name="'.$row->sprache.'LVinfo_id" value="'.$row->lvinfo_id.'" />';
+	}
 	echo '</form>';
 }
 else
 {
-	echo '<table width="100%" id="tablelvinfo" class="tablesorter">
+	echo '<table width="100%" id="tableNoSet" class="tablesorter">
 		<tr>
 			<td style="text-align: center; background-color: #f0ad4e">'.$p->t('lvinfo/keinSetHinterlegt', array($studiensemester_kurzbz)).'</td>
 		</tr>
