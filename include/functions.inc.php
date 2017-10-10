@@ -195,20 +195,39 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 
 	$lem = new lehreinheitmitarbeiter();
 	$lem->getMitarbeiterLV($lehrveranstaltung_id, $studiensemester_kurzbz);
+
 	$lektoren='';
+    //if lektors exist
 	if(isset($lem->result) && is_array($lem->result))
 	{
 		$lkt_arr=array();
 		foreach($lem->result as $row)
-		{
-			if(!in_array($row->uid,$lkt_arr))
-			{
-				$lektoren.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).', ';
-				$lkt_arr[]=$row->uid;
-			}
-		}
-		$lektoren = mb_substr($lektoren, 0, -2);
+		{	   
+            if(!in_array($row->uid,$lkt_arr))
+            {
+                //if lektor is not KOLLISIONSFREIE_USER (e.g. dummy)
+                if (!in_array($row->uid, unserialize(KOLLISIONSFREIE_USER)))
+                {
+                    $lektoren.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).', ';
+                    $lkt_arr[]=$row->uid;
+                }
+                //if lektor is KOLLISIONSFREIE_USER (e.g. dummy) but other lektors exist, do not pass to $lektoren
+                elseif (in_array($row->uid, unserialize(KOLLISIONSFREIE_USER)) && count($lem->result) > 1)
+                {
+                    $lkt_arr[]=$row->uid;
+                }
+                //if lektor is KOLLISIONSFREIE_USER (e.g. dummy) and NO other lektors exist
+                elseif (in_array($row->uid, unserialize(KOLLISIONSFREIE_USER)) && count ($lem->result) == 1)              
+                {
+                    $lektoren = $p->t('lvinfo/keinLektorZugeordnet');
+                }          
+            }
+		}		
 	}
+    else
+        $lektoren = $p->t('lvinfo/keinLektorZugeordnet');
+ 
+    $lektoren = chop($lektoren, ", ");
 
 	echo '
 	<table class="tablesorter">
