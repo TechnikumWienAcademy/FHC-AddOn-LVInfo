@@ -60,7 +60,8 @@ echo '<!DOCTYPE html>
 	<link rel="stylesheet" href="../../../skin/style.css.php" type="text/css">
 	<link rel="stylesheet" href="../../../skin/tablesort.css" type="text/css">
 	<link rel="stylesheet" href="../skin/lvinfo.css" type="text/css">
-	<script src="../../../include/js/jquery1.9.min.js" type="text/javascript"></script>
+
+	<script type="text/javascript" src="../../../vendor/jquery/jqueryV1/jquery-1.12.4.min.js"></script>
 </head>
 <body>
 ';
