@@ -40,6 +40,7 @@ require_once('../include/lvinfo.class.php');
 $studiengang_kz = filter_input(INPUT_GET, 'studiengang_kz');
 $orgform_kurzbz = filter_input(INPUT_GET, 'orgform_kurzbz');
 $prettyprint = filter_input(INPUT_GET, 'prettyprint');
+$maxsemester = filter_input(INPUT_GET, 'maxsemester');
 $datum_obj = new datum();
 
 if($orgform_kurzbz == '')
@@ -69,8 +70,13 @@ $studienplan->loadStudienplanSTO($studienordnung_id, $orgform_kurzbz);
 if(isset($studienplan->result[0]))
 	$studienplan = $studienplan->result[0];
 
+if($maxsemester != '')
+	$semesteranzahl = $maxsemester;
+else
+	$semesteranzahl = $studienplan->regelstudiendauer;
+
 $semesterdata=array();
-for($semester = 1; $semester <= $studienplan->regelstudiendauer; $semester++)
+for($semester = 1; $semester <= $semesteranzahl; $semester++)
 {
 	$studiensemester_obj = new studiensemester();
 	$studiensemester_kurzbz = $studiensemester_obj->getNearest($semester);
