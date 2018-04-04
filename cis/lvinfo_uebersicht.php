@@ -181,7 +181,7 @@ $orgform_kurzbz = isset($_GET['orgform_kurzbz']) && $_GET['orgform_kurzbz']!=''?
 $studiensemester_kurzbz = isset($_REQUEST['studiensemester_kurzbz'])?$_REQUEST['studiensemester_kurzbz']:$stsem;
 $studienordnung_id = (isset($_GET['studienordnung_id'])?$_GET['studienordnung_id']:'');
 
-if(isset($_GET['studienplan_id']))
+if(isset($_GET['studienplan_id']) && !empty($_GET['studienplan_id']))
 {
 	$studienplan_id = $_GET['studienplan_id'];
 	$stp_obj = new studienplan();
@@ -215,8 +215,9 @@ $studiensemester = new studiensemester();
 $akt_studiensemester = $studiensemester->getakt();
 if($studiensemester->getPlusMinus(5,10))
 {
-	echo '<tr><td>'.$p->t('global/studiensemester').'</td><td><SELECT name="studiensemester_kurzbz" onChange="window.document.auswahlFrm.submit();">';
-
+	echo '<tr><td>'.$p->t('global/studiensemester').'</td><td><SELECT name="studiensemester_kurzbz" style="width: 100%" onChange="window.document.auswahlFrm.submit();">';
+	echo '<option value=""> -- ' . $p->t('global/studiensemester') . ' -- </option>';
+	
 	foreach($studiensemester->studiensemester as $row)
 	{
 		$selected = '';
@@ -227,7 +228,7 @@ if($studiensemester->getPlusMinus(5,10))
 			$selected = 'selected';
 			$studiensemester_kurzbz=$akt_studiensemester;
 		}
-
+		
 		echo '<option value="'.$row->studiensemester_kurzbz.'" '.$selected.'>'.$row->bezeichnung.'</option>';
 	}
 	echo '</SELECT></td></tr>';
@@ -242,7 +243,9 @@ if($stg_obj->loadStudiengangFromStudiensemester($studiensemester_kurzbz))
 {
 	echo '<tr>
 		<td>'.$p->t('global/studiengang').'</td>
-		<td><SELECT name="stg_kz" onChange="window.document.auswahlFrm.submit();">';
+		<td><SELECT name="stg_kz" style="width: 100%" onChange="window.document.auswahlFrm.submit();">';
+	
+	echo '<option value=""> -- ' . $p->t('global/studiengang') . ' -- </option>';
 
 	//DropDown Menue mit Stg füllen
 	foreach($stg_obj->result as $row)
@@ -275,21 +278,23 @@ if(!in_array($semester, $vorhandenesemester))
 $vorhandenesemester = array_unique($vorhandenesemester);
 sort($vorhandenesemester);
 
-
 //Anzeigen des DropDown Menues mit Ausbildungssemester
 if($stg_obj->load($stg_kz))
 {
-	echo '<tr><td>'.$p->t('global/semester').'</td><td> <SELECT name="semester" onChange="window.document.auswahlFrm.submit();">';
-	foreach($vorhandenesemester as $i)
-	{
-		$selected = '';
-		if($semester=='')
-			$semester = $i;
-		if($i==$semester)
-			$selected = 'selected';
+	echo '<tr>
+			<td>'.$p->t('global/semester').'</td>
+			<td><SELECT name="semester" style="width: 100%" onChange="window.document.auswahlFrm.submit();">
+				<option value=""> -- ' . $p->t('global/semester') . ' -- </option>';
+		foreach($vorhandenesemester as $i)
+		{
+			$selected = '';
+			if($semester=='')
+				$semester = $i;
+			if($i==$semester)
+				$selected = 'selected';
 
-		echo '<option value="'.$i.'" '.$selected.'>'.$i.'. '.$p->t('global/semester').'</option>';
-	}
+			echo '<option value="'.$i.'" '.$selected.'>'.$i.'. '.$p->t('global/semester').'</option>';
+		}
 	echo '</SELECT></td></tr>';
 }
 else
@@ -297,7 +302,8 @@ else
 
 echo '<tr>
 		<td>'.$p->t('lehre/studienplan').'</td>
-		<td><SELECT name="studienplan_id" onChange="window.document.auswahlFrm.submit();">';
+		<td><SELECT name="studienplan_id" style="width: 100%" onChange="window.document.auswahlFrm.submit();">';
+		echo '<option value=""> -- ' . $p->t('global/studienplan') . ' -- </option>';
 
 $last_sto = '';
 
@@ -331,26 +337,26 @@ if($studienplan_id!='')
 		$studienplan_id='';
 	}
 }
-foreach($studienordnung_arr as $stoid=>$row_sto)
-{
-	$selected='';
-
-	if($studienordnung_id=='')
-		$studienordnung_id=$stoid;
-
-	echo '<option value="" disabled>'.$p->t('lehre/studienordnung').': '.$db->convert_html_chars($row_sto['bezeichnung']).'</option>';
-
-	foreach($studienplan_arr[$stoid] as $stpid=>$row_stp)
+	foreach($studienordnung_arr as $stoid=>$row_sto)
 	{
 		$selected='';
-		if($studienplan_id=='')
-			$studienplan_id=$stpid;
-		if($stpid == $studienplan_id)
-			$selected='selected';
 
-		echo '<option value="'.$stpid.'" '.$selected.'>'.$db->convert_html_chars($row_stp['bezeichnung']).' ( '.$orgform_arr[$row_stp['orgform_kurzbz']].', '.$row_stp['sprache'].' ) </option>';
+		if($studienordnung_id=='')
+			$studienordnung_id=$stoid;
+
+		echo '<option value="" disabled>'.$p->t('lehre/studienordnung').': '.$db->convert_html_chars($row_sto['bezeichnung']).'</option>';
+		
+		foreach($studienplan_arr[$stoid] as $stpid=>$row_stp)
+		{
+			$selected='';
+			if($studienplan_id=='')
+				$studienplan_id=$stpid;
+			if($stpid == $studienplan_id)
+				$selected='selected';
+
+			echo '<option value="'.$stpid.'" '.$selected.'>'.$db->convert_html_chars($row_stp['bezeichnung']).' ( '.$orgform_arr[$row_stp['orgform_kurzbz']].', '.$row_stp['sprache'].' ) </option>';
+		}
 	}
-}
 echo '</select></td></tr>';
 
 
