@@ -159,6 +159,12 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 	$studiengang->load($lv->studiengang_kz);
 
 	$leitung = array();
+
+	$oetyp = new organisationseinheit();
+	$oetyp->getTypen();
+	foreach($oetyp->result as $row)
+		$oetyp_arr[$row->organisationseinheittyp_kurzbz] = $row->bezeichnung;
+
 	$oe = new organisationseinheit();
 
 	if($lv->oe_kurzbz!='')
@@ -197,37 +203,37 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 	$lem->getMitarbeiterLV($lehrveranstaltung_id, $studiensemester_kurzbz);
 
 	$lektoren='';
-    //if lektors exist
+	//if lektors exist
 	if(isset($lem->result) && is_array($lem->result))
 	{
 		$lkt_arr=array();
 		foreach($lem->result as $row)
-		{	   
-            if(!in_array($row->uid,$lkt_arr))
-            {
-                //if lektor is not KOLLISIONSFREIE_USER (e.g. dummy)
-                if (!in_array($row->uid, unserialize(KOLLISIONSFREIE_USER)))
-                {
-                    $lektoren.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).', ';
-                    $lkt_arr[]=$row->uid;
-                }
-                //if lektor is KOLLISIONSFREIE_USER (e.g. dummy) but other lektors exist, do not pass to $lektoren
-                elseif (in_array($row->uid, unserialize(KOLLISIONSFREIE_USER)) && count($lem->result) > 1)
-                {
-                    $lkt_arr[]=$row->uid;
-                }
-                //if lektor is KOLLISIONSFREIE_USER (e.g. dummy) and NO other lektors exist
-                elseif (in_array($row->uid, unserialize(KOLLISIONSFREIE_USER)) && count ($lem->result) == 1)              
-                {
-                    $lektoren = $p->t('lvinfo/keinLektorZugeordnet');
-                }          
-            }
-		}		
+		{
+			if(!in_array($row->uid,$lkt_arr))
+			{
+				//if lektor is not KOLLISIONSFREIE_USER (e.g. dummy)
+				if (!in_array($row->uid, unserialize(KOLLISIONSFREIE_USER)))
+				{
+					$lektoren.=trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost).', ';
+					$lkt_arr[]=$row->uid;
+				}
+				//if lektor is KOLLISIONSFREIE_USER (e.g. dummy) but other lektors exist, do not pass to $lektoren
+				elseif (in_array($row->uid, unserialize(KOLLISIONSFREIE_USER)) && count($lem->result) > 1)
+				{
+					$lkt_arr[]=$row->uid;
+				}
+				//if lektor is KOLLISIONSFREIE_USER (e.g. dummy) and NO other lektors exist
+				elseif (in_array($row->uid, unserialize(KOLLISIONSFREIE_USER)) && count ($lem->result) == 1)
+				{
+					$lektoren = $p->t('lvinfo/keinLektorZugeordnet');
+				}
+			}
+		}
 	}
-    else
-        $lektoren = $p->t('lvinfo/keinLektorZugeordnet');
- 
-    $lektoren = chop($lektoren, ", ");
+	else
+		$lektoren = $p->t('lvinfo/keinLektorZugeordnet');
+
+	$lektoren = chop($lektoren, ", ");
 
 	echo '
 	<table class="tablesorter">
@@ -268,8 +274,14 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 			<td>'.$db->convert_html_chars($lv->incoming).'</td>
 		</tr>
 		<tr>
-		 	  <td>'.$p->t('global/institut').':</td>
-			  <td>'.$db->convert_html_chars($oe->bezeichnung).' (<i>'.$p->t('global/leitung').'</i>: '.implode(', ', $leitung).' <i>'.$p->t('global/koordination').'</i>: '.implode(', ', $koordinator).')</td>
+			<td>'.$p->t('global/organisationseinheit').':</td>
+			<td>'.$db->convert_html_chars($oetyp_arr[$oe->organisationseinheittyp_kurzbz].' '.$oe->bezeichnung).'
+			 	<br>
+				(
+					<i>'.$p->t('global/leitung').'</i>: '.implode(', ', $leitung).'
+					<i>'.$p->t('global/koordination').'</i>: '.implode(', ', $koordinator).'
+				)
+			</td>
 		</tr>
 	</table>';
 
