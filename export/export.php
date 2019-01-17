@@ -39,6 +39,7 @@ require_once('../include/lvinfo.class.php');
 
 $studiengang_kz = filter_input(INPUT_GET, 'studiengang_kz');
 $orgform_kurzbz = filter_input(INPUT_GET, 'orgform_kurzbz');
+$studienordnung_id = filter_input(INPUT_GET, 'studienordnung_id');
 $prettyprint = filter_input(INPUT_GET, 'prettyprint');
 $maxsemester = filter_input(INPUT_GET, 'maxsemester');
 $datum_obj = new datum();
@@ -49,21 +50,29 @@ if($orgform_kurzbz == '')
 $studiengang = new studiengang();
 $studiengang->load($studiengang_kz);
 
-$studienordnung = new studienordnung();
-$studienordnung->loadStudienordnungSTG($studiengang_kz);
-
-$studienordnung_id='';
-foreach($studienordnung->result as $row_sto)
+if($studienordnung_id == '')
 {
-	if(in_array($row_sto->status_kurzbz, array('approved','expired')))
+	$studienordnung = new studienordnung();
+	$studienordnung->loadStudienordnungSTG($studiengang_kz);
+
+	$studienordnung_id='';
+	foreach($studienordnung->result as $row_sto)
 	{
-		$studienordnung = $row_sto;
-		$studienordnung_id = $row_sto->studienordnung_id;
-		break;
+		if(in_array($row_sto->status_kurzbz, array('approved','expired')))
+		{
+			$studienordnung = $row_sto;
+			$studienordnung_id = $row_sto->studienordnung_id;
+			break;
+		}
 	}
+	if($studienordnung_id=='')
+		die('Es wurde keine genehmigte Studienordnung gefunden');
 }
-if($studienordnung_id=='')
-	die('Es wurde keine genehmigte Studienordnung gefunden');
+else
+{
+	$studienordnung = new studienordnung();
+	$studienordnung->loadStudienordnung($studienordnung_id);
+}
 
 $studienplan = new studienplan();
 $studienplan->loadStudienplanSTO($studienordnung_id, $orgform_kurzbz);
