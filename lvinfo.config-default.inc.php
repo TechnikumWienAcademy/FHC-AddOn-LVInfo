@@ -17,4 +17,10 @@ define('ADDON_LVINFO_SEND_FREIGABEMAIL', true);
  * DEFAULT: false
  */
 define('ADDON_LVINFO_VORRUECKUNG_FREIGABE_UEBERNEHMEN', false);
+
+/**
+ * Gibt an ob die Drop Down Menüs ausgeblendet werden sollen oder nicht
+ * DEFAULT: false
+ */
+define('ADDON_LVINFO_HIDE_MENU', false);
 ?>

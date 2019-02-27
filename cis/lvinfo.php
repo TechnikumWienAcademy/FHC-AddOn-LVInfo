@@ -364,32 +364,43 @@ $stg->load($lv->studiengang_kz);
 echo '<H1>'.$p->t('lvinfo/lehrveranstaltungsinformationen').' - '.$db->convert_html_chars($stg->kurzbzlang.'-'.$lv->semester.($lv->orgform_kurzbz!=''?'-'.$lv->orgform_kurzbz:'').' - '.$lv->bezeichnung).'</H1>';
 
 echo '<table width="100%"><tr><td valign="top">';
+
+if (defined('ADDON_LVINFO_HIDE_MENU') && ADDON_LVINFO_HIDE_MENU)
+    echo '<div style="display: none;">';
+
 echo '<form name="auswahlFrm" action="lvinfo.php" method="GET">';
 echo '<table>';
 //Anzeigen des DropDown Menues mit Studiensemester
-$studiensemester = new studiensemester();
-$akt_studiensemester = $studiensemester->getakt();
-if($studiensemester->getPlusMinus(8,10))
+if (defined('ADDON_LVINFO_HIDE_MENU') && ADDON_LVINFO_HIDE_MENU)
 {
-	echo '<tr><td>'.$p->t('lvinfo/studiensemester').'</td><td><SELECT name="studiensemester_kurzbz" onChange="window.document.auswahlFrm.submit();">';
-
-	foreach($studiensemester->studiensemester as $row)
-	{
-		$selected = '';
-		if($row->studiensemester_kurzbz==$studiensemester_kurzbz)
-			$selected = 'selected';
-		elseif ($studiensemester_kurzbz=='' && $row->studiensemester_kurzbz==$akt_studiensemester)
-		{
-			$selected = 'selected';
-			$studiensemester_kurzbz=$akt_studiensemester;
-		}
-
-		echo '<option value="'.$row->studiensemester_kurzbz.'" '.$selected.'>'.$row->bezeichnung.'</option>';
-	}
-	echo '</SELECT></td></tr>';
+    echo '<input type="hidden" name="studiensemester_kurzbz" value="' . $studiensemester_kurzbz . '" />';
 }
 else
-	$errormsg .= $studiensemester->errormsg;
+{
+    $studiensemester = new studiensemester();
+    $akt_studiensemester = $studiensemester->getakt();
+    if($studiensemester->getPlusMinus(8,10))
+    {
+        echo '<tr><td>'.$p->t('lvinfo/studiensemester').'</td><td><SELECT name="studiensemester_kurzbz" onChange="window.document.auswahlFrm.submit();">';
+
+        foreach($studiensemester->studiensemester as $row)
+        {
+            $selected = '';
+            if($row->studiensemester_kurzbz==$studiensemester_kurzbz)
+                $selected = 'selected';
+            elseif ($studiensemester_kurzbz=='' && $row->studiensemester_kurzbz==$akt_studiensemester)
+            {
+                $selected = 'selected';
+                $studiensemester_kurzbz=$akt_studiensemester;
+            }
+
+            echo '<option value="'.$row->studiensemester_kurzbz.'" '.$selected.'>'.$row->bezeichnung.'</option>';
+        }
+        echo '</SELECT></td></tr>';
+    }
+    else
+        $errormsg .= $studiensemester->errormsg;
+}
 
 $stg_obj = new studiengang();
 $types = new studiengang();
@@ -522,56 +533,68 @@ $studienplan = new studienplan();
 $studienplan->loadStudienplan($studienplan_id);
 
 //Anzeigen des DropDown Menues mit Lehrveranstaltungen
-$lv_obj = new lehrveranstaltung();
-
-if($semester=='')
-	$semester=null;
-if($lv_obj->loadLehrveranstaltungStudienplan($studienplan_id, $semester,'bezeichnung'))
+if (defined('ADDON_LVINFO_HIDE_MENU') && ADDON_LVINFO_HIDE_MENU)
 {
-	echo '<tr>
-		<td>'.$p->t('lvinfo/lvmodul').'</td>
-		<td><SELECT name="lv_id" onChange="window.document.auswahlFrm.submit();">';
-
-	if(count($lv_obj->lehrveranstaltungen)>0)
-	{
-		//Wenn die übergebene LV_ID nicht in der Liste der geladenen Objekte ist,
-		// Dann die erste LV in der Liste markieren
-		$lv_ids = array();
-		foreach($lv_obj->lehrveranstaltungen as $row)
-		{
-			$lv_ids[] .= $row->lehrveranstaltung_id;
-		}
-		if($lv_id!='' && !in_array($lv_id, $lv_ids))
-		{
-			$lv_id = '';
-		}
-		$outputstring = '';
-		foreach($lv_obj->lehrveranstaltungen as $row)
-		{
-			// Wenn LV-Info deaktiviert dann ueberspringen
-			if(!$row->lvinfo)
-				continue;
-
-			$selected = '';
-			if($lv_id=='')
-				$lv_id=$row->lehrveranstaltung_id;
-			if($row->lehrveranstaltung_id==$lv_id)
-				$selected = 'selected';
-
-			$outputstring = '( '.$row->lehrform_kurzbz.' )';
-			echo '<option value="'.$row->lehrveranstaltung_id.'" '.$selected.'>'.$db->convert_html_chars($row->bezeichnung.' '.$outputstring).'</option>';
-		}
-	}
-	else
-		echo '<option value="">'.$p->t('lvinfo/keineLVVorhanden').'</option>';
-	echo '</SELECT></td></tr>';
+    echo '<input type="hidden" name="lv_id" value="' . $lv_id . '" />';
 }
 else
 {
-	$errormsg .= $lv_obj->errormsg;
+    $lv_obj = new lehrveranstaltung();
+
+    if($semester=='')
+        $semester=null;
+    if($lv_obj->loadLehrveranstaltungStudienplan($studienplan_id, $semester,'bezeichnung'))
+    {
+        echo '<tr>
+		<td>'.$p->t('lvinfo/lvmodul').'</td>
+		<td><SELECT name="lv_id" onChange="window.document.auswahlFrm.submit();">';
+
+        if(count($lv_obj->lehrveranstaltungen)>0)
+        {
+            //Wenn die übergebene LV_ID nicht in der Liste der geladenen Objekte ist,
+            // Dann die erste LV in der Liste markieren
+            $lv_ids = array();
+            foreach($lv_obj->lehrveranstaltungen as $row)
+            {
+                $lv_ids[] .= $row->lehrveranstaltung_id;
+            }
+            if($lv_id!='' && !in_array($lv_id, $lv_ids))
+            {
+                $lv_id = '';
+            }
+            $outputstring = '';
+            foreach($lv_obj->lehrveranstaltungen as $row)
+            {
+                // Wenn LV-Info deaktiviert dann ueberspringen
+                if(!$row->lvinfo)
+                    continue;
+
+                $selected = '';
+                if($lv_id=='')
+                    $lv_id=$row->lehrveranstaltung_id;
+                if($row->lehrveranstaltung_id==$lv_id)
+                    $selected = 'selected';
+
+                $outputstring = '( '.$row->lehrform_kurzbz.' )';
+                echo '<option value="'.$row->lehrveranstaltung_id.'" '.$selected.'>'.$db->convert_html_chars($row->bezeichnung.' '.$outputstring).'</option>';
+            }
+        }
+        else
+            echo '<option value="">'.$p->t('lvinfo/keineLVVorhanden').'</option>';
+        echo '</SELECT></td></tr>';
+    }
+    else
+    {
+        $errormsg .= $lv_obj->errormsg;
+    }
 }
+
 echo '</table>';
 echo '<input type="submit" value="'.$p->t('global/anzeigen').'">';
+
+if (defined('ADDON_LVINFO_HIDE_MENU') && ADDON_LVINFO_HIDE_MENU)
+    echo '</div>';
+
 echo '</form>';
 echo '</td><td>';
 echo '<a href="lvinfo_uebersicht.php?stg_kz='.$stg_kz.'&semester='.$semester.'&orgform_kurzbz='.$orgform_kurzbz.'&studiensemester_kurzbz='.$studiensemester_kurzbz.'">'.$p->t('lvinfo/uebersichtsliste').'</a>';
