@@ -308,7 +308,7 @@ if ($result = $db->db_query("SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
                                WHERE CONSTRAINT_NAME='uk_lvinfo_sprache_lehrveranstaltung_id_studiensemester_kurzbz'"))
 {
     if($db->db_num_rows($result) == 0)
-    {   
+    {
         //check if double rows exist
         $qry = "SELECT count(*) as anzahl
                 FROM addon.tbl_lvinfo
@@ -316,15 +316,15 @@ if ($result = $db->db_query("SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
                   SELECT sprache, lehrveranstaltung_id,studiensemester_kurzbz
                   FROM addon.tbl_lvinfo
                   GROUP BY sprache,lehrveranstaltung_id,studiensemester_kurzbz
-                  HAVING COUNT(lvinfo_id) > 1) temp 
-                  ON (addon.tbl_lvinfo.sprache=temp.sprache 
-                     AND addon.tbl_lvinfo.studiensemester_kurzbz=temp.studiensemester_kurzbz 
+                  HAVING COUNT(lvinfo_id) > 1) temp
+                  ON (addon.tbl_lvinfo.sprache=temp.sprache
+                     AND addon.tbl_lvinfo.studiensemester_kurzbz=temp.studiensemester_kurzbz
                      AND addon.tbl_lvinfo.lehrveranstaltung_id=temp.lehrveranstaltung_id);";
 
         if($result = $db->db_query($qry))
         {
             if(($row = $db->db_fetch_object($result)) && $row->anzahl>0)
-            {    
+            {
                 echo '<strong>Es müssen doppelte Einträge in der Datenbanktabelle addon.tbl_lvinfo gelöscht werden.</strong><br>';
             }
             else
@@ -341,7 +341,20 @@ if ($result = $db->db_query("SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
         }
     }
 }
-    
+
+// Add index to addon.tbl_lvinfo lehrveranstaltung_id, studiensemester_kurzbz, sprache
+if ($result = $db->db_query("SELECT * FROM pg_class WHERE relname='idx_tbl_lvinfo_lvstsemsprache'"))
+{
+	if ($db->db_num_rows($result) == 0)
+	{
+		$qry = "CREATE INDEX idx_tbl_lvinfo_lvstsemsprache ON addon.tbl_lvinfo USING btree (sprache, lehrveranstaltung_id, studiensemester_kurzbz)";
+
+		if (! $db->db_query($qry))
+			echo '<strong>Indizes: ' . $db->db_last_error() . '</strong><br>';
+		else
+			echo 'Index fuer addon.tbl_lvinfo hinzugefuegt';
+	}
+}
 
 echo '<br>Aktualisierung abgeschlossen<br><br>';
 echo '<h2>Gegenprüfung</h2>';
