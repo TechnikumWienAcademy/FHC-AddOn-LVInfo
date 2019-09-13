@@ -196,8 +196,6 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 			$koordinator[] = $db->convert_html_chars(trim($row->titelpre.' '.$row->vorname.' '.$row->nachname.' '.$row->titelpost));
 		}
 	}
-	if (count($koordinator) == 0)
-		$koordinator[] = '-';
 
 	$lem = new lehreinheitmitarbeiter();
 	$lem->getMitarbeiterLV($lehrveranstaltung_id, $studiensemester_kurzbz);
@@ -278,9 +276,12 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 			<td>'.$db->convert_html_chars($oetyp_arr[$oe->organisationseinheittyp_kurzbz].' '.$oe->bezeichnung).'
 			 	<br>
 				(
-					<i>'.$p->t('global/leitung').'</i>: '.implode(', ', $leitung).'
-					<i>'.$p->t('global/koordination').'</i>: '.implode(', ', $koordinator).'
-				)
+					<i>'.$p->t('global/leitung').'</i>: '.implode(', ', $leitung).' ';
+
+	if(count($koordinator)>0)
+		echo '<i>'.$p->t('global/koordination').'</i>: '.implode(', ', $koordinator);
+
+	echo '			)
 			</td>
 		</tr>
 	</table>';
