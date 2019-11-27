@@ -132,7 +132,12 @@ function bauen($tree)
 
 	foreach($tree as $row)
 	{
+		// Nur Studienplanrelevante LVs exportieren
 		if(!$row->export)
+			continue;
+
+		// Nur LVs mit Lehre/CIS Hakerl exportieren
+		if(!$row->lehre)
 			continue;
 
 		$data[$i]['lehrveranstaltung_id'] = $row->lehrveranstaltung_id;
