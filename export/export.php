@@ -42,6 +42,7 @@ $orgform_kurzbz = filter_input(INPUT_GET, 'orgform_kurzbz');
 $studienordnung_id = filter_input(INPUT_GET, 'studienordnung_id');
 $prettyprint = filter_input(INPUT_GET, 'prettyprint');
 $maxsemester = filter_input(INPUT_GET, 'maxsemester');
+$studienplan_id = filter_input(INPUT_GET, 'studienplan_id');
 $datum_obj = new datum();
 
 if($orgform_kurzbz == '')
@@ -74,10 +75,23 @@ else
 	$studienordnung->loadStudienordnung($studienordnung_id);
 }
 
-$studienplan = new studienplan();
-$studienplan->loadStudienplanSTO($studienordnung_id, $orgform_kurzbz);
-if(isset($studienplan->result[0]))
-	$studienplan = $studienplan->result[0];
+if($studienplan_id)
+{
+    $studienplan = new studienplan();
+    $studienplan->loadStudienplan($studienplan_id);
+
+    $tmpStudienord = new studienordnung();
+    $tmpStudienord->loadStudienordnung($studienplan->studienordnung_id);
+    if($tmpStudienord->studiengang_kz != $studiengang_kz)
+        die('Der gewuenschte Studienplan gehoert nicht zum angegebenen Studiengang');
+}
+else
+{
+    $studienplan = new studienplan();
+    $studienplan->loadStudienplanSTO($studienordnung_id, $orgform_kurzbz);
+    if(isset($studienplan->result[0]))
+        $studienplan = $studienplan->result[0];
+}
 
 if($maxsemester != '')
 	$semesteranzahl = $maxsemester;
