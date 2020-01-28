@@ -46,7 +46,7 @@ $uid = get_uid();
 $rechte = new benutzerberechtigung();
 $rechte->getBerechtigungen($uid);
 
-if(!$rechte->isBerechtigt('addon/lvinfoAdmin', null, 'suid'))
+if(!$rechte->isBerechtigt('addon/lvinfo', null, 'suid'))
 {
 	die($rechte->errormsg);
 }
@@ -130,7 +130,15 @@ if(isset($_POST['action']))
 }
 
 $studiengang = new studiengang();
-$studiengang->getAll('typ, kurzbz');
+if($rechte->isBerechtigt('addon/lvinfoAdmin'))
+{
+	$studiengang->getAll('typ, kurzbz');
+}
+else
+{
+	$stg_arr = $rechte->getStgKz('addon/lvinfo');
+	$studiengang->loadArray($stg_arr);
+}
 
 foreach($studiengang->result as $row)
 {

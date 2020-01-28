@@ -35,17 +35,25 @@ $uid = get_uid();
 $rechte = new benutzerberechtigung();
 $rechte->getBerechtigungen($uid);
 
-if(!$rechte->isBerechtigt('addon/lvinfoAdmin'))
+if(!$rechte->isBerechtigt('addon/lvinfoAdmin') && !$rechte->isBerechtigt('addon/lvinfo'))
 {
 	die($rechte->errormsg);
 }
+
 echo '
 <ul>
 	<li><a href="copy.php">LV-Informationen kopieren</a><br>
-		Kopiert LV-Informationen von einer LV zu einer anderen bzw von einem Studiensemester in ein anderes<br><br></li>
-	<li><a href="vorrueckung.php">LV-Informationen vorrücken</a><br>
-		Kopiert alle LV-Informationen eines Studiengangs in das nächste Studiensemester und setzt diese auf "in Bearbeitung"<br><br></li>
-	<li><a href="lvinfoset.php">Set Administrieren</a><br>
-		Administration der verfügbaren Felder von LV-Informationen</li>
+		Kopiert LV-Informationen von einer LV zu einer anderen bzw von einem Studiensemester in ein anderes<br><br></li>';
+
+if($rechte->isBerechtigt('addon/lvinfoAdmin'))
+{
+	echo '
+		<li><a href="vorrueckung.php">LV-Informationen vorrücken</a><br>
+			Kopiert alle LV-Informationen eines Studiengangs in das nächste Studiensemester und setzt diese auf "in Bearbeitung"<br><br></li>
+		<li><a href="lvinfoset.php">Set Administrieren</a><br>
+			Administration der verfügbaren Felder von LV-Informationen</li>';
+}
+
+echo '
 </ul>';
 ?>
