@@ -615,6 +615,33 @@ class lvinfo extends basis_db
 	}
 
 	/**
+	 * Loescht eine LVInfo und deren Statuseinträge
+	 * @param $lvinfo_id ID der LVInfo die gelöscht werden soll
+	 * @return boolean true wenn erfolgreich, false im Fehlerfall
+	 */
+	public function delete($lvinfo_id)
+	{
+		if(!is_numeric($lvinfo_id))
+		{
+			$this->errormsg = 'ID ist ungueltig';
+			return false;
+		}
+		$qry = "
+			DELETE FROM addon.tbl_lvinfostatus_zuordnung WHERE lvinfo_id=".$this->db_add_param($lvinfo_id, FHC_INTEGER).";
+			DELETE FROM addon.tbl_lvinfo WHERE lvinfo_id=".$this->db_add_param($lvinfo_id, FHC_INTEGER);
+
+		if($result = $this->db_query($qry))
+		{
+			return true;
+		}
+		else
+		{
+			$this->errormsg = 'Fehler beim Löschen des Eintrags';
+			return false;
+		}
+	}
+
+	/**
 	 * Prueft die Daten des Sets vor dem Speichern
 	 * @return true wenn ok, false im Fehlerfall
 	 */
@@ -856,7 +883,7 @@ class lvinfo extends basis_db
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Laedt alle Statuseintraege
 	 * @return array wenn ok, false im Fehlerfall
@@ -868,7 +895,7 @@ class lvinfo extends basis_db
 					*,".$sprache->getSprachQuery('bezeichnung')."
 				FROM
 					addon.tbl_lvinfostatus";
-	
+
 		if($result = $this->db_query($qry))
 		{
 			$status = array();

@@ -90,12 +90,24 @@ if(isset($_POST['action']))
 	$lvinfo = new lvinfo();
 	if($lvinfo->loadLvinfo($ziel_lehrveranstaltung_id, $ziel_studiensemester))
 	{
-		if(count($lvinfo->result) > 0)
+		if(count($lvinfo->result) > 0 && !isset($_POST['ueberschreiben']))
 		{
-			echo '<span class="error">Fehlgeschlagen: Es sind bereits LV-Infos für die Ziel Lehrveranstaltung vorhanden</span>';
+			echo '<br>
+				<span class="error">Fehlgeschlagen: Es sind bereits LV-Infos für die Ziel Lehrveranstaltung vorhanden<br />
+				Zum Überschreiben der LV-Informationen markieren Sie bitte die entsprechende Checkbox</span>
+				';
 		}
 		else
 		{
+			if(count($lvinfo->result) > 0 && isset($_POST['ueberschreiben']))
+			{
+				// Wenn Ueberschreiben aktiviert ist, dann werden die vorhandenen Einträge gelöscht.
+				foreach($lvinfo->result as $row)
+				{
+					$lvinfo->delete($row->lvinfo_id);
+				}
+			}
+
 			$lvinfo = new lvinfo();
 			if($lvinfo->loadLvinfo($quelle_lehrveranstaltung_id, $quelle_studiensemester))
 			{
@@ -157,6 +169,7 @@ printAuswahl('ziel', $ziel_studiengang_kz, $ziel_semester, $ziel_studiensemester
 echo '
 <br />
 <br />
+<input type="checkbox" name="ueberschreiben" /> vorhandene Einträge überschreiben <br /><br />
 <input type="submit" name="action" value="LV-Information kopieren" />
 </form>
 ';
