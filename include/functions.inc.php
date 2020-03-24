@@ -209,6 +209,17 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 		{
 			if(!in_array($row->uid,$lkt_arr))
 			{
+				// Lektor wird erst angezeigt wenn der Auftrag erteilt wurde
+				if (defined('CIS_LV_LEKTORINNENZUTEILUNG_VERTRAGSPRUEFUNG_VON')
+				 && CIS_LV_LEKTORINNENZUTEILUNG_VERTRAGSPRUEFUNG_VON != '')
+				{
+					$vertrag = new vertrag();
+					if (!$vertrag->isVertragErteiltLV($lehrveranstaltung_id, $studiensemester_kurzbz, $row->uid))
+					{
+						continue;
+					}
+				}
+
 				//if lektor is not KOLLISIONSFREIE_USER (e.g. dummy)
 				if (!in_array($row->uid, unserialize(KOLLISIONSFREIE_USER)))
 				{

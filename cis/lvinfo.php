@@ -39,6 +39,7 @@ require_once('../../../include/benutzerfunktion.class.php');
 require_once('../../../include/lehreinheitmitarbeiter.class.php');
 require_once('../../../include/studienordnung.class.php');
 require_once('../../../include/studienplan.class.php');
+require_once('../../../include/vertrag.class.php');
 require_once('../include/lvinfo.class.php');
 require_once('../include/functions.inc.php');
 require_once('../vendor/autoload.php');
