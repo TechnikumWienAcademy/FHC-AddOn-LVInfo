@@ -36,6 +36,7 @@ require_once('../../../include/studiensemester.class.php');
 require_once('../../../include/sprache.class.php');
 require_once('../../../include/mail.class.php');
 require_once('../../../include/benutzer.class.php');
+require_once('../../../include/vertrag.class.php');
 require_once('../../../include/benutzerfunktion.class.php');
 require_once('../../../include/lehreinheitmitarbeiter.class.php');
 require_once('../include/lvinfo.class.php');
