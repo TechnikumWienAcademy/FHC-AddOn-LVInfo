@@ -61,15 +61,15 @@ $studiensemester_kurzbz_from = (isset($_POST['studiensemester_kurzbz_from'])?$_P
 $studiensemester_kurzbz_to = (isset($_POST['studiensemester_kurzbz_to'])?$_POST['studiensemester_kurzbz_to']:'');
 $studiengang_kz = (isset($_POST['studiengang_kz'])?$_POST['studiengang_kz']:'');
 
-if($studiensemester_kurzbz_from == '')
-{
-	$stsem = new studiensemester();
-	$studiensemester_kurzbz_from = $stsem->getPrevious();
-}
 if($studiensemester_kurzbz_to == '')
 {
 	$stsem = new studiensemester();
-	$studiensemester_kurzbz_to = $stsem->jump($studiensemester_kurzbz_from, 2);
+	$studiensemester_kurzbz_to = $stsem->getNearest();
+}
+if($studiensemester_kurzbz_from == '')
+{
+	$stsem = new studiensemester();
+	$studiensemester_kurzbz_from = $stsem->jump($studiensemester_kurzbz_to, -2);
 }
 
 echo 'Diese Seite kopiert die LV-Informationen von einem Semester ins nächste.<br>
