@@ -90,6 +90,7 @@ $datum_obj = new datum();
 
 	<script type="text/javascript" src="../../../vendor/jquery/jqueryV1/jquery-1.12.4.min.js"></script>
 	<script type="text/javascript" src="../../../vendor/christianbach/tablesorter/jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="../../../vendor/tinymce/tinymce/tinymce.min.js"></script>
 
 	<script type="text/javascript">
 	function addInput(sprache, key)
@@ -108,6 +109,12 @@ $datum_obj = new datum();
 		$("#data").html('<form action="'+url+'" name="sendform" id="sendform" method="POST"><input type="hidden" name="action" value="reset" /><input type="hidden" name="lvinfo_id" value="'+lvinfo_id+'" /></form>');
 		document.sendform.submit();
 	}
+    tinymce.init({
+        selector: 'textarea.editor',
+        toolbar: 'bold, italic, underline, alignleft, aligncenter, bullist, numlist, undo, redo',
+        menubar: false,
+        plugins: 'lists advlist'
+    });
 	</script>
 	<style type="text/css">
 	textarea, input
@@ -892,6 +899,14 @@ function printData($sprache, $typ, $key, $data, $locked)
 				$value='';
 			echo '<textarea name="'.$sprache.'['.$key.']" style="width:98%" rows="5" cols="50" '.($locked?'readonly="readonly"':'').'>'.$db->convert_html_chars($value).'</textarea>';
 			break;
+
+        case 'editor':
+            if(isset($data[$key]))
+                $value=$data[$key];
+            else
+                $value='';
+            echo '<textarea class="editor" name="'.$sprache.'['.$key.']" style="width:98%" rows="5" cols="50" '.($locked?'readonly="readonly"':'').'>'.$db->convert_html_chars($value).'</textarea>';
+            break;
 
 		case 'boolean':
 			if(isset($data[$key]))

@@ -245,6 +245,7 @@ echo '
 	<td valign="top">
 		<select name="lvinfo_set_typ">
 			<option value="text" '.($set->lvinfo_set_typ=='text'?'selected="selected"':'').'>Freitext</option>
+			<option value="editor" '.($set->lvinfo_set_typ=='editor'?'selected="selected"':'').'>Freitext mit Editor</option>
 			<option value="array" '.($set->lvinfo_set_typ=='array'?'selected="selected"':'').'>Array</option>
 			<option value="boolean" '.($set->lvinfo_set_typ=='boolean'?'selected="selected"':'').'>Boolean</option>
 		</select>
