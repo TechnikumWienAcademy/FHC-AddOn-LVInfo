@@ -249,7 +249,7 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 	$benutzer = new benutzer();
 	$benutzer->load($leiter_uid);
 
-	$lvleitung=$benutzer->titelpre.' '.$benutzer->vorname.' '.$benutzer->nachname.' '.$benutzer->titelpost;
+	$lvleitung = $benutzer->titelpre.' '.$benutzer->vorname.' '.$benutzer->nachname.' '.$benutzer->titelpost;
 
 	echo '
 	<table class="tablesorter">
