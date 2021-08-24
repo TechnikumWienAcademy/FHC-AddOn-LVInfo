@@ -25,4 +25,5 @@ $this->phrasen['lvinfo/freigabeberechtigt']='*) Authorized for release:';
 $this->phrasen['lvinfo/freigabeKonnteNichtAufgehobenWerden']='Release for ID %s could not be revoked';
 $this->phrasen['lvinfo/freigabeKonnteNichtGesetztWerden']='Release for ID %s could not be set';
 $this->phrasen['lvinfo/keinLektorZugeordnet']='ENG Aktuell ist dieser Lehrveranstaltung noch kein Lektor zugeordnet';
+$this->phrasen['lvinfo/verwendeteZeichen']='Used characters';
 ?>
