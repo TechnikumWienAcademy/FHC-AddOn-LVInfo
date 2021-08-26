@@ -169,6 +169,11 @@ foreach($lvinfo_set->result as $row_set)
 			$body.= '</ul>';
 			break;
 
+		case 'editor':
+			if(isset($lvinfo->data[$key]))
+				$body.= $lvinfo->data[$key];
+			break;
+
 		case 'text':
 		default:
 			if(isset($lvinfo->data[$key]))
