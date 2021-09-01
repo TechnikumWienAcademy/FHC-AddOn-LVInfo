@@ -926,14 +926,18 @@ function printData($sprache, $typ, $key, $data, $locked, $fieldName)
 			break;
 
         case 'editor':
+            $limit = '';
             if(isset($data[$key]))
                 $value=$data[$key];
             else
                 $value='';
-            if(isset($config_lvinfo_chars[$key]))
+            if(isset($config_lvinfo_chars[$key])) {
                 $limit = 'data-limit="'.$config_lvinfo_chars[$key].'"';
-            else
-                $limit = '';
+                echo $p->t('lvinfo/hinweisZeichenlimit', array($config_lvinfo_chars[$key])) . '<br><br>';
+            }
+            elseif($p->t('lvinfo/internerHinweis_'.$key) != '[[PHRASE:lvinfo/internerHinweis_'.$key.']]') {
+                echo $p->t('lvinfo/internerHinweis_' . $key) . '<br><br>';
+            }
             echo '<textarea id="editor_'.$sprache.'_'.$key.'" class="editor" name="'.$sprache.'['.$key.']" style="width:98%" rows="5" cols="50" '.($locked?'readonly="readonly"':'').'>'.$db->convert_html_chars($value).'</textarea>';
             echo '<br><p>'.$p->t('lvinfo/verwendeteZeichen').': <span class="charcounter" data-fieldname="'.$fieldName.'" '.$limit.' id="count_editor_'.$sprache.'_'.$key.'">0</span>';
             break;
