@@ -213,7 +213,7 @@ echo '<table>';
 //Anzeigen des DropDown Menues mit Studiensemester
 $studiensemester = new studiensemester();
 $akt_studiensemester = $studiensemester->getakt();
-if($studiensemester->getPlusMinus(8,10))
+if($studiensemester->getPlusMinus(8,20))
 {
 	echo '<tr><td>'.$p->t('global/studiensemester').'</td><td><SELECT name="studiensemester_kurzbz" style="width: 100%" onChange="window.document.auswahlFrm.submit();">';
 	echo '<option value=""> -- ' . $p->t('global/studiensemester') . ' -- </option>';

@@ -387,7 +387,7 @@ else
 {
     $studiensemester = new studiensemester();
     $akt_studiensemester = $studiensemester->getakt();
-    if($studiensemester->getPlusMinus(8,10))
+    if($studiensemester->getPlusMinus(8,20))
     {
         echo '<tr><td>'.$p->t('lvinfo/studiensemester').'</td><td><SELECT name="studiensemester_kurzbz" onChange="window.document.auswahlFrm.submit();">';
 
