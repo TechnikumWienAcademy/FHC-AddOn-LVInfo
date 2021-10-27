@@ -244,6 +244,20 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 
 	$lektoren = chop($lektoren, ", ");
 
+	//LV-Leitung
+	$leiter_uid = $lv->getEingetrageneLVLeitung($lehrveranstaltung_id, $studiensemester_kurzbz);
+	if($leiter_uid!==false)
+	{
+		$benutzer = new benutzer();
+		$benutzer->load($leiter_uid);
+
+		$lvleitung = $benutzer->titelpre.' '.$benutzer->vorname.' '.$benutzer->nachname.' '.$benutzer->titelpost;
+	}
+	else
+	{
+		$lvleitung = false;
+	}
+
 	echo '
 	<table class="tablesorter">
 		<tr>
@@ -269,7 +283,18 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 		<tr>
 			<td>'.$p->t('lehre/lehrbeauftragter').':</td>
 			<td>'.$db->convert_html_chars($lektoren).'</td>
-		</tr>
+		</tr>';
+	
+	if ($lvleitung !== false)
+	{
+		echo '
+		<tr>
+			<td>'.$p->t('lehre/lvleitung').':</td>
+			<td>'.$db->convert_html_chars($lvleitung).'</td>
+		</tr>';
+	}
+
+	echo '
 		<tr>
 			<td>'.$p->t('global/sprache').':</td>
 			<td>'.$db->convert_html_chars($sprache_obj->getBezeichnung($lv->sprache,$sprache)).'</td>
