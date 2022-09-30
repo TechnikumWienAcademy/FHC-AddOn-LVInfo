@@ -63,6 +63,9 @@ $sprachen_obj = new sprache();
 $sprachen_obj->getAll();
 $sprachen_arr=array();
 
+if(!isset($config_lvinfo_chars))
+    $config_lvinfo_chars = array();
+
 foreach($sprachen_obj->result as $row)
 {
 	if(isset($row->bezeichnung_arr[$sprache]))
@@ -113,8 +116,28 @@ $datum_obj = new datum();
         selector: 'textarea.editor',
         toolbar: 'bold, italic, underline, alignleft, aligncenter, bullist, numlist, undo, redo',
         menubar: false,
-        plugins: 'lists advlist'
+        plugins: 'lists advlist',
+        setup: function(ed) {
+            ed.on('keyup', function (e) {
+               var fieldId = tinymce.activeEditor.getElement().id;
+               var body = tinymce.activeEditor.getBody();
+               var content = tinymce.trim(body.textContent);
+               document.getElementById("count_" + fieldId).innerHTML = content.length;
+               checkCharacterLimits();
+            });
+        }
     });
+    function checkCharacterLimits() {
+        $("span.charcounter").each(function(i) {
+            if($(this).attr("data-limit")) {
+                if(parseInt($(this).text()) > parseInt($(this).attr("data-limit"))) {
+                    alert("Die Eingabe im Feld \"" + $(this).attr("data-fieldname") + "\" ist zu lange! Die Daten können dadurch nicht gespeichert werden.");
+                    return false;
+                }
+            }
+            return true;
+        })
+    }
 	</script>
 	<style type="text/css">
 	textarea, input
@@ -778,7 +801,7 @@ if (!$lvinfo_set->result == '')
 			<td valign="top">';
 			if(isset($row_set->einleitungstext[$lvinfo_sprache]))
 				echo $row_set->einleitungstext[$lvinfo_sprache].'<br><br>';
-			printData($lvinfo_sprache, $row_set->lvinfo_set_typ, $row_set->lvinfo_set_kurzbz, (isset($data_set[$lvinfo_sprache])?$data_set[$lvinfo_sprache]:array()), $locked);
+			printData($lvinfo_sprache, $row_set->lvinfo_set_typ, $row_set->lvinfo_set_kurzbz, (isset($data_set[$lvinfo_sprache])?$data_set[$lvinfo_sprache]:array()), $locked, $row_set->lvinfo_set_bezeichnung[$lvinfo_sprache]);
 			echo '</td>';
 		}
 
@@ -855,8 +878,8 @@ if (!$lvinfo_set->result == '')
 	<tfoot>
 		<tr>
 		<td colspan="5" style="text-align: center"><br/>
-			<input type="submit" name="save" '.($locked?'disabled="disabled"':'').' value="'.$p->t('global/speichern').'"><br/><br/>
-			<input type="submit" name="saveAndSend" '.($locked || $lockSend?'disabled="disabled"':'').' value="'.$p->t('lvinfo/speichernUndFreigeben').'"><br/><br/>
+			<input type="submit" onclick="checkCharacterLimits();" name="save" '.($locked?'disabled="disabled"':'').' value="'.$p->t('global/speichern').'"><br/><br/>
+			<input type="submit" onclick="checkCharacterLimits();" name="saveAndSend" '.($locked || $lockSend?'disabled="disabled"':'').' value="'.$p->t('lvinfo/speichernUndFreigeben').'"><br/><br/>
 			'.$p->t('lvinfo/freigabeberechtigt').'<br/>
 			'.$empfaenger.'
 		</td>
@@ -887,9 +910,11 @@ else
  * @param $key kurzbz des Feldes
  * @param $data Array mit den Daten in dieser Sprache
  */
-function printData($sprache, $typ, $key, $data, $locked)
+function printData($sprache, $typ, $key, $data, $locked, $fieldName)
 {
-	$db = new basis_db();
+	global $p, $config_lvinfo_chars;
+    $db = new basis_db();
+
 	switch($typ)
 	{
 		case 'text':
@@ -901,11 +926,20 @@ function printData($sprache, $typ, $key, $data, $locked)
 			break;
 
         case 'editor':
+            $limit = '';
             if(isset($data[$key]))
                 $value=$data[$key];
             else
                 $value='';
-            echo '<textarea class="editor" name="'.$sprache.'['.$key.']" style="width:98%" rows="5" cols="50" '.($locked?'readonly="readonly"':'').'>'.$db->convert_html_chars($value).'</textarea>';
+            if(isset($config_lvinfo_chars[$key])) {
+                $limit = 'data-limit="'.$config_lvinfo_chars[$key].'"';
+                echo $p->t('lvinfo/hinweisZeichenlimit', array($config_lvinfo_chars[$key])) . '<br><br>';
+            }
+            elseif($p->t('lvinfo/internerHinweis_'.$key) != '[[PHRASE:lvinfo/internerHinweis_'.$key.']]') {
+                echo $p->t('lvinfo/internerHinweis_' . $key) . '<br><br>';
+            }
+            echo '<textarea id="editor_'.$sprache.'_'.$key.'" class="editor" name="'.$sprache.'['.$key.']" style="width:98%" rows="5" cols="50" '.($locked?'readonly="readonly"':'').'>'.$db->convert_html_chars($value).'</textarea>';
+            echo '<br><p>'.$p->t('lvinfo/verwendeteZeichen').': <span class="charcounter" data-fieldname="'.$fieldName.'" '.$limit.' id="count_editor_'.$sprache.'_'.$key.'">0</span>';
             break;
 
 		case 'boolean':

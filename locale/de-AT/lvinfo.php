@@ -25,4 +25,6 @@ $this->phrasen['lvinfo/freigabeberechtigt']='*) Freigabeberechtigt:';
 $this->phrasen['lvinfo/freigabeKonnteNichtAufgehobenWerden']='Freigabe für LV-ID %s konnte nicht aufgehoben werden';
 $this->phrasen['lvinfo/freigabeKonnteNichtGesetztWerden']='Freigabe für LV-ID %s konnte nicht gesetzt werden';
 $this->phrasen['lvinfo/keinLektorZugeordnet']='Aktuell ist dieser Lehrveranstaltung noch kein Lektor zugeordnet';
+$this->phrasen['lvinfo/verwendeteZeichen']='Verwendete Zeichen';
+$this->phrasen['lvinfo/hinweisZeichenlimit']='max. %s Zeichen inkl. Leerzeichen – Zeichenbeschränkungen sind zwingend einzuhalten!';
 ?>

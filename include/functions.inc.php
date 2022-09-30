@@ -284,7 +284,7 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 			<td>'.$p->t('lehre/lehrbeauftragter').':</td>
 			<td>'.$db->convert_html_chars($lektoren).'</td>
 		</tr>';
-	
+
 	if ($lvleitung !== false)
 	{
 		echo '
@@ -309,7 +309,7 @@ function printInfoTable($lehrveranstaltung_id, $studiensemester_kurzbz, $sprache
 		</tr>
 		<tr>
 			<td>'.$p->t('global/organisationseinheit').':</td>
-			<td>'.$db->convert_html_chars($oetyp_arr[$oe->organisationseinheittyp_kurzbz].' '.$oe->bezeichnung).'
+			<td>'.(isset($oetyp_arr[$oe->organisationseinheittyp_kurzbz])?$db->convert_html_chars($oetyp_arr[$oe->organisationseinheittyp_kurzbz].' '.$oe->bezeichnung):'').'
 			 	<br>
 				(
 					<i>'.$p->t('global/leitung').'</i>: '.implode(', ', $leitung).' ';

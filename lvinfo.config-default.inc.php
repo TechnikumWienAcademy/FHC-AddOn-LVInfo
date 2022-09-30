@@ -23,4 +23,11 @@ define('ADDON_LVINFO_VORRUECKUNG_FREIGABE_UEBERNEHMEN', false);
  * DEFAULT: false
  */
 define('ADDON_LVINFO_HIDE_MENU', false);
+
+/**
+ * Array mit optionalen Zeichenbeschränkungen für Eingabefelder
+ * SYNTAX: array(Kurzbz des Feldes => Anzahl erlaubter Zeichen)
+ * DEFAULT: array()
+ */
+$config_lvinfo_chars = array();
 ?>
