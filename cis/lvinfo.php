@@ -917,13 +917,21 @@ function printData($sprache, $typ, $key, $data, $locked, $fieldName)
 
 	switch($typ)
 	{
-		case 'text':
-			if(isset($data[$key]))
-				$value=$data[$key];
-			else
-				$value='';
-			echo '<textarea name="'.$sprache.'['.$key.']" style="width:98%" rows="5" cols="50" '.($locked?'readonly="readonly"':'').'>'.$db->convert_html_chars($value).'</textarea>';
-			break;
+        case 'text':
+            $limit = '';
+            if(isset($data[$key]))
+                $value=$data[$key];
+            else
+                $value='';
+            if(isset($config_lvinfo_chars[$key])) {
+                $limit = 'maxlength="'.$config_lvinfo_chars[$key].'"';
+                echo $p->t('lvinfo/hinweisZeichenlimit', array($config_lvinfo_chars[$key])) . '<br><br>';
+            }
+            elseif($p->t('lvinfo/internerHinweis_'.$key) != '[[PHRASE:lvinfo/internerHinweis_'.$key.']]') {
+                echo $p->t('lvinfo/internerHinweis_' . $key) . '<br><br>';
+            }
+            echo '<textarea '.$limit.' name="'.$sprache.'['.$key.']" style="width:98%" rows="5" cols="50" '.($locked?'readonly="readonly"':'').'>'.$db->convert_html_chars($value).'</textarea>';
+            break;
 
         case 'editor':
             $limit = '';
